@@ -1,0 +1,13 @@
+﻿# list of exports needed
+
+export PYTHONPATH=$PYTHONPATH:/path_to/pySU/galaxy/python/
+export PYTHONPATH=$PYTHONPATH:/path_to/pySU/simulations/python/
+export PYTHONPATH=$PYTHONPATH:/path_to/pySU/multidark/python/
+export PYTHONPATH=$PYTHONPATH:/path_to/pySU/spm/python/
+export PYTHONPATH=$PYTHONPATH:/path_to/pySU/targetselection/python/
+
+export DATA_DIR='/path_to_data/’
+export PYSU_DIR='/path_to/pySU/'
+
+export PYTHONPATH=$PYTHONPATH:/users/username/.local/
+

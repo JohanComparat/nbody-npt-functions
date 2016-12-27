@@ -1,0 +1,188 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>FIREFLY Spectra &#8212; pySU, python Skies and Universes 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="pySU, python Skies and Universes 1.0 documentation" href="index.html" />
+    <link rel="next" title="Stellar population model" href="StellarPopulationModel.html" />
+    <link rel="prev" title="firefly library" href="firefly_library.html" /> 
+  </head>
+  <body role="document">
+      <div class="header" role="banner"><h1 class="heading"><a href="index.html">
+          <span>pySU, python Skies and Universes 1.0 documentation</span></a></h1>
+        <h2 class="heading"><span>FIREFLY Spectra</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="top navigation">
+      
+        <p>
+        «&#160;&#160;<a href="firefly_library.html">firefly library</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="StellarPopulationModel.html">Stellar population model</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="firefly-spectra">
+<h1>FIREFLY Spectra<a class="headerlink" href="#firefly-spectra" title="Permalink to this headline">¶</a></h1>
+<p>This class is dedicated to handling the spectra to feedin the FIREFLY code, see Wilkinson et al. 2015.</p>
+<p><a class="reference external" href="https://arxiv.org/abs/1503.01124">https://arxiv.org/abs/1503.01124</a></p>
+<span class="target" id="module-GalaxySpectrumFIREFLY"></span><p><em>General purpose</em>:</p>
+<p>The class GalaxySpectrumFIREFLY is dedicated to handling spectra to be fed to FIREFLY for fitting its stellar population</p>
+<p><em>Imports</em>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">astropy.io.fits</span> <span class="k">as</span> <span class="nn">pyfits</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">from</span> <span class="nn">firefly_dust</span> <span class="k">import</span> <span class="n">get_dust_radec</span>
+</pre></div>
+</div>
+<dl class="class">
+<dt id="GalaxySpectrumFIREFLY.GalaxySpectrumFIREFLY">
+<em class="property">class </em><code class="descclassname">GalaxySpectrumFIREFLY.</code><code class="descname">GalaxySpectrumFIREFLY</code><span class="sig-paren">(</span><em>path_to_spectrum</em>, <em>milky_way_reddening=True</em>, <em>hpf_mode='on'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GalaxySpectrumFIREFLY.html#GalaxySpectrumFIREFLY"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GalaxySpectrumFIREFLY.GalaxySpectrumFIREFLY" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads the environnement to transform observed spectra into the input for FIREFLY.</p>
+<p>Currently SDSS spectra, speclite format is handled as well as stacks from the VVDS and the DEEP2 galaxy surveys.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>path_to_spectrum</strong> &#8211; path to the spectrum</li>
+<li><strong>milky_way_reddening</strong> &#8211; True if you want to correct from the Milky way redenning using the Schlegel 98 dust maps.</li>
+<li><strong>hpf_mode</strong> &#8211; models the dust attenuation observed in the spectrum using high pass filter.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="GalaxySpectrumFIREFLY.GalaxySpectrumFIREFLY.openObservedMuseSpectrum">
+<code class="descname">openObservedMuseSpectrum</code><span class="sig-paren">(</span><em>catalog</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GalaxySpectrumFIREFLY.html#GalaxySpectrumFIREFLY.openObservedMuseSpectrum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GalaxySpectrumFIREFLY.GalaxySpectrumFIREFLY.openObservedMuseSpectrum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads the observed spectrum in counts.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="GalaxySpectrumFIREFLY.GalaxySpectrumFIREFLY.openObservedSDSSSpectrum">
+<code class="descname">openObservedSDSSSpectrum</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/GalaxySpectrumFIREFLY.html#GalaxySpectrumFIREFLY.openObservedSDSSSpectrum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GalaxySpectrumFIREFLY.GalaxySpectrumFIREFLY.openObservedSDSSSpectrum" title="Permalink to this definition">¶</a></dt>
+<dd><p>It reads an SDSS spectrum and provides the input for the firefly fitting routine.
+:param path_to_spectrum:
+:param sdss_dir: directory with the observed spectra
+:param milky_way_reddening: True or False if you want to correct the redenning of the Milky way.
+:param hpf_mode: &#8216;on&#8217; high pass filters the data to correct from dust in the galaxy.</p>
+<p>In this aims, it stores the following data in the object :
+* hdu list from the spec lite
+* SED data : wavelength (in angstrom), flux, error on the flux (in 10^{-17} erg/cm2/s/Angstrom, like the SDSS spectra)
+* Metadata :</p>
+<blockquote>
+<div><ul class="simple">
+<li>ra : in degrees J2000</li>
+<li>dec : in degrees J2000</li>
+<li>redshift : best fit</li>
+<li>vdisp : velocity dispersion in km/s</li>
+<li>r_instrument : resolution of the instrument at each wavelength observed</li>
+<li>trust_flag : 1 or True if trusted</li>
+<li>bad_flags : ones as long as the wavelength array, filters the pixels with bad data</li>
+<li>objid : object id optional : set to 0</li>
+</ul>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="GalaxySpectrumFIREFLY.GalaxySpectrumFIREFLY.openObservedStack">
+<code class="descname">openObservedStack</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/GalaxySpectrumFIREFLY.html#GalaxySpectrumFIREFLY.openObservedStack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GalaxySpectrumFIREFLY.GalaxySpectrumFIREFLY.openObservedStack" title="Permalink to this definition">¶</a></dt>
+<dd><p>It reads an Stack spectrum from the LF analysis and provides the input for the firefly fitting routine.
+:param path_to_spectrum:
+:param sdss_dir: directory with the observed spectra
+:param milky_way_reddening: True or False if you want to correct the redenning of the Milky way.
+:param hpf_mode: &#8216;on&#8217; high pass filters the data to correct from dust in the galaxy.</p>
+<p>In this aims, it stores the following data in the object :
+* hdu list from the spec lite
+* SED data : wavelength (in angstrom), flux, error on the flux (in 10^{-17} erg/cm2/s/Angstrom, like the SDSS spectra)
+* Metadata :</p>
+<blockquote>
+<div><ul class="simple">
+<li>ra : in degrees J2000</li>
+<li>dec : in degrees J2000</li>
+<li>redshift : best fit</li>
+<li>vdisp : velocity dispersion in km/s</li>
+<li>r_instrument : resolution of the instrument at each wavelength observed</li>
+<li>trust_flag : 1 or True if trusted</li>
+<li>bad_flags : ones as long as the wavelength array, filters the pixels with bad data</li>
+<li>objid : object id optional : set to 0</li>
+</ul>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="GalaxySpectrumFIREFLY.GalaxySpectrumFIREFLY.openObservedStackTutorial">
+<code class="descname">openObservedStackTutorial</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/GalaxySpectrumFIREFLY.html#GalaxySpectrumFIREFLY.openObservedStackTutorial"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GalaxySpectrumFIREFLY.GalaxySpectrumFIREFLY.openObservedStackTutorial" title="Permalink to this definition">¶</a></dt>
+<dd><p>It reads an Stack spectrum from the LF analysis and provides the input for the firefly fitting routine.
+:param path_to_spectrum:
+:param sdss_dir: directory with the observed spectra
+:param milky_way_reddening: True or False if you want to correct the redenning of the Milky way.
+:param hpf_mode: &#8216;on&#8217; high pass filters the data to correct from dust in the galaxy.</p>
+<p>In this aims, it stores the following data in the object :
+* hdu list from the spec lite
+* SED data : wavelength (in angstrom), flux, error on the flux (in 10^{-17} erg/cm2/s/Angstrom, like the SDSS spectra)
+* Metadata :</p>
+<blockquote>
+<div><ul class="simple">
+<li>ra : in degrees J2000</li>
+<li>dec : in degrees J2000</li>
+<li>redshift : best fit</li>
+<li>vdisp : velocity dispersion in km/s</li>
+<li>r_instrument : resolution of the instrument at each wavelength observed</li>
+<li>trust_flag : 1 or True if trusted</li>
+<li>bad_flags : ones as long as the wavelength array, filters the pixels with bad data</li>
+<li>objid : object id optional : set to 0</li>
+</ul>
+</div></blockquote>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      
+        <p>
+        «&#160;&#160;<a href="firefly_library.html">firefly library</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="StellarPopulationModel.html">Stellar population model</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2015, johan comparat.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.6.
+    </div>
+  </body>
+</html>

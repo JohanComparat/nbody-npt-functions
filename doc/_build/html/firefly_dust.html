@@ -1,0 +1,422 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>firefly dust &#8212; pySU, python Skies and Universes 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="pySU, python Skies and Universes 1.0 documentation" href="index.html" />
+    <link rel="next" title="firefly fitter" href="firefly_fitter.html" />
+    <link rel="prev" title="Library of functions to perform halo abundance matching" href="HaloSelection.html" /> 
+  </head>
+  <body role="document">
+      <div class="header" role="banner"><h1 class="heading"><a href="index.html">
+          <span>pySU, python Skies and Universes 1.0 documentation</span></a></h1>
+        <h2 class="heading"><span>firefly dust</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="top navigation">
+      
+        <p>
+        «&#160;&#160;<a href="HaloSelection.html">Library of functions to perform halo abundance matching</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="firefly_fitter.html">firefly fitter</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="firefly-dust">
+<h1>firefly dust<a class="headerlink" href="#firefly-dust" title="Permalink to this headline">¶</a></h1>
+<p>This class handles dust corrections in the FIREFLY fitting process.</p>
+<span class="target" id="module-firefly_dust"></span><dl class="function">
+<dt id="firefly_dust.curve_smoother">
+<code class="descclassname">firefly_dust.</code><code class="descname">curve_smoother</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>smoothing_length</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/firefly_dust.html#curve_smoother"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#firefly_dust.curve_smoother" title="Permalink to this definition">¶</a></dt>
+<dd><p>Smoothes a curve y = f(x) with a running median over a given smoothing length.</p>
+<p>Returns the smoothed array.</p>
+<p>Used internally in function determine_attenuation</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>x</strong> &#8211; x</li>
+<li><strong>y</strong> &#8211; y</li>
+<li><strong>smoothing_length</strong> &#8211; smoothing length in the same unit than x.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="firefly_dust.determine_attenuation">
+<code class="descclassname">firefly_dust.</code><code class="descname">determine_attenuation</code><span class="sig-paren">(</span><em>wave</em>, <em>data_flux</em>, <em>error_flux</em>, <em>model_flux</em>, <em>SPM</em>, <em>age</em>, <em>metal</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/firefly_dust.html#determine_attenuation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#firefly_dust.determine_attenuation" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Determines the dust attenuation to be applied to the models based on the data.</dt>
+<dd><ul class="first last simple">
+<li><ol class="first arabic">
+<li>high pass filters the data and the models : makes hpf_model and hpf_data</li>
+</ol>
+</li>
+<li><ol class="first arabic" start="2">
+<li>normalises the hpf_models to the median hpf_data</li>
+</ol>
+</li>
+<li><ol class="first arabic" start="3">
+<li>fits the hpf models to data : chi2 maps</li>
+</ol>
+</li>
+<li></li>
+</ul>
+</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>wave</strong> &#8211; wavelength</li>
+<li><strong>data_flux</strong> &#8211; data flux</li>
+<li><strong>error_flux</strong> &#8211; error flux</li>
+<li><strong>model_flux</strong> &#8211; model flux</li>
+<li><strong>SPM</strong> &#8211; SPM StellarPopulationModel object</li>
+<li><strong>age</strong> &#8211; age</li>
+<li><strong>metal</strong> &#8211; metallicity</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="firefly_dust.eq2gal">
+<code class="descclassname">firefly_dust.</code><code class="descname">eq2gal</code><span class="sig-paren">(</span><em>ra</em>, <em>dec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/firefly_dust.html#eq2gal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#firefly_dust.eq2gal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert Equatorial coordinates to Galactic Coordinates in the epch J2000.</p>
+<p>Keywords arguments:
+ra  &#8211; Right Ascension (in radians)
+dec &#8211; Declination (in radians)</p>
+<p>Return a tuple (l, b):
+l &#8211; Galactic longitude (in radians)
+b &#8211; Galactic latitude (in radians)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="firefly_dust.get_SFD_dust">
+<code class="descclassname">firefly_dust.</code><code class="descname">get_SFD_dust</code><span class="sig-paren">(</span><em>long</em>, <em>lat</em>, <em>dustmap='ebv'</em>, <em>interpolate=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/firefly_dust.html#get_SFD_dust"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#firefly_dust.get_SFD_dust" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets map values from Schlegel, Finkbeiner, and Davis 1998 extinction maps.</p>
+<p><cite>dustmap</cite> can either be a filename (if &#8216;%s&#8217; appears in the string, it will be
+replaced with &#8216;ngp&#8217; or &#8216;sgp&#8217;), or one of:</p>
+<ul>
+<li><dl class="first docutils">
+<dt>&#8216;i100&#8217; </dt>
+<dd><p class="first last">100-micron map in MJy/Sr</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>&#8216;x&#8217;</dt>
+<dd><p class="first last">X-map, temperature-correction factor</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>&#8216;t&#8217;</dt>
+<dd><p class="first last">Temperature map in degrees Kelvin for n=2 emissivity</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>&#8216;ebv&#8217;</dt>
+<dd><p class="first last">E(B-V) in magnitudes</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>&#8216;mask&#8217;</dt>
+<dd><p class="first last">Mask values</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>For these forms, the files are assumed to lie in the current directory.</p>
+<p>Input coordinates are in degrees of galactic latiude and logitude - they can
+be scalars or arrays.</p>
+<p>if <cite>interpolate</cite> is an integer, it can be used to specify the order of the
+interpolating polynomial</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="firefly_dust.get_dust_radec">
+<code class="descclassname">firefly_dust.</code><code class="descname">get_dust_radec</code><span class="sig-paren">(</span><em>ra</em>, <em>dec</em>, <em>dustmap</em>, <em>interpolate=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/firefly_dust.html#get_dust_radec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#firefly_dust.get_dust_radec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the value of dust from MW at ra and dec.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="firefly_dust.hpf">
+<code class="descclassname">firefly_dust.</code><code class="descname">hpf</code><span class="sig-paren">(</span><em>flux</em>, <em>windowsize=0</em>, <em>w_start=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/firefly_dust.html#hpf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#firefly_dust.hpf" title="Permalink to this definition">¶</a></dt>
+<dd><p>What does this one do ? High pass filtering ?</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="firefly_dust.reddening_ccm">
+<code class="descclassname">firefly_dust.</code><code class="descname">reddening_ccm</code><span class="sig-paren">(</span><em>wave</em>, <em>ebv=None</em>, <em>a_v=None</em>, <em>r_v=3.1</em>, <em>model='ccm89'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/firefly_dust.html#reddening_ccm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#firefly_dust.reddening_ccm" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div>Not used in FIREFLY
+Determines a CCM reddening curve.</div></blockquote>
+<dl class="docutils">
+<dt>wave: ~numpy.ndarray</dt>
+<dd>wavelength in Angstroms</dd>
+</dl>
+<p>flux: ~numpy.ndarray
+ebv: float</p>
+<blockquote>
+<div>E(B-V) differential extinction; specify either this or a_v.</div></blockquote>
+<dl class="docutils">
+<dt>a_v: float</dt>
+<dd>A(V) extinction; specify either this or ebv.</dd>
+<dt>r_v: float, optional</dt>
+<dd>defaults to standard Milky Way average of 3.1</dd>
+<dt>model: {&#8216;ccm89&#8217;, &#8216;gcc09&#8217;}, optional</dt>
+<dd><ul class="first last simple">
+<li>&#8216;ccm89&#8217; is the default Cardelli, Clayton, &amp; Mathis (1989) <a href="#id12"><span class="problematic" id="id13"><span id="id1"></span>[1]_</span></a>, but
+does include the O&#8217;Donnell (1994) parameters to match IDL astrolib.</li>
+<li>&#8216;gcc09&#8217; is Gordon, Cartledge, &amp; Clayton (2009) <a href="#id14"><span class="problematic" id="id15"><span id="id2"></span>[2]_</span></a>. This paper has
+incorrect parameters for the 2175A bump; not yet corrected here.</li>
+</ul>
+</dd>
+</dl>
+<dl class="docutils">
+<dt>reddening_curve: ~numpy.ndarray</dt>
+<dd>Multiply to deredden flux, divide to redden.</dd>
+</dl>
+<p>Cardelli, Clayton, &amp; Mathis (1989) <a href="#id16"><span class="problematic" id="id17"><span id="id3"></span>[1]_</span></a> parameterization is used for all
+models. The default parameter values are from CCM except in the optical
+range, where the updated parameters of O&#8217;Donnell (1994) <a href="#id18"><span class="problematic" id="id19"><span id="id4"></span>[3]_</span></a> are used
+(matching the Goddard IDL astrolib routine CCM_UNRED).</p>
+<p>The function is works between 910 A and 3.3 microns, although note the
+default ccm89 model is scientifically valid only at &gt;1250 A.</p>
+<p>Model gcc09 uses the updated UV coefficients of Gordon, Cartledge, &amp; Clayton
+(2009) <a href="#id20"><span class="problematic" id="id21"><span id="id5"></span>[2]_</span></a>, and is valid from 910 A to 3030 A. This function will use CCM89
+at longer wavelengths if GCC09 is selected, but note that the two do not
+connect perfectly smoothly. There is a small discontinuity at 3030 A. Note
+that GCC09 equations 14 and 15 apply to all x&gt;5.9 (the GCC09 paper
+mistakenly states they do not apply at x&gt;8; K. Gordon, priv. comm.).</p>
+<p>[1] Cardelli, J. A., Clayton, G. C., &amp; Mathis, J. S. 1989, ApJ, 345, 245
+[2] Gordon, K. D., Cartledge, S., &amp; Clayton, G. C. 2009, ApJ, 705, 1320
+[3] O&#8217;Donnell, J. E. 1994, ApJ, 422, 158O</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="firefly_dust.reddening_fm">
+<code class="descclassname">firefly_dust.</code><code class="descname">reddening_fm</code><span class="sig-paren">(</span><em>wave</em>, <em>ebv=None</em>, <em>a_v=None</em>, <em>r_v=3.1</em>, <em>model='f99'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/firefly_dust.html#reddening_fm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#firefly_dust.reddening_fm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines a Fitzpatrick &amp; Massa reddening curve.</p>
+<dl class="docutils">
+<dt>wave: ~numpy.ndarray</dt>
+<dd>wavelength in Angstroms</dd>
+<dt>ebv: float</dt>
+<dd>E(B-V) differential extinction; specify either this or a_v.</dd>
+<dt>a_v: float</dt>
+<dd>A(V) extinction; specify either this or ebv.</dd>
+<dt>r_v: float, optional</dt>
+<dd>defaults to standard Milky Way average of 3.1</dd>
+<dt>model: {&#8216;f99&#8217;, &#8216;fm07&#8217;}, optional</dt>
+<dd><ul class="first last simple">
+<li>&#8216;f99&#8217; is the default Fitzpatrick (1999) <a href="#id22"><span class="problematic" id="id23"><span id="id6"></span>[1]_</span></a></li>
+<li>&#8216;fm07&#8217; is Fitzpatrick &amp; Massa (2007) <a href="#id24"><span class="problematic" id="id25"><span id="id7"></span>[2]_</span></a>. Currently not R dependent.</li>
+</ul>
+</dd>
+</dl>
+<dl class="docutils">
+<dt>reddening_curve: ~numpy.ndarray</dt>
+<dd>Multiply to deredden flux, divide to redden.</dd>
+</dl>
+<p>Uses Fitzpatrick (1999) <a href="#id26"><span class="problematic" id="id27"><span id="id8"></span>[1]_</span></a> by default, which relies on the UV
+parametrization of Fitzpatrick &amp; Massa (1990) <a href="#id28"><span class="problematic" id="id29"><span id="id9"></span>[2]_</span></a> and spline fitting in the
+optical and IR. This function is defined from 910 A to 6 microns, but note
+the claimed validity goes down only to 1150 A. The optical spline points are
+not taken from F99 Table 4, but rather updated versions from E. Fitzpatrick
+(this matches the Goddard IDL astrolib routine FM_UNRED).</p>
+<p>The fm07 model uses the Fitzpatrick &amp; Massa (2007) <a href="#id30"><span class="problematic" id="id31"><span id="id10"></span>[3]_</span></a> parametrization,
+which has a slightly different functional form. That paper claims it
+preferable, although it is unclear if signficantly (Gordon et al. 2009)
+<a href="#id32"><span class="problematic" id="id33"><span id="id11"></span>[4]_</span></a>. It is not the literature standard, so not default here.</p>
+<p>[1] Fitzpatrick, E. L. 1999, PASP, 111, 63
+[2] Fitpatrick, E. L. &amp; Massa, D. 1990, ApJS, 72, 163
+[3] Fitpatrick, E. L. &amp; Massa, D. 2007, ApJ, 663, 320
+[4] Gordon, K. D., Cartledge, S., &amp; Clayton, G. C. 2009, ApJ, 705, 1320</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="firefly_dust.unred">
+<code class="descclassname">firefly_dust.</code><code class="descname">unred</code><span class="sig-paren">(</span><em>wave</em>, <em>ebv</em>, <em>R_V=3.1</em>, <em>LMC2=False</em>, <em>AVGLMC=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/firefly_dust.html#unred"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#firefly_dust.unred" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deredden a flux vector using the Fitzpatrick (1999) parameterization</p>
+<dl class="docutils">
+<dt>wave</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">array</span><dd>Wavelength in Angstrom</dd>
+<dt>flux</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">array</span><dd>Calibrated flux vector, same number of elements as wave.</dd>
+<dt>ebv</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span><dd>Color excess E(B-V). If a negative ebv is supplied,
+then fluxes will be reddened rather than dereddened.
+The default is 3.1.</dd>
+<dt>AVGLMC</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">boolean</span><dd>If True, then the default fit parameters c1,c2,c3,c4,gamma,x0 
+are set to the average values determined for reddening in the 
+general Large Magellanic Cloud (LMC) field by
+Misselt et al. (1999, ApJ, 515, 128). The default is
+False.</dd>
+<dt>LMC2</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">boolean</span><dd>If True, the fit parameters are set to the values determined
+for the LMC2 field (including 30 Dor) by Misselt et al.
+Note that neither <cite>AVGLMC</cite> nor <cite>LMC2</cite> will alter the default value 
+of R_V, which is poorly known for the LMC.</dd>
+</dl>
+<dl class="docutils">
+<dt>new_flux</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">array </span><dd>Dereddened flux vector, same units and number of elements
+as input flux.</dd>
+</dl>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This function was ported from the IDL Astronomy User&#8217;s Library.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">IDL - Documentation:</th></tr>
+<tr class="field-odd field"><td>&nbsp;</td><td class="field-body"><dl class="first last docutils">
+<dt>PURPOSE:</dt>
+<dd><p class="first last">Deredden a flux vector using the Fitzpatrick (1999) parameterization</p>
+</dd>
+<dt>EXPLANATION:</dt>
+<dd><p class="first last">The R-dependent Galactic extinction curve is that of Fitzpatrick &amp; Massa 
+(Fitzpatrick, 1999, PASP, 111, 63; astro-ph/9809387 ).    
+Parameterization is valid from the IR to the far-UV (3.5 microns to 0.1 
+microns).    UV extinction curve is extrapolated down to 912 Angstroms.</p>
+</dd>
+<dt>CALLING SEQUENCE:</dt>
+<dd><dl class="first last docutils">
+<dt>FM_UNRED, wave, flux, ebv, [ funred, R_V = , /LMC2, /AVGLMC, ExtCurve= </dt>
+<dd><p class="first last">gamma =, x0=, c1=, c2=, c3=, c4= ]</p>
+</dd>
+</dl>
+</dd>
+<dt>INPUT:</dt>
+<dd><p class="first">WAVE - wavelength vector (Angstroms)
+FLUX - calibrated flux vector, same number of elements as WAVE</p>
+<blockquote>
+<div><p>If only 3 parameters are supplied, then this vector will
+updated on output to contain the dereddened flux.</p>
+</div></blockquote>
+<dl class="last docutils">
+<dt>EBV  - color excess E(B-V), scalar.  If a negative EBV is supplied,</dt>
+<dd><p class="first last">then fluxes will be reddened rather than dereddened.</p>
+</dd>
+</dl>
+</dd>
+<dt>OUTPUT:</dt>
+<dd><dl class="first last docutils">
+<dt>FUNRED - unreddened flux vector, same units and number of elements</dt>
+<dd><p class="first last">as FLUX</p>
+</dd>
+</dl>
+</dd>
+<dt>OPTIONAL INPUT KEYWORDS</dt>
+<dd><blockquote class="first">
+<div><dl class="docutils">
+<dt>R_V - scalar specifying the ratio of total to selective extinction</dt>
+<dd><p class="first last">R(V) = A(V) / E(B - V).    If not specified, then R = 3.1
+Extreme values of R(V) range from 2.3 to 5.3</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="last docutils">
+<dt>/AVGLMC - if set, then the default fit parameters c1,c2,c3,c4,gamma,x0 </dt>
+<dd><blockquote class="first">
+<div><p>are set to the average values determined for reddening in the 
+general Large Magellanic Cloud (LMC) field by Misselt et al. 
+(1999, ApJ, 515, 128)</p>
+</div></blockquote>
+<dl class="last docutils">
+<dt>/LMC2 - if set, then the fit parameters are set to the values determined</dt>
+<dd><blockquote class="first">
+<div><p>for the LMC2 field (including 30 Dor) by Misselt et al.
+Note that neither /AVGLMC or /LMC2 will alter the default value 
+of R_V which is poorly known for the LMC.</p>
+</div></blockquote>
+<p>The following five input keyword parameters allow the user to customize
+the adopted extinction curve.    For example, see Clayton et al. (2003,
+ApJ, 588, 871) for examples of these parameters in different interstellar
+environments.</p>
+<p>x0 - Centroid of 2200 A bump in microns (default = 4.596)
+gamma - Width of 2200 A bump in microns (default  =0.99)
+c3 - Strength of the 2200 A bump (default = 3.23)
+c4 - FUV curvature (default = 0.41)
+c2 - Slope of the linear UV extinction component</p>
+<blockquote>
+<div><p>(default = -0.824 + 4.717/R)</p>
+</div></blockquote>
+<dl class="last docutils">
+<dt>c1 - Intercept of the linear UV extinction component </dt>
+<dd><p class="first last">(default = 2.030 - 3.007*c2</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      
+        <p>
+        «&#160;&#160;<a href="HaloSelection.html">Library of functions to perform halo abundance matching</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="firefly_fitter.html">firefly fitter</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2015, johan comparat.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.6.
+    </div>
+  </body>
+</html>

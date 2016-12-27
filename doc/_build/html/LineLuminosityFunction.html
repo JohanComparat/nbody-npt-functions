@@ -1,0 +1,191 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Library of functions to estimate luminosity functions &#8212; pySU, python Skies and Universes 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="pySU, python Skies and Universes 1.0 documentation" href="index.html" />
+    <link rel="next" title="Library of functions to model stacks of spectra" href="ModelSpectraStacks.html" />
+    <link rel="prev" title="Library of functions to fit lines" href="LineFittingLibrary.html" /> 
+  </head>
+  <body role="document">
+      <div class="header" role="banner"><h1 class="heading"><a href="index.html">
+          <span>pySU, python Skies and Universes 1.0 documentation</span></a></h1>
+        <h2 class="heading"><span>Library of functions to estimate luminosity functions</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="top navigation">
+      
+        <p>
+        «&#160;&#160;<a href="LineFittingLibrary.html">Library of functions to fit lines</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="ModelSpectraStacks.html">Library of functions to model stacks of spectra</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="library-of-functions-to-estimate-luminosity-functions">
+<h1>Library of functions to estimate luminosity functions<a class="headerlink" href="#library-of-functions-to-estimate-luminosity-functions" title="Permalink to this headline">¶</a></h1>
+<p>This class is dedicated to estimating the luminosity functions of emission lines</p>
+<span class="target" id="module-LineLuminosityFunction"></span><dl class="class">
+<dt id="LineLuminosityFunction.LineLuminosityFunction">
+<em class="property">class </em><code class="descclassname">LineLuminosityFunction.</code><code class="descname">LineLuminosityFunction</code><a class="reference internal" href="_modules/LineLuminosityFunction.html#LineLuminosityFunction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LineLuminosityFunction.LineLuminosityFunction" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="LineLuminosityFunction.ModelLuminosityFunction">
+<em class="property">class </em><code class="descclassname">LineLuminosityFunction.</code><code class="descname">ModelLuminosityFunction</code><a class="reference internal" href="_modules/LineLuminosityFunction.html#ModelLuminosityFunction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LineLuminosityFunction.ModelLuminosityFunction" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>The class LineLuminosityFunction is dedicated to measuring the line luminosity functions. The class ModelLuminosityFunction is dedicated to fitting models to the LFs.</p>
+<dl class="class">
+<dt>
+<em class="property">class </em><code class="descclassname">LineLuminosityFunction.</code><code class="descname">LineLuminosityFunction</code><span class="sig-paren">(</span><em>lineWavelength=3727.4228417998916</em>, <em>lineName='O2_3728'</em>, <em>cosmology=FlatLambdaCDM(name=&quot;Planck15&quot;</em>, <em>H0=67.7 km / (Mpc s)</em>, <em>Om0=0.307</em>, <em>Tcmb0=2.725 K</em>, <em>Neff=3.05</em>, <em>m_nu=[ 0.    0.    0.06] eV</em>, <em>Ob0=0.0486)</em>, <em>surveyName='DEEP2'</em>, <em>redshift_catalog='zcat.deep2.dr4.v2.LFcatalog.fits'</em>, <em>SNlimit=5.0</em>, <em>luminosityBins=array([  1.00000000e+38</em>, <em>1.38949549e+38</em>, <em>1.93069773e+38</em>, <em>2.68269580e+38</em>, <em>3.72759372e+38</em>, <em>5.17947468e+38</em>, <em>7.19685673e+38</em>, <em>1.00000000e+39</em>, <em>1.38949549e+39</em>, <em>1.93069773e+39</em>, <em>2.68269580e+39</em>, <em>3.72759372e+39</em>, <em>5.17947468e+39</em>, <em>7.19685673e+39</em>, <em>1.00000000e+40</em>, <em>1.38949549e+40</em>, <em>1.93069773e+40</em>, <em>2.68269580e+40</em>, <em>3.72759372e+40</em>, <em>5.17947468e+40</em>, <em>7.19685673e+40</em>, <em>1.00000000e+41</em>, <em>1.38949549e+41</em>, <em>1.93069773e+41</em>, <em>2.68269580e+41</em>, <em>3.72759372e+41</em>, <em>5.17947468e+41</em>, <em>7.19685673e+41</em>, <em>1.00000000e+42</em>, <em>1.38949549e+42</em>, <em>1.93069773e+42</em>, <em>2.68269580e+42</em>, <em>3.72759372e+42</em>, <em>5.17947468e+42</em>, <em>7.19685673e+42</em>, <em>1.00000000e+43</em>, <em>1.38949549e+43</em>, <em>1.93069773e+43</em>, <em>2.68269580e+43</em>, <em>3.72759372e+43</em>, <em>5.17947468e+43</em>, <em>7.19685673e+43</em>, <em>1.00000000e+44</em>, <em>1.38949549e+44</em>, <em>1.93069773e+44</em>, <em>2.68269580e+44</em>, <em>3.72759372e+44</em>, <em>5.17947468e+44</em>, <em>7.19685673e+44</em>, <em>1.00000000e+45])</em>, <em>Nstack=400</em>, <em>Nclustering=400</em>, <em>outputFolder='emissionLineLuminosityFunctions/'</em>, <em>zmin=0.6</em>, <em>zmax=0.8</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/LineLuminosityFunction.html#LineLuminosityFunction"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>The line luminosity function class
+:param lineWavelength: restframe wavelength in the air
+:param lineName: name of the line used in the catalogs.
+:param cosmology: cosmology used (astropy class) Default H0=70,Omega matter=0.3
+:param surveyName: Name of the survey used (needs to be the one given in the database)
+:param redshift_catalog: name of the redshift catalog 
+:param SNlimit: signal to noise ratio limit. For a line measurement to be included SN of the line must be greater than SNlimit.
+:param luminosityBins: bins in luminosity equally spaced in log space.
+:param Nstack: number of spectra per stack
+:param Nclustering:     number of spectra per clustering sample from the brightest to the faintest
+:param outputFolder: folder where the results will be written
+:param zmin: minimum redshift included
+:param zmax: maximum redshift included</p>
+<dl class="method">
+<dt id="LineLuminosityFunction.LineLuminosityFunction.computeHistogramLF">
+<code class="descname">computeHistogramLF</code><span class="sig-paren">(</span><em>sel</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/LineLuminosityFunction.html#LineLuminosityFunction.computeHistogramLF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LineLuminosityFunction.LineLuminosityFunction.computeHistogramLF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the weighted and unweighted histogram to get the number density and Poisson errors.
+:param sel: array selecting the galaxies of interest in the catalog (Boolean). 
+Returns Weighted density, Error on the weighted density, Number of galaxies used in eacah bin, the luminosity bins.
+It stores the values in self.LF, self.LFerr_poisson, self.ngals. It also evaluates the mean luminosity in each luminosity bin self.xL and dlogL to obtain the LF</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LineLuminosityFunction.LineLuminosityFunction.computeHistogramVariance">
+<code class="descname">computeHistogramVariance</code><span class="sig-paren">(</span><em>sel</em>, <em>jk=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/LineLuminosityFunction.html#LineLuminosityFunction.computeHistogramVariance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LineLuminosityFunction.LineLuminosityFunction.computeHistogramVariance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the variance of the histogram using N subsamples.
+:param sel: array selecting the galaxies of interest in the catalog (Boolean). 
+:param jk: percentage of the data set removed in each realization.
+Stores the values in self.LFerr_jackknife</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LineLuminosityFunction.LineLuminosityFunction.computeMeanWeightedRedshift">
+<code class="descname">computeMeanWeightedRedshift</code><span class="sig-paren">(</span><em>sel</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/LineLuminosityFunction.html#LineLuminosityFunction.computeMeanWeightedRedshift"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LineLuminosityFunction.LineLuminosityFunction.computeMeanWeightedRedshift" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the weighted mean redshift of the sample.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LineLuminosityFunction.LineLuminosityFunction.correctVolumeEffect">
+<code class="descname">correctVolumeEffect</code><span class="sig-paren">(</span><em>mCorr</em>, <em>error</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/LineLuminosityFunction.html#LineLuminosityFunction.correctVolumeEffect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LineLuminosityFunction.LineLuminosityFunction.correctVolumeEffect" title="Permalink to this definition">¶</a></dt>
+<dd><p>corrects from the volume effect on the measurement and the error estimation</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LineLuminosityFunction.LineLuminosityFunction.get_completness_limit">
+<code class="descname">get_completness_limit</code><span class="sig-paren">(</span><em>sel</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/LineLuminosityFunction.html#LineLuminosityFunction.get_completness_limit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LineLuminosityFunction.LineLuminosityFunction.get_completness_limit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Estimates the completeness. It maps the maximum of the EW distribution to a Luminosity limit.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LineLuminosityFunction.LineLuminosityFunction.setRedshiftArray">
+<code class="descname">setRedshiftArray</code><span class="sig-paren">(</span><em>redshiftColumn='ZBEST'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/LineLuminosityFunction.html#LineLuminosityFunction.setRedshiftArray"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LineLuminosityFunction.LineLuminosityFunction.setRedshiftArray" title="Permalink to this definition">¶</a></dt>
+<dd><p>sets the redshift array
+:param redshiftColumn: column of the catalog corresponding to the redshift.
+Stores it in self.redshift.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LineLuminosityFunction.LineLuminosityFunction.setRedshiftSelection">
+<code class="descname">setRedshiftSelection</code><span class="sig-paren">(</span><em>redshiftQualityColumn='ZQUALITY'</em>, <em>upperBound=0.9</em>, <em>lowerBound=7.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/LineLuminosityFunction.html#LineLuminosityFunction.setRedshiftSelection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LineLuminosityFunction.LineLuminosityFunction.setRedshiftSelection" title="Permalink to this definition">¶</a></dt>
+<dd><p>sets the redshift selection
+:param redshiftQualityColumn: column of the catalog corresponding to the  quality of the redshifts.
+:param lowerBound : lower bound to redshift quality :  zquality &gt; lowerBound
+:param upperBound : upper bound to the redshift quality : zquality &lt; upperBound
+Stores it in self.redshiftSelection.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LineLuminosityFunction.LineLuminosityFunction.setWeightArray">
+<code class="descname">setWeightArray</code><span class="sig-paren">(</span><em>weightColumn</em>, <em>area</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/LineLuminosityFunction.html#LineLuminosityFunction.setWeightArray"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LineLuminosityFunction.LineLuminosityFunction.setWeightArray" title="Permalink to this definition">¶</a></dt>
+<dd><p>sets the weight column 
+:param weightColumn: statistical weight per galaxy 1 / (area * TSR * SSR)
+Divides the weight by the volume of the bin stores it in self.weight.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LineLuminosityFunction.LineLuminosityFunction.writeLF">
+<code class="descname">writeLF</code><span class="sig-paren">(</span><em>sel</em>, <em>surveyNameSuffix=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/LineLuminosityFunction.html#LineLuminosityFunction.writeLF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LineLuminosityFunction.LineLuminosityFunction.writeLF" title="Permalink to this definition">¶</a></dt>
+<dd><p>writes the measured LF and the data used to derive it to an ascii and a fits file.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt>
+<em class="property">class </em><code class="descclassname">LineLuminosityFunction.</code><code class="descname">ModelLuminosityFunction</code><span class="sig-paren">(</span><em>lineWavelength=3727.4228417998916, lineName='O2_3728', cosmology=FlatLambdaCDM(name=&quot;Planck15&quot;, H0=67.7 km / (Mpc s), Om0=0.307, Tcmb0=2.725 K, Neff=3.05, m_nu=[ 0.    0.    0.06] eV, Ob0=0.0486), LF_file_list=[], model='Saunders', p0=[1.0], outputDirectory='', fileName='', fixedSigma=0.5, fixedAlpha=-1.5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/LineLuminosityFunction.html#ModelLuminosityFunction"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>The model luminosity function class
+:param lineWavelength: restframe wavelength in the air
+:param lineName: name of the line used in the catalogs.
+:param cosmology: cosmology used (astropy class) Default H0=70,Omega matter=0.3
+:param LF_file_list: list of LF_files. Each entry is a list of 2 files, the fits file (data used to derivee the LF) and the txt file (LF).
+:param model: Model to be fitted : Saunders, Saunders3P, or Schechter, DoublePL
+:param p0: Initial guess of the parameters
+:param outputDirectory: where to output the fits
+:param fileName: file name where things are saved.</p>
+<dl class="method">
+<dt id="LineLuminosityFunction.ModelLuminosityFunction.fitModel">
+<code class="descname">fitModel</code><span class="sig-paren">(</span><em>bibliographyPts=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/LineLuminosityFunction.html#ModelLuminosityFunction.fitModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LineLuminosityFunction.ModelLuminosityFunction.fitModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>fits the chosen model to the list of Measured LFs</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      
+        <p>
+        «&#160;&#160;<a href="LineFittingLibrary.html">Library of functions to fit lines</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="ModelSpectraStacks.html">Library of functions to model stacks of spectra</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2015, johan comparat.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.6.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,332 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>firefly_fitter &#8212; pySU, python Skies and Universes 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="pySU, python Skies and Universes 1.0 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" /> 
+  </head>
+  <body role="document">
+      <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
+          <span>pySU, python Skies and Universes 1.0 documentation</span></a></h1>
+        <h2 class="heading"><span>firefly_fitter</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="top navigation">
+      
+        <p>
+        <a class="uplink" href="../index.html">Contents</a>
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <h1>Source code for firefly_fitter</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="k">import</span> <span class="n">sigmaclip</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+
+<div class="viewcode-block" id="fitter"><a class="viewcode-back" href="../firefly_fitter.html#firefly_fitter.fitter">[docs]</a><span class="k">def</span> <span class="nf">fitter</span><span class="p">(</span><span class="n">wavelength_in</span><span class="p">,</span><span class="n">data_in</span><span class="p">,</span><span class="n">error_in</span><span class="p">,</span><span class="n">models_in</span><span class="p">,</span><span class="n">SPM</span><span class="p">):</span>
+
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	The essential ingredient of FIREFLY!</span>
+
+<span class="sd">	Taking each base model as an initial guess, the fitter iteratively</span>
+<span class="sd">	creates combinations of these base models when they improve the</span>
+<span class="sd">	modified chi-squared value:</span>
+<span class="sd">	value = chi-squared + BIC term - exploration term</span>
+
+<span class="sd">	Input: data, base models, wavelength (for plotting) [, options]</span>
+<span class="sd">			(data must be an array of length N)</span>
+<span class="sd">			(base models must be a matrix of num_models x N)</span>
+
+
+<span class="sd">	Options: plot_eps: True/False (plot to fit.eps if True, X if False)</span>
+
+<span class="sd">	Output: a set of model weight combinations and their associated chi-squared values,</span>
+<span class="sd">			via an array of &#39;fit&#39; objects.</span>
+<span class="sd">			Weights are arrays with length num_models.</span>
+<span class="sd">			Fit arrays may be any size up to 10000.</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+
+	<span class="k">global</span> <span class="n">models</span> 		
+	<span class="n">models</span> 		<span class="o">=</span> <span class="n">models_in</span>
+	<span class="k">global</span> <span class="n">data</span> 		
+	<span class="n">data</span> 		<span class="o">=</span> <span class="n">data_in</span>
+	<span class="k">global</span> <span class="n">error</span> 		
+	<span class="n">error</span> 		<span class="o">=</span> <span class="n">error_in</span>
+	<span class="k">global</span> <span class="n">wavelength</span> 	
+	<span class="n">wavelength</span> 	<span class="o">=</span> <span class="n">wavelength_in</span>
+
+	<span class="k">global</span> <span class="n">index_count</span>
+	<span class="n">index_count</span> <span class="o">=</span> <span class="mi">0</span>
+	<span class="k">global</span> <span class="n">iterate_count</span>
+	<span class="n">iterate_count</span> <span class="o">=</span> <span class="mi">0</span>
+
+	<span class="c1"># Set options manually here for testing</span>
+	<span class="n">upper_limit_fit</span><span class="p">,</span><span class="n">fit_cap</span> <span class="o">=</span> <span class="n">SPM</span><span class="o">.</span><span class="n">max_iterations</span><span class="p">,</span> <span class="n">SPM</span><span class="o">.</span><span class="n">fit_per_iteration_cap</span>
+	<span class="c1"># plot_eps 		= False</span>
+	<span class="c1"># upper_limit_fit = 10 # maximum number of iterations before it gives up!</span>
+	<span class="c1"># fit_cap			= 1000 # maximum number of fit objects to be created per iteration</span>
+
+	<span class="n">num_models</span> 	<span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">models</span><span class="p">)</span>
+	<span class="n">num_wave</span> 	<span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">wavelength</span><span class="p">)</span>
+	
+	<span class="k">global</span> <span class="n">num_models</span>	
+	<span class="k">global</span> <span class="n">bic_n</span>
+	<span class="n">bic_n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">num_wave</span><span class="p">)</span>
+
+	<span class="n">chi_models</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">models</span><span class="p">))</span>
+	<span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_models</span><span class="p">):</span>
+		<span class="n">chi_models</span><span class="p">[</span><span class="n">m</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">models</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">-</span><span class="n">data</span><span class="p">)</span><span class="o">/</span><span class="n">error</span>
+	<span class="k">global</span> <span class="n">chi_models</span>
+	
+
+
+	<span class="k">class</span> <span class="nc">fit</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		A fit object contains:</span>
+<span class="sd">			- index number in array (useful for clipping later)</span>
+<span class="sd">			- branch number (i.e. first iteration is 0, second is 1, etc.)</span>
+<span class="sd">			- index number of previous element in list (the &#39;parent&#39;, useful to check for improvement in chi-squared)</span>
+<span class="sd">			- base model weights (array of weights matching the input model array)</span>
+<span class="sd">			- raw chi-squared value</span>
+<span class="sd">		and the following in-built functions:</span>
+<span class="sd">			- spawn children iteratively</span>
+<span class="sd">			- plot the model combinations compared to the data</span>
+
+<span class="sd">		When initialises it:</span>
+<span class="sd">			- makes the weights, branch number, index number and previous index based on inputs</span>
+
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">branch_num</span><span class="p">):</span>
+			<span class="k">if</span> <span class="n">branch_num</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+				<span class="k">global</span> <span class="n">clipped_arr</span>
+			<span class="k">global</span> <span class="n">index_count</span>
+			<span class="nb">super</span><span class="p">(</span><span class="n">fit</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">weights</span> 		<span class="o">=</span> <span class="n">weights</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">branch_num</span> 	<span class="o">=</span> <span class="n">branch_num</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">index</span> 			<span class="o">=</span> <span class="n">index_count</span>
+			<span class="c1">#self.parent_index 	= parent_index</span>
+			
+			<span class="c1"># Auto-calculate chi-squared</span>
+			<span class="n">index_weights</span> 		<span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">)</span> <span class="c1"># saves time!</span>
+			<span class="c1">#chi_arr 			= ((np.dot(self.weights,models))	- data) / error</span>
+			<span class="n">chi_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">[</span><span class="n">index_weights</span><span class="p">],</span><span class="n">chi_models</span><span class="p">[</span><span class="n">index_weights</span><span class="p">])</span>
+			
+			<span class="k">if</span> <span class="n">branch_num</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+				<span class="n">chi_clipped_arr</span> 	<span class="o">=</span> <span class="n">sigmaclip</span><span class="p">(</span><span class="n">chi_arr</span><span class="p">,</span> <span class="n">low</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mf">3.0</span><span class="p">)</span>
+				<span class="n">chi_clip_sq</span> 		<span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">chi_clipped_arr</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+				<span class="n">clipped_arr</span> 		<span class="o">=</span> <span class="p">(</span><span class="n">chi_arr</span> <span class="o">&gt;</span> <span class="n">chi_clipped_arr</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">chi_arr</span> <span class="o">&lt;</span> <span class="n">chi_clipped_arr</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">clipped_arr</span> 	<span class="o">=</span> <span class="n">clipped_arr</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="n">chi_clip_sq</span> 		<span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">chi_arr</span><span class="p">[</span><span class="n">clipped_arr</span><span class="p">])</span>
+
+			<span class="n">chi_squared</span> 		<span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">chi_clip_sq</span><span class="p">)</span>
+			<span class="c1">#print chi_squared</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">chi_squared</span> 	<span class="o">=</span> <span class="n">chi_squared</span> 
+
+			<span class="n">index_count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+		<span class="k">def</span> <span class="nf">spawn_children</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">branch_num</span><span class="p">):</span>
+
+			<span class="c1"># Auto-produce an array of children with iteratively increased weights</span>
+			<span class="n">fit_list</span> <span class="o">=</span> <span class="p">[]</span>
+			<span class="n">new_weights</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="o">*</span><span class="n">branch_num</span>
+
+			<span class="n">sum_weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">new_weights</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span>
+
+			<span class="k">for</span> <span class="n">im</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_models</span><span class="p">):</span>
+				<span class="n">new_weights</span><span class="p">[</span><span class="n">im</span><span class="p">]</span><span class="o">+=</span> <span class="mi">1</span>
+				<span class="n">fit_add</span> 		<span class="o">=</span> <span class="n">fit</span><span class="p">(</span><span class="n">new_weights</span><span class="o">/</span><span class="n">sum_weights</span><span class="p">,</span><span class="n">branch_num</span><span class="p">)</span>
+				<span class="n">fit_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fit_add</span><span class="p">)</span>
+				<span class="n">new_weights</span><span class="p">[</span><span class="n">im</span><span class="p">]</span><span class="o">-=</span> <span class="mi">1</span>
+
+			<span class="k">return</span> <span class="n">fit_list</span>
+
+
+	<span class="k">def</span> <span class="nf">retrieve_properties</span><span class="p">(</span><span class="n">fit_list</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		# Return an array of all weights and chi-squared of the fits (mainly used for testing)</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">lf</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">fit_list</span><span class="p">)</span>
+		<span class="n">returned_weights</span> 	<span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">lf</span><span class="p">,</span><span class="n">num_models</span><span class="p">))</span>
+		<span class="n">returned_chis</span>		<span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">lf</span><span class="p">)</span>
+		<span class="n">returned_branch</span>		<span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">lf</span><span class="p">)</span>
+
+		<span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">fit_list</span><span class="p">)):</span>
+			<span class="n">returned_weights</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> <span class="o">=</span> <span class="n">fit_list</span><span class="p">[</span><span class="n">f</span><span class="p">]</span><span class="o">.</span><span class="n">weights</span> 
+			<span class="n">returned_branch</span><span class="p">[</span><span class="n">f</span><span class="p">]</span>	<span class="o">=</span> <span class="n">fit_list</span><span class="p">[</span><span class="n">f</span><span class="p">]</span><span class="o">.</span><span class="n">branch_num</span>
+			<span class="n">returned_chis</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> 	<span class="o">=</span> <span class="n">fit_list</span><span class="p">[</span><span class="n">f</span><span class="p">]</span><span class="o">.</span><span class="n">chi_squared</span>
+
+		<span class="k">return</span> <span class="n">returned_weights</span><span class="p">,</span><span class="n">returned_chis</span><span class="p">,</span><span class="n">returned_branch</span>
+
+	<span class="k">def</span> <span class="nf">bic_term</span><span class="p">():</span>
+		<span class="c1"># For convergence</span>
+		<span class="k">global</span> <span class="n">bic_n</span>
+		<span class="k">return</span> <span class="n">bic_n</span><span class="c1"># * self.branch_num</span>
+
+	<span class="k">def</span> <span class="nf">previous_chi</span><span class="p">(</span><span class="n">branch_num</span><span class="p">,</span><span class="n">fit_list</span><span class="p">):</span>
+		<span class="c1"># To ensure exploration</span>
+		<span class="n">returned_chis</span> <span class="o">=</span> <span class="p">[</span><span class="n">o</span><span class="o">.</span><span class="n">chi_squared</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">fit_list</span><span class="p">]</span>
+		<span class="n">diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">returned_chis</span><span class="p">)</span><span class="c1">#diff = 	np.percentile(returned_chis[np.where(returned_branch == branch_num-1)],percentile_use)</span>
+		<span class="k">return</span> <span class="n">diff</span>
+	
+	<span class="k">def</span> <span class="nf">iterate</span><span class="p">(</span><span class="n">fit_list</span><span class="p">):</span>
+
+		<span class="k">global</span> <span class="n">iterate_count</span>		
+		<span class="n">iterate_count</span> <span class="o">+=</span> <span class="mi">1</span>
+		<span class="nb">print</span> <span class="s2">&quot;Iteration step: &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">iterate_count</span><span class="p">)</span>
+
+		<span class="n">count_new</span> <span class="o">=</span> <span class="mi">0</span>
+
+		<span class="n">len_list</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">fit_list</span><span class="p">))</span>
+		<span class="n">save_bic</span>		<span class="o">=</span> <span class="n">bic_term</span><span class="p">()</span>
+		<span class="n">previous_chis</span> 	<span class="o">=</span> <span class="n">previous_chi</span><span class="p">(</span><span class="n">iterate_count</span><span class="p">,</span><span class="n">fit_list</span><span class="p">)</span>
+		<span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">len_list</span><span class="p">):</span>
+			<span class="n">new_list</span> <span class="o">=</span> <span class="n">fit_list</span><span class="p">[</span><span class="n">f</span><span class="p">]</span><span class="o">.</span><span class="n">spawn_children</span><span class="p">(</span><span class="n">iterate_count</span><span class="p">)</span>
+			<span class="n">len_new</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_list</span><span class="p">)</span>
+			<span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">len_new</span><span class="p">):</span>
+
+				<span class="c1"># Check if any of the new spawned children represent better solutions</span>
+				<span class="n">new_chi</span> 		<span class="o">=</span> <span class="n">new_list</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">chi_squared</span>
+				<span class="n">extra_term</span> 		<span class="o">=</span> <span class="n">save_bic</span>
+				<span class="n">check_better</span> 	<span class="o">=</span> <span class="n">new_chi</span> <span class="o">&lt;</span> <span class="n">previous_chis</span><span class="o">-</span><span class="n">extra_term</span>
+
+				<span class="k">if</span> <span class="n">check_better</span><span class="p">:</span>
+					<span class="c1"># If they do, add them to the fit list!</span>
+					<span class="n">count_new</span> <span class="o">+=</span> <span class="mi">1</span>
+					<span class="k">if</span> <span class="n">count_new</span> <span class="o">&gt;</span> <span class="n">fit_cap</span><span class="p">:</span>
+						<span class="k">break</span>
+					<span class="n">fit_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_list</span><span class="p">[</span><span class="n">n</span><span class="p">])</span>
+
+			<span class="k">if</span> <span class="n">count_new</span> <span class="o">&gt;</span> <span class="n">fit_cap</span><span class="p">:</span>
+				<span class="nb">print</span> <span class="s2">&quot;Capped solutions at &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">fit_cap</span><span class="p">)</span>
+				<span class="k">break</span>
+		<span class="k">if</span> <span class="n">count_new</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+			<span class="c1"># If they don&#39;t, we have finished the iteration process and may return.</span>
+			<span class="nb">print</span> <span class="s2">&quot;Converged!&quot;</span>
+			<span class="nb">print</span> <span class="s2">&quot;Fit list with this many elements:&quot;</span>
+			<span class="nb">print</span> <span class="nb">len</span><span class="p">(</span><span class="n">fit_list</span><span class="p">)</span>
+			<span class="k">return</span> <span class="n">fit_list</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">iterate_count</span> <span class="o">==</span> <span class="mi">10</span><span class="p">:</span>
+				<span class="nb">print</span> <span class="s2">&quot;Fit has not converged within user-defined number of iterations.&quot;</span>
+				<span class="nb">print</span> <span class="s2">&quot;Make sure this is a reasonable number.&quot;</span>
+				<span class="nb">print</span> <span class="s2">&quot;Returning all fits up to this stage.&quot;</span>
+				<span class="k">return</span> <span class="n">fit_list</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="nb">print</span> <span class="s2">&quot;Found &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">count_new</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; new solutions. Iterate further...&quot;</span>
+			<span class="n">fit_list_new</span> <span class="o">=</span> <span class="n">iterate</span><span class="p">(</span><span class="n">fit_list</span><span class="p">)</span>
+			<span class="k">return</span> <span class="n">fit_list_new</span>
+	
+
+	<span class="k">def</span> <span class="nf">mix</span><span class="p">(</span><span class="n">fit_list</span><span class="p">,</span><span class="n">full_fit_list</span><span class="p">,</span><span class="n">min_chi</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Mix the best solutions together to improve error estimations.</span>
+<span class="sd">		Never go more than 100 best solutions!</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="c1"># Importance check:</span>
+		<span class="n">important_chi</span> 	<span class="o">=</span> <span class="n">min_chi</span> <span class="o">+</span> <span class="mf">10.0</span>
+		<span class="n">extra_fit_list</span> 	<span class="o">=</span> <span class="p">[]</span><span class="c1">#copy.copy(fit_list)</span>
+
+		<span class="nb">print</span> <span class="s2">&quot;Mixing best solutions to improve estimate.&quot;</span>
+		<span class="c1">#print str(len(fit_list))+&#39; fits to cross-check!&#39;</span>
+		<span class="k">for</span> <span class="n">f1</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">fit_list</span><span class="p">)):</span>
+			<span class="k">for</span> <span class="n">f2</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">full_fit_list</span><span class="p">)):</span>
+				<span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="p">[</span><span class="mf">0.0000001</span><span class="p">,</span><span class="mf">0.000001</span><span class="p">,</span><span class="mf">0.00001</span><span class="p">,</span><span class="mf">0.0001</span><span class="p">,</span><span class="mf">0.001</span><span class="p">,</span><span class="mf">0.01</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">1.0</span><span class="p">]:</span>
+
+					<span class="n">new_fit</span> <span class="o">=</span> <span class="n">fit</span><span class="p">(</span>	<span class="p">(</span><span class="n">fit_list</span><span class="p">[</span><span class="n">f1</span><span class="p">]</span><span class="o">.</span><span class="n">weights</span><span class="o">+</span><span class="n">q</span><span class="o">*</span><span class="n">full_fit_list</span><span class="p">[</span><span class="n">f2</span><span class="p">]</span><span class="o">.</span><span class="n">weights</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span><span class="o">+</span><span class="n">q</span><span class="p">),</span>\
+									<span class="n">fit_list</span><span class="p">[</span><span class="n">f1</span><span class="p">]</span><span class="o">.</span><span class="n">branch_num</span><span class="o">+</span><span class="n">full_fit_list</span><span class="p">[</span><span class="n">f2</span><span class="p">]</span><span class="o">.</span><span class="n">branch_num</span><span class="p">)</span>
+					<span class="c1">#if new_fit.chi_squared &lt; important_chi:</span>
+					<span class="n">extra_fit_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_fit</span><span class="p">)</span>
+
+		<span class="nb">print</span> <span class="s2">&quot;Added &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">extra_fit_list</span><span class="p">))</span><span class="o">+</span><span class="s2">&quot; solutions!&quot;</span>
+		<span class="k">return</span> <span class="n">extra_fit_list</span>
+
+
+	<span class="c1"># Initialise fit objects over initial set of models</span>
+	<span class="n">fit_list</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="n">int_chi</span>  <span class="o">=</span> <span class="p">[]</span>
+
+	<span class="n">zero_weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">models</span><span class="p">))</span>
+
+
+	<span class="nb">print</span> <span class="s2">&quot;Initiating fits...&quot;</span>
+	<span class="k">for</span> <span class="n">im</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">models</span><span class="p">)):</span>
+		<span class="n">zero_weights</span><span class="p">[</span><span class="n">im</span><span class="p">]</span><span class="o">+=</span> <span class="mi">1</span>
+		<span class="n">fit_first</span> <span class="o">=</span> <span class="n">fit</span><span class="p">(</span><span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">zero_weights</span><span class="p">),</span><span class="mi">0</span><span class="p">)</span>
+		<span class="n">fit_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fit_first</span><span class="p">)</span>
+		<span class="n">int_chi</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fit_first</span><span class="o">.</span><span class="n">chi_squared</span><span class="p">)</span>
+		<span class="n">zero_weights</span><span class="p">[</span><span class="n">im</span><span class="p">]</span><span class="o">-=</span> <span class="mi">1</span>
+		
+	<span class="c1"># Find clipped array to remove artefacts:</span>
+	<span class="k">global</span> <span class="n">clipped_arr</span>
+
+	<span class="n">clipped_arr</span> <span class="o">=</span> <span class="n">fit_list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">int_chi</span><span class="p">)]</span><span class="o">.</span><span class="n">clipped_arr</span>
+
+	<span class="c1"># Fit_list is our initial guesses from which we will iterate</span>
+	<span class="nb">print</span> <span class="s2">&quot;Calculated initial chi-squared values.&quot;</span>
+	<span class="nb">print</span> <span class="s2">&quot;Begin iterative process.&quot;</span>
+
+	
+
+
+	<span class="n">final_fit_list</span> <span class="o">=</span> <span class="n">iterate</span><span class="p">(</span><span class="n">fit_list</span><span class="p">)</span>
+	<span class="n">junk</span><span class="p">,</span><span class="n">chis</span><span class="p">,</span><span class="n">more_junk</span> <span class="o">=</span> <span class="n">retrieve_properties</span><span class="p">(</span><span class="n">final_fit_list</span><span class="p">)</span>
+
+	<span class="n">best_fits</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">chis</span><span class="p">)</span>	
+
+	<span class="c1"># print &quot;Best chi (raw, reduced) is:&quot;</span>
+	<span class="c1"># print min(chis)</span>
+	<span class="c1"># print min(chis)/len(wavelength)</span>
+	<span class="n">bf</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">best_fits</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">bf</span><span class="o">&gt;</span><span class="mi">10</span><span class="p">:</span>
+		<span class="n">bf</span><span class="o">=</span><span class="mi">10</span>
+	<span class="n">extra_fit_list</span> 		<span class="o">=</span> <span class="n">mix</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">final_fit_list</span><span class="p">)[</span><span class="n">best_fits</span><span class="p">[:</span><span class="n">bf</span><span class="p">]]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span><span class="n">final_fit_list</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">chis</span><span class="p">))</span>
+	<span class="n">total_fit_list</span> 		<span class="o">=</span> <span class="n">final_fit_list</span><span class="o">+</span><span class="n">extra_fit_list</span>
+	<span class="c1">#junk,chis,more_junk = retrieve_properties(total_fit_list)</span>
+
+	<span class="k">return</span> <span class="n">retrieve_properties</span><span class="p">(</span><span class="n">total_fit_list</span><span class="p">)</span></div>
+
+
+
+</pre></div>
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      
+        <p>
+        <a class="uplink" href="../index.html">Contents</a>
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2015, johan comparat.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.6.
+    </div>
+  </body>
+</html>

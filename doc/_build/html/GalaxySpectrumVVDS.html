@@ -1,0 +1,114 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>VVDS Spectra &#8212; pySU, python Skies and Universes 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="pySU, python Skies and Universes 1.0 documentation" href="index.html" />
+    <link rel="next" title="Library of functions to produce stacks of spectra" href="SpectraStacking.html" />
+    <link rel="prev" title="VVDS Survey" href="GalaxySurveyVVDS.html" /> 
+  </head>
+  <body role="document">
+      <div class="header" role="banner"><h1 class="heading"><a href="index.html">
+          <span>pySU, python Skies and Universes 1.0 documentation</span></a></h1>
+        <h2 class="heading"><span>VVDS Spectra</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="top navigation">
+      
+        <p>
+        «&#160;&#160;<a href="GalaxySurveyVVDS.html">VVDS Survey</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="SpectraStacking.html">Library of functions to produce stacks of spectra</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="vvds-spectra">
+<h1>VVDS Spectra<a class="headerlink" href="#vvds-spectra" title="Permalink to this headline">¶</a></h1>
+<p>This class is dedicated to handling the spectra from VVDS galaxy redshift survey, see LeFevre et al. 2013.</p>
+<p><a class="reference external" href="http://adsabs.harvard.edu/abs/2013A%26A...559A..14L">http://adsabs.harvard.edu/abs/2013A%26A...559A..14L</a></p>
+<span class="target" id="module-GalaxySpectrumVVDS"></span><dl class="class">
+<dt id="GalaxySpectrumVVDS.GalaxySpectrumVVDS">
+<em class="property">class </em><code class="descclassname">GalaxySpectrumVVDS.</code><code class="descname">GalaxySpectrumVVDS</code><a class="reference internal" href="_modules/GalaxySpectrumVVDS.html#GalaxySpectrumVVDS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GalaxySpectrumVVDS.GalaxySpectrumVVDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>The class GalaxySpectrumVVDS is dedicated to handling VVDS spectra</p>
+<dl class="class">
+<dt>
+<em class="property">class </em><code class="descclassname">GalaxySpectrumVVDS.</code><code class="descname">GalaxySpectrumVVDS</code><span class="sig-paren">(</span><em>catalog_entry</em>, <em>lineFits=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GalaxySpectrumVVDS.html#GalaxySpectrumVVDS"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Loads the environement proper to the vvds survey.</p>
+<p>Two modes of operation : flux calibration or line fitting</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>catalog_entry</strong> &#8211; an entry of the vvds catalog</li>
+<li><strong>calibration</strong> &#8211; if the class is loaded with intention of flux calibrating the vvds data.</li>
+<li><strong>lineFits</strong> &#8211; if the class is loaded with intention of fitting line fluxes on the vvds spectra.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="GalaxySpectrumVVDS.GalaxySpectrumVVDS.openObservedSpectrum">
+<code class="descname">openObservedSpectrum</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/GalaxySpectrumVVDS.html#GalaxySpectrumVVDS.openObservedSpectrum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GalaxySpectrumVVDS.GalaxySpectrumVVDS.openObservedSpectrum" title="Permalink to this definition">¶</a></dt>
+<dd><p>reads a VVDS pectrum
+returns the wavelength, the flux and the error on the flux and two arrays for masking purpose</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="GalaxySpectrumVVDS.GalaxySpectrumVVDS.plotFit">
+<code class="descname">plotFit</code><span class="sig-paren">(</span><em>outputFigureNameRoot</em>, <em>ymin=1e-19</em>, <em>ymax=1e-17</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GalaxySpectrumVVDS.html#GalaxySpectrumVVDS.plotFit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GalaxySpectrumVVDS.GalaxySpectrumVVDS.plotFit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots the spectrum and the line fits in a few figures</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      
+        <p>
+        «&#160;&#160;<a href="GalaxySurveyVVDS.html">VVDS Survey</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="SpectraStacking.html">Library of functions to produce stacks of spectra</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2015, johan comparat.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.6.
+    </div>
+  </body>
+</html>

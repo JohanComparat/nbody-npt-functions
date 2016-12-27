@@ -1,0 +1,866 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>firefly_dust &#8212; pySU, python Skies and Universes 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="pySU, python Skies and Universes 1.0 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" /> 
+  </head>
+  <body role="document">
+      <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
+          <span>pySU, python Skies and Universes 1.0 documentation</span></a></h1>
+        <h2 class="heading"><span>firefly_dust</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="top navigation">
+      
+        <p>
+        <a class="uplink" href="../index.html">Contents</a>
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <h1>Source code for firefly_dust</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">scipy.interpolate</span> <span class="k">as</span> <span class="nn">interpolate</span>
+<span class="kn">from</span> <span class="nn">astropy.io</span> <span class="k">import</span> <span class="n">fits</span>
+
+<span class="kn">from</span> <span class="nn">firefly_fitter</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">firefly_library</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">firefly_instrument</span> <span class="k">import</span> <span class="o">*</span>
+
+<span class="c1"># Calzetti curves, and other general attenuation curves are computed</span>
+<span class="c1"># here, along with (in dust_calzetti) applying to spectra directly.</span>
+
+<div class="viewcode-block" id="curve_smoother"><a class="viewcode-back" href="../firefly_dust.html#firefly_dust.curve_smoother">[docs]</a><span class="k">def</span> <span class="nf">curve_smoother</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">smoothing_length</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	Smoothes a curve y = f(x) with a running median over a given smoothing length.</span>
+
+<span class="sd">	Returns the smoothed array.</span>
+<span class="sd">	</span>
+<span class="sd">	Used internally in function determine_attenuation</span>
+
+<span class="sd">	:param x: x</span>
+<span class="sd">	:param y: y</span>
+<span class="sd">	:param smoothing_length: smoothing length in the same unit than x.</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+	<span class="n">y_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+	<span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)):</span>
+		<span class="n">check_index</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">&lt;</span> <span class="n">x</span><span class="p">[</span><span class="n">w</span><span class="p">]</span><span class="o">+</span><span class="n">smoothing_length</span><span class="p">)</span><span class="o">&amp;</span><span class="p">(</span><span class="n">x</span><span class="o">&gt;</span><span class="n">x</span><span class="p">[</span><span class="n">w</span><span class="p">]</span><span class="o">-</span><span class="n">smoothing_length</span><span class="p">)</span>
+		<span class="n">y_out</span><span class="p">[</span><span class="n">w</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">check_index</span><span class="p">])</span>
+	<span class="k">return</span> <span class="n">y_out</span></div>
+
+<div class="viewcode-block" id="reddening_ccm"><a class="viewcode-back" href="../firefly_dust.html#firefly_dust.reddening_ccm">[docs]</a><span class="k">def</span> <span class="nf">reddening_ccm</span><span class="p">(</span><span class="n">wave</span><span class="p">,</span> <span class="n">ebv</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">a_v</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">r_v</span><span class="o">=</span><span class="mf">3.1</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;ccm89&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	Not used in FIREFLY</span>
+<span class="sd">	Determines a CCM reddening curve.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    wave: ~numpy.ndarray</span>
+<span class="sd">        wavelength in Angstroms</span>
+<span class="sd">    flux: ~numpy.ndarray</span>
+<span class="sd">    ebv: float</span>
+<span class="sd">        E(B-V) differential extinction; specify either this or a_v.</span>
+<span class="sd">    a_v: float</span>
+<span class="sd">        A(V) extinction; specify either this or ebv.</span>
+<span class="sd">    r_v: float, optional</span>
+<span class="sd">        defaults to standard Milky Way average of 3.1</span>
+<span class="sd">    model: {&#39;ccm89&#39;, &#39;gcc09&#39;}, optional</span>
+<span class="sd">        * &#39;ccm89&#39; is the default Cardelli, Clayton, &amp; Mathis (1989) [1]_, but</span>
+<span class="sd">          does include the O&#39;Donnell (1994) parameters to match IDL astrolib.</span>
+<span class="sd">        * &#39;gcc09&#39; is Gordon, Cartledge, &amp; Clayton (2009) [2]_. This paper has</span>
+<span class="sd">          incorrect parameters for the 2175A bump; not yet corrected here.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    reddening_curve: ~numpy.ndarray</span>
+<span class="sd">        Multiply to deredden flux, divide to redden.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Cardelli, Clayton, &amp; Mathis (1989) [1]_ parameterization is used for all</span>
+<span class="sd">    models. The default parameter values are from CCM except in the optical</span>
+<span class="sd">    range, where the updated parameters of O&#39;Donnell (1994) [3]_ are used</span>
+<span class="sd">    (matching the Goddard IDL astrolib routine CCM_UNRED).</span>
+
+<span class="sd">    The function is works between 910 A and 3.3 microns, although note the</span>
+<span class="sd">    default ccm89 model is scientifically valid only at &gt;1250 A.</span>
+
+<span class="sd">    Model gcc09 uses the updated UV coefficients of Gordon, Cartledge, &amp; Clayton</span>
+<span class="sd">    (2009) [2]_, and is valid from 910 A to 3030 A. This function will use CCM89</span>
+<span class="sd">    at longer wavelengths if GCC09 is selected, but note that the two do not</span>
+<span class="sd">    connect perfectly smoothly. There is a small discontinuity at 3030 A. Note</span>
+<span class="sd">    that GCC09 equations 14 and 15 apply to all x&gt;5.9 (the GCC09 paper</span>
+<span class="sd">    mistakenly states they do not apply at x&gt;8; K. Gordon, priv. comm.).</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    [1] Cardelli, J. A., Clayton, G. C., &amp; Mathis, J. S. 1989, ApJ, 345, 245</span>
+<span class="sd">    [2] Gordon, K. D., Cartledge, S., &amp; Clayton, G. C. 2009, ApJ, 705, 1320</span>
+<span class="sd">    [3] O&#39;Donnell, J. E. 1994, ApJ, 422, 158O</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="k">import</span> <span class="n">interp1d</span>
+
+    <span class="n">model</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">model</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;ccm89&#39;</span><span class="p">,</span><span class="s1">&#39;gcc09&#39;</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;model must be ccm89 or gcc09&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">a_v</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">ebv</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Must specify either a_v or ebv&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">a_v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">ebv</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Cannot specify both a_v and ebv&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">a_v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ebv</span> <span class="o">=</span> <span class="n">a_v</span> <span class="o">/</span> <span class="n">r_v</span>
+
+    <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;gcc09&#39;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;TEMPORARY: gcc09 currently does 2175A bump &#39;</span><span class="o">+</span>
+            <span class="s1">&#39;incorrectly&#39;</span><span class="p">)</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="mi">1</span><span class="n">e4</span> <span class="o">/</span> <span class="n">wave</span>      <span class="c1"># inverse microns</span>
+
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">x</span> <span class="o">&lt;</span> <span class="mf">0.3</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mi">11</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;ccm_dered valid only for wavelengths from 910 A to &#39;</span><span class="o">+</span>
+            <span class="s1">&#39;3.3 microns&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mi">8</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;ccm89&#39;</span><span class="p">):</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;CCM89 should not be used below 1250 A.&#39;</span><span class="p">)</span>
+<span class="c1">#    if any(x &lt; 3.3) and any(x &gt; 3.3) and (model == &#39;gcc09&#39;):</span>
+<span class="c1">#        warnings.warn(&#39;GCC09 has a discontinuity at 3030 A.&#39;)</span>
+
+    <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+
+    <span class="c1"># NIR</span>
+    <span class="n">valid</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.3</span> <span class="o">&lt;=</span> <span class="n">x</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">x</span> <span class="o">&lt;</span> <span class="mf">1.1</span><span class="p">)</span>
+    <span class="n">a</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.574</span> <span class="o">*</span> <span class="n">x</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span><span class="o">**</span><span class="mf">1.61</span>
+    <span class="n">b</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.527</span> <span class="o">*</span> <span class="n">x</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span><span class="o">**</span><span class="mf">1.61</span>
+
+    <span class="c1"># optical, using O&#39;Donnell (1994) values</span>
+    <span class="n">valid</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.1</span> <span class="o">&lt;=</span> <span class="n">x</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">x</span> <span class="o">&lt;</span> <span class="mf">3.3</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span> <span class="o">-</span> <span class="mf">1.82</span>
+    <span class="n">coef_a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mf">0.505</span><span class="p">,</span> <span class="mf">1.647</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.827</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.718</span><span class="p">,</span> <span class="mf">1.137</span><span class="p">,</span> <span class="mf">0.701</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.609</span><span class="p">,</span>
+        <span class="mf">0.104</span><span class="p">,</span> <span class="mf">1.</span><span class="p">])</span>
+    <span class="n">coef_b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">3.347</span><span class="p">,</span> <span class="o">-</span><span class="mf">10.805</span><span class="p">,</span> <span class="mf">5.491</span><span class="p">,</span> <span class="mf">11.102</span><span class="p">,</span> <span class="o">-</span><span class="mf">7.985</span><span class="p">,</span> <span class="o">-</span><span class="mf">3.989</span><span class="p">,</span> <span class="mf">2.908</span><span class="p">,</span>
+        <span class="mf">1.952</span><span class="p">,</span> <span class="mf">0.</span><span class="p">])</span>
+    <span class="n">a</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polyval</span><span class="p">(</span><span class="n">coef_a</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
+    <span class="n">b</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polyval</span><span class="p">(</span><span class="n">coef_b</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
+
+    <span class="c1"># UV</span>
+    <span class="n">valid</span> <span class="o">=</span> <span class="p">(</span><span class="mf">3.3</span> <span class="o">&lt;=</span> <span class="n">x</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">x</span> <span class="o">&lt;</span> <span class="mi">8</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span>
+    <span class="n">f_a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+    <span class="n">f_b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+    <span class="n">select</span> <span class="o">=</span> <span class="p">(</span><span class="n">y</span> <span class="o">&gt;=</span> <span class="mf">5.9</span><span class="p">)</span>
+    <span class="n">yselect</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="n">select</span><span class="p">]</span> <span class="o">-</span> <span class="mf">5.9</span>
+
+    <span class="n">f_a</span><span class="p">[</span><span class="n">select</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.04473</span> <span class="o">*</span> <span class="n">yselect</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mf">0.009779</span> <span class="o">*</span> <span class="n">yselect</span><span class="o">**</span><span class="mi">3</span>
+    <span class="n">f_b</span><span class="p">[</span><span class="n">select</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.2130</span> <span class="o">*</span> <span class="n">yselect</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mf">0.1207</span> <span class="o">*</span> <span class="n">yselect</span><span class="o">**</span><span class="mi">3</span>
+    <span class="n">a</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.752</span> <span class="o">-</span> <span class="mf">0.316</span><span class="o">*</span><span class="n">y</span> <span class="o">-</span> <span class="p">(</span><span class="mf">0.104</span> <span class="o">/</span> <span class="p">((</span><span class="n">y</span><span class="o">-</span><span class="mf">4.67</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mf">0.341</span><span class="p">))</span> <span class="o">+</span> <span class="n">f_a</span>
+    <span class="n">b</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mf">3.090</span> <span class="o">+</span> <span class="mf">1.825</span><span class="o">*</span><span class="n">y</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.206</span> <span class="o">/</span> <span class="p">((</span><span class="n">y</span><span class="o">-</span><span class="mf">4.62</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mf">0.263</span><span class="p">))</span> <span class="o">+</span> <span class="n">f_b</span>
+
+    <span class="c1"># far-UV CCM89 extrapolation</span>
+    <span class="n">valid</span> <span class="o">=</span> <span class="p">(</span><span class="mi">8</span> <span class="o">&lt;=</span> <span class="n">x</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">x</span> <span class="o">&lt;</span> <span class="mi">11</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span> <span class="o">-</span> <span class="mf">8.</span>
+    <span class="n">coef_a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mf">0.070</span><span class="p">,</span> <span class="mf">0.137</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.628</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.073</span><span class="p">])</span>
+    <span class="n">coef_b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.374</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.420</span><span class="p">,</span> <span class="mf">4.257</span><span class="p">,</span> <span class="mf">13.670</span><span class="p">])</span>
+    <span class="n">a</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polyval</span><span class="p">(</span><span class="n">coef_a</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
+    <span class="n">b</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polyval</span><span class="p">(</span><span class="n">coef_b</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
+
+    <span class="c1"># Overwrite UV with GCC09 model if applicable. Not an extrapolation.</span>
+    <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;gcc09&#39;</span><span class="p">:</span>
+        <span class="n">valid</span> <span class="o">=</span> <span class="p">(</span><span class="mf">3.3</span> <span class="o">&lt;=</span> <span class="n">x</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">x</span> <span class="o">&lt;</span> <span class="mi">11</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span>
+        <span class="n">f_a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+        <span class="n">f_b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+        <span class="n">select</span> <span class="o">=</span> <span class="p">(</span><span class="mf">5.9</span> <span class="o">&lt;=</span> <span class="n">y</span><span class="p">)</span>
+        <span class="n">yselect</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="n">select</span><span class="p">]</span> <span class="o">-</span> <span class="mf">5.9</span>
+        <span class="n">f_a</span><span class="p">[</span><span class="n">select</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.110</span> <span class="o">*</span> <span class="n">yselect</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mf">0.0099</span> <span class="o">*</span> <span class="n">yselect</span><span class="o">**</span><span class="mi">3</span>
+        <span class="n">f_b</span><span class="p">[</span><span class="n">select</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.537</span> <span class="o">*</span> <span class="n">yselect</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mf">0.0530</span> <span class="o">*</span> <span class="n">yselect</span><span class="o">**</span><span class="mi">3</span>
+        <span class="n">a</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.896</span> <span class="o">-</span> <span class="mf">0.372</span><span class="o">*</span><span class="n">y</span> <span class="o">-</span> <span class="p">(</span><span class="mf">0.0108</span> <span class="o">/</span> <span class="p">((</span><span class="n">y</span><span class="o">-</span><span class="mf">4.57</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mf">0.0422</span><span class="p">))</span> <span class="o">+</span> <span class="n">f_a</span>
+        <span class="n">b</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mf">3.503</span> <span class="o">+</span> <span class="mf">2.057</span><span class="o">*</span><span class="n">y</span> <span class="o">+</span> <span class="p">(</span><span class="mf">0.718</span> <span class="o">/</span> <span class="p">((</span><span class="n">y</span><span class="o">-</span><span class="mf">4.59</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mf">0.0530</span><span class="o">*</span><span class="mf">3.1</span><span class="p">))</span> <span class="o">+</span> <span class="n">f_b</span>
+
+    <span class="n">a_v</span> <span class="o">=</span> <span class="n">ebv</span> <span class="o">*</span> <span class="n">r_v</span>
+    <span class="n">a_lambda</span> <span class="o">=</span> <span class="n">a_v</span> <span class="o">*</span> <span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="o">/</span><span class="n">r_v</span><span class="p">)</span>
+    <span class="n">reddening_curve</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="mf">0.4</span> <span class="o">*</span> <span class="n">a_lambda</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">reddening_curve</span></div>
+<span class="c1">#    return a_lambda / a_v  #debug</span>
+
+
+<div class="viewcode-block" id="reddening_fm"><a class="viewcode-back" href="../firefly_dust.html#firefly_dust.reddening_fm">[docs]</a><span class="k">def</span> <span class="nf">reddening_fm</span><span class="p">(</span><span class="n">wave</span><span class="p">,</span> <span class="n">ebv</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">a_v</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">r_v</span><span class="o">=</span><span class="mf">3.1</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;f99&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Determines a Fitzpatrick &amp; Massa reddening curve.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    wave: ~numpy.ndarray</span>
+<span class="sd">        wavelength in Angstroms</span>
+<span class="sd">    ebv: float</span>
+<span class="sd">        E(B-V) differential extinction; specify either this or a_v.</span>
+<span class="sd">    a_v: float</span>
+<span class="sd">        A(V) extinction; specify either this or ebv.</span>
+<span class="sd">    r_v: float, optional</span>
+<span class="sd">        defaults to standard Milky Way average of 3.1</span>
+<span class="sd">    model: {&#39;f99&#39;, &#39;fm07&#39;}, optional</span>
+<span class="sd">        * &#39;f99&#39; is the default Fitzpatrick (1999) [1]_</span>
+<span class="sd">        * &#39;fm07&#39; is Fitzpatrick &amp; Massa (2007) [2]_. Currently not R dependent.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    reddening_curve: ~numpy.ndarray</span>
+<span class="sd">        Multiply to deredden flux, divide to redden.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Uses Fitzpatrick (1999) [1]_ by default, which relies on the UV</span>
+<span class="sd">    parametrization of Fitzpatrick &amp; Massa (1990) [2]_ and spline fitting in the</span>
+<span class="sd">    optical and IR. This function is defined from 910 A to 6 microns, but note</span>
+<span class="sd">    the claimed validity goes down only to 1150 A. The optical spline points are</span>
+<span class="sd">    not taken from F99 Table 4, but rather updated versions from E. Fitzpatrick</span>
+<span class="sd">    (this matches the Goddard IDL astrolib routine FM_UNRED).</span>
+
+<span class="sd">    The fm07 model uses the Fitzpatrick &amp; Massa (2007) [3]_ parametrization,</span>
+<span class="sd">    which has a slightly different functional form. That paper claims it</span>
+<span class="sd">    preferable, although it is unclear if signficantly (Gordon et al. 2009)</span>
+<span class="sd">    [4]_. It is not the literature standard, so not default here.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    [1] Fitzpatrick, E. L. 1999, PASP, 111, 63</span>
+<span class="sd">    [2] Fitpatrick, E. L. &amp; Massa, D. 1990, ApJS, 72, 163</span>
+<span class="sd">    [3] Fitpatrick, E. L. &amp; Massa, D. 2007, ApJ, 663, 320</span>
+<span class="sd">    [4] Gordon, K. D., Cartledge, S., &amp; Clayton, G. C. 2009, ApJ, 705, 1320</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="k">import</span> <span class="n">interp1d</span>
+
+    <span class="n">model</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">model</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;f99&#39;</span><span class="p">,</span><span class="s1">&#39;fm07&#39;</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;model must be f99 or fm07&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">a_v</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">ebv</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Must specify either a_v or ebv&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">a_v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">ebv</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Cannot specify both a_v and ebv&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">a_v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ebv</span> <span class="o">=</span> <span class="n">a_v</span> <span class="o">/</span> <span class="n">r_v</span>
+
+    <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;fm07&#39;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;TEMPORARY: fm07 currently not properly R dependent&#39;</span><span class="p">)</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="mi">1</span><span class="n">e4</span> <span class="o">/</span> <span class="n">wave</span>      <span class="c1"># inverse microns</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">x</span> <span class="o">&lt;</span> <span class="mf">0.167</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mi">11</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;fm_dered valid only for wavelengths from 910 A to &#39;</span><span class="o">+</span>
+            <span class="s1">&#39;6 microns&#39;</span><span class="p">)</span>
+
+    <span class="c1"># UV region</span>
+    <span class="n">uvsplit</span> <span class="o">=</span> <span class="mf">10000.</span> <span class="o">/</span> <span class="mf">2700.</span>  <span class="c1"># Turn 2700A split into inverse microns.</span>
+    <span class="n">uv_region</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">&gt;=</span> <span class="n">uvsplit</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">uv_region</span><span class="p">]</span>
+    <span class="n">k_uv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+
+    <span class="c1"># Fitzpatrick (1999) model</span>
+    <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;f99&#39;</span><span class="p">:</span>
+        <span class="n">x0</span><span class="p">,</span> <span class="n">gamma</span> <span class="o">=</span> <span class="mf">4.596</span><span class="p">,</span> <span class="mf">0.99</span>
+        <span class="n">c3</span><span class="p">,</span> <span class="n">c4</span> <span class="o">=</span> <span class="mf">3.23</span><span class="p">,</span> <span class="mf">0.41</span>
+        <span class="n">c2</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.824</span> <span class="o">+</span> <span class="mf">4.717</span> <span class="o">/</span> <span class="n">r_v</span>
+        <span class="n">c1</span> <span class="o">=</span> <span class="mf">2.030</span> <span class="o">-</span> <span class="mf">3.007</span> <span class="o">*</span> <span class="n">c2</span>
+        <span class="n">D</span> <span class="o">=</span> <span class="n">y</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="p">((</span><span class="n">y</span><span class="o">**</span><span class="mi">2</span><span class="o">-</span><span class="n">x0</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">y</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">gamma</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">F</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+        <span class="n">valid</span> <span class="o">=</span> <span class="p">(</span><span class="n">y</span> <span class="o">&gt;=</span> <span class="mf">5.9</span><span class="p">)</span>
+        <span class="n">F</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5392</span> <span class="o">*</span> <span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span><span class="o">-</span><span class="mf">5.9</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mf">0.05644</span> <span class="o">*</span> <span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span><span class="o">-</span><span class="mf">5.9</span><span class="p">)</span><span class="o">**</span><span class="mi">3</span>
+        <span class="n">k_uv</span> <span class="o">=</span> <span class="n">c1</span> <span class="o">+</span> <span class="n">c2</span><span class="o">*</span><span class="n">y</span> <span class="o">+</span> <span class="n">c3</span><span class="o">*</span><span class="n">D</span> <span class="o">+</span> <span class="n">c4</span><span class="o">*</span><span class="n">F</span>
+    <span class="c1"># Fitzpatrick &amp; Massa (2007) model</span>
+    <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;fm07&#39;</span><span class="p">:</span>
+        <span class="n">x0</span><span class="p">,</span> <span class="n">gamma</span> <span class="o">=</span> <span class="mf">4.592</span><span class="p">,</span> <span class="mf">0.922</span>
+        <span class="n">c1</span><span class="p">,</span> <span class="n">c2</span><span class="p">,</span> <span class="n">c3</span><span class="p">,</span> <span class="n">c4</span><span class="p">,</span> <span class="n">c5</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.175</span><span class="p">,</span> <span class="mf">0.807</span><span class="p">,</span> <span class="mf">2.991</span><span class="p">,</span> <span class="mf">0.319</span><span class="p">,</span> <span class="mf">6.097</span>
+        <span class="n">D</span> <span class="o">=</span> <span class="n">y</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="p">((</span><span class="n">y</span><span class="o">**</span><span class="mi">2</span><span class="o">-</span><span class="n">x0</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">y</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">gamma</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">valid</span> <span class="o">=</span> <span class="p">(</span><span class="n">y</span> <span class="o">&lt;=</span> <span class="n">c5</span><span class="p">)</span>
+        <span class="n">k_uv</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span> <span class="o">=</span> <span class="n">c1</span> <span class="o">+</span> <span class="n">c2</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span> <span class="o">+</span> <span class="n">c3</span><span class="o">*</span><span class="n">D</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span>
+        <span class="n">valid</span> <span class="o">=</span> <span class="p">(</span><span class="n">y</span> <span class="o">&gt;</span> <span class="n">c5</span><span class="p">)</span>
+        <span class="n">k_uv</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span> <span class="o">=</span> <span class="n">c1</span> <span class="o">+</span> <span class="n">c2</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span> <span class="o">+</span> <span class="n">c3</span><span class="o">*</span><span class="n">D</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span> <span class="o">+</span> <span class="n">c4</span><span class="o">*</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span><span class="o">-</span><span class="n">c5</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+
+    <span class="n">k</span><span class="p">[</span><span class="n">uv_region</span><span class="p">]</span> <span class="o">=</span> <span class="n">k_uv</span>
+
+    <span class="c1"># Calculate values for UV spline points to anchor OIR fit</span>
+    <span class="n">x_uv_spline</span> <span class="o">=</span> <span class="mf">10000.</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">2700.</span><span class="p">,</span> <span class="mf">2600.</span><span class="p">])</span>
+    <span class="n">D</span> <span class="o">=</span> <span class="n">x_uv_spline</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="p">((</span><span class="n">x_uv_spline</span><span class="o">**</span><span class="mi">2</span><span class="o">-</span><span class="n">x0</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">x_uv_spline</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">gamma</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">k_uv_spline</span> <span class="o">=</span> <span class="n">c1</span> <span class="o">+</span> <span class="n">c2</span><span class="o">*</span><span class="n">x_uv_spline</span> <span class="o">+</span><span class="n">c3</span><span class="o">*</span><span class="n">D</span>
+
+    <span class="c1"># Optical / IR</span>
+    <span class="n">OIR_region</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">&lt;</span> <span class="n">uvsplit</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">OIR_region</span><span class="p">]</span>
+    <span class="n">k_OIR</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+
+    <span class="c1"># Fitzpatrick (1999) model</span>
+    <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;f99&#39;</span><span class="p">:</span>
+        <span class="c1"># The OIR anchors are up from IDL astrolib, not F99.</span>
+        <span class="n">anchors_extinction</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.26469</span><span class="o">*</span><span class="n">r_v</span><span class="o">/</span><span class="mf">3.1</span><span class="p">,</span> <span class="mf">0.82925</span><span class="o">*</span><span class="n">r_v</span><span class="o">/</span><span class="mf">3.1</span><span class="p">,</span> <span class="c1"># IR</span>
+            <span class="o">-</span><span class="mf">0.422809</span> <span class="o">+</span> <span class="mf">1.00270</span><span class="o">*</span><span class="n">r_v</span> <span class="o">+</span> <span class="mf">2.13572e-04</span><span class="o">*</span><span class="n">r_v</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="c1"># optical</span>
+            <span class="o">-</span><span class="mf">5.13540e-02</span> <span class="o">+</span> <span class="mf">1.00216</span><span class="o">*</span><span class="n">r_v</span> <span class="o">-</span> <span class="mf">7.35778e-05</span><span class="o">*</span><span class="n">r_v</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span>
+            <span class="mf">0.700127</span> <span class="o">+</span> <span class="mf">1.00184</span><span class="o">*</span><span class="n">r_v</span> <span class="o">-</span> <span class="mf">3.32598e-05</span><span class="o">*</span><span class="n">r_v</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span>
+            <span class="p">(</span><span class="mf">1.19456</span> <span class="o">+</span> <span class="mf">1.01707</span><span class="o">*</span><span class="n">r_v</span> <span class="o">-</span> <span class="mf">5.46959e-03</span><span class="o">*</span><span class="n">r_v</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mf">7.97809e-04</span><span class="o">*</span><span class="n">r_v</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span>
+                <span class="o">-</span><span class="mf">4.45636e-05</span><span class="o">*</span><span class="n">r_v</span><span class="o">**</span><span class="mi">4</span><span class="p">)])</span>
+        <span class="n">anchors_k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">anchors_extinction</span><span class="o">-</span><span class="n">r_v</span><span class="p">,</span> <span class="n">k_uv_spline</span><span class="p">)</span>
+        <span class="c1"># Note that interp1d requires that the input abscissa is monotonically</span>
+        <span class="c1"># _increasing_. This is opposite the usual ordering of a spectrum, but</span>
+        <span class="c1"># fortunately the _output_ abscissa does not have the same requirement.</span>
+        <span class="n">anchors_x</span> <span class="o">=</span> <span class="mi">1</span><span class="n">e4</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">26500.</span><span class="p">,</span> <span class="mf">12200.</span><span class="p">,</span> <span class="mf">6000.</span><span class="p">,</span> <span class="mf">5470.</span><span class="p">,</span> <span class="mf">4670.</span><span class="p">,</span> <span class="mf">4110.</span><span class="p">])</span>
+        <span class="n">anchors_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="n">anchors_x</span><span class="p">)</span>  <span class="c1"># For well-behaved spline.</span>
+        <span class="n">anchors_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">anchors_x</span><span class="p">,</span> <span class="n">x_uv_spline</span><span class="p">)</span>
+        <span class="n">OIR_spline</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">anchors_x</span><span class="p">,</span> <span class="n">anchors_k</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;cubic&#39;</span><span class="p">)</span>
+        <span class="n">k_OIR</span> <span class="o">=</span> <span class="n">OIR_spline</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+    <span class="c1"># Fitzpatrick &amp; Massa (2007) model</span>
+    <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;fm07&#39;</span><span class="p">:</span>
+        <span class="n">anchors_k_opt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">1.322</span><span class="p">,</span> <span class="mf">2.055</span><span class="p">])</span>
+        <span class="n">IR_wave</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">),</span> <span class="mf">4.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">1.333</span><span class="p">,</span> <span class="mf">1.</span><span class="p">])</span>
+        <span class="n">anchors_k_IR</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.83</span> <span class="o">+</span> <span class="mf">0.63</span><span class="o">*</span><span class="n">r_v</span><span class="p">)</span> <span class="o">*</span> <span class="n">IR_wave</span><span class="o">**-</span><span class="mf">1.84</span> <span class="o">-</span> <span class="n">r_v</span>
+        <span class="n">anchors_k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">anchors_k_IR</span><span class="p">,</span> <span class="n">anchors_k_opt</span><span class="p">)</span>
+        <span class="n">anchors_k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">anchors_k</span><span class="p">,</span> <span class="n">k_uv_spline</span><span class="p">)</span>
+        <span class="n">anchors_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.50</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">,</span> <span class="mf">1.</span><span class="p">])</span>  <span class="c1"># IR</span>
+        <span class="n">opt_x</span> <span class="o">=</span> <span class="mi">1</span><span class="n">e4</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">5530.</span><span class="p">,</span> <span class="mf">4000.</span><span class="p">,</span> <span class="mf">3300.</span><span class="p">])</span>  <span class="c1"># optical</span>
+        <span class="n">anchors_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">anchors_x</span><span class="p">,</span> <span class="n">opt_x</span><span class="p">)</span>
+        <span class="n">anchors_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">anchors_x</span><span class="p">,</span> <span class="n">x_uv_spline</span><span class="p">)</span>
+        <span class="n">OIR_spline</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">anchors_x</span><span class="p">,</span> <span class="n">anchors_k</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;cubic&#39;</span><span class="p">)</span>
+        <span class="n">k_OIR</span> <span class="o">=</span> <span class="n">OIR_spline</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+    <span class="n">k</span><span class="p">[</span><span class="n">OIR_region</span><span class="p">]</span> <span class="o">=</span> <span class="n">k_OIR</span>
+
+    <span class="n">reddening_curve</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="mf">0.4</span> <span class="o">*</span> <span class="n">ebv</span> <span class="o">*</span> <span class="p">(</span><span class="n">k</span><span class="o">+</span><span class="n">r_v</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">reddening_curve</span></div>
+<span class="c1">#    return (k+r_v) / r_v # debug</span>
+
+<span class="k">def</span> <span class="nf">dust_calzetti_py</span><span class="p">(</span><span class="n">ebv</span><span class="p">,</span><span class="n">lam</span><span class="p">):</span>
+
+	<span class="n">output</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">lam</span><span class="p">:</span>
+		<span class="n">l</span> <span class="o">=</span> <span class="n">i</span> <span class="o">/</span> <span class="mf">10000.0</span> <span class="c1">#converting from angstrom to micrometers</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">l</span> <span class="o">&gt;=</span> <span class="mf">0.63</span> <span class="ow">and</span> <span class="n">l</span><span class="o">&lt;=</span> <span class="mf">2.2</span><span class="p">):</span>
+			<span class="n">k</span><span class="o">=</span><span class="p">(</span><span class="mf">2.659</span><span class="o">*</span><span class="p">(</span><span class="o">-</span><span class="mf">1.857</span><span class="o">+</span><span class="mf">1.040</span><span class="o">/</span><span class="n">l</span><span class="p">)</span><span class="o">+</span><span class="mf">4.05</span><span class="p">)</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">l</span> <span class="o">&lt;</span> <span class="mf">0.63</span><span class="p">):</span>
+			<span class="n">k</span><span class="o">=</span> <span class="p">(</span><span class="mf">2.659</span><span class="o">*</span><span class="p">(</span><span class="o">-</span><span class="mf">2.156</span><span class="o">+</span><span class="mf">1.509</span><span class="o">/</span><span class="n">l</span><span class="o">-</span><span class="mf">0.198</span><span class="o">/</span><span class="n">l</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="mf">0.011</span><span class="o">/</span><span class="n">l</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span><span class="o">+</span><span class="mf">4.05</span><span class="p">)</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">l</span> <span class="o">&gt;</span> <span class="mf">2.2</span><span class="p">):</span>
+			<span class="n">k</span><span class="o">=</span> <span class="mf">0.0</span>
+
+		<span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mf">0.4</span> <span class="o">*</span> <span class="n">ebv</span> <span class="o">*</span> <span class="n">k</span><span class="p">))</span>
+	<span class="k">return</span> <span class="n">output</span>
+
+<div class="viewcode-block" id="get_SFD_dust"><a class="viewcode-back" href="../firefly_dust.html#firefly_dust.get_SFD_dust">[docs]</a><span class="k">def</span> <span class="nf">get_SFD_dust</span><span class="p">(</span><span class="n">long</span><span class="p">,</span><span class="n">lat</span><span class="p">,</span><span class="n">dustmap</span><span class="o">=</span><span class="s1">&#39;ebv&#39;</span><span class="p">,</span><span class="n">interpolate</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Gets map values from Schlegel, Finkbeiner, and Davis 1998 extinction maps.</span>
+<span class="sd">    </span>
+<span class="sd">    `dustmap` can either be a filename (if &#39;%s&#39; appears in the string, it will be</span>
+<span class="sd">    replaced with &#39;ngp&#39; or &#39;sgp&#39;), or one of:</span>
+<span class="sd">    </span>
+<span class="sd">    * &#39;i100&#39; </span>
+<span class="sd">        100-micron map in MJy/Sr</span>
+<span class="sd">    * &#39;x&#39;</span>
+<span class="sd">        X-map, temperature-correction factor</span>
+<span class="sd">    * &#39;t&#39;</span>
+<span class="sd">        Temperature map in degrees Kelvin for n=2 emissivity</span>
+<span class="sd">    * &#39;ebv&#39;</span>
+<span class="sd">        E(B-V) in magnitudes</span>
+<span class="sd">    * &#39;mask&#39;</span>
+<span class="sd">        Mask values </span>
+<span class="sd">        </span>
+<span class="sd">    For these forms, the files are assumed to lie in the current directory.</span>
+<span class="sd">    </span>
+<span class="sd">    Input coordinates are in degrees of galactic latiude and logitude - they can</span>
+<span class="sd">    be scalars or arrays.</span>
+<span class="sd">    </span>
+<span class="sd">    if `interpolate` is an integer, it can be used to specify the order of the</span>
+<span class="sd">    interpolating polynomial</span>
+<span class="sd">    </span>
+<span class="sd">    .. todo::</span>
+<span class="sd">        Check mask for SMC/LMC/M31, E(B-V)=0.075 mag for the LMC, 0.037 mag for</span>
+<span class="sd">        the SMC, and 0.062 for M31. Also auto-download dust maps. Also add</span>
+<span class="sd">        tests. Also allow for other bands.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">numpy</span> <span class="k">import</span> <span class="n">sin</span><span class="p">,</span><span class="n">cos</span><span class="p">,</span><span class="nb">round</span><span class="p">,</span><span class="n">isscalar</span><span class="p">,</span><span class="n">array</span><span class="p">,</span><span class="n">ndarray</span><span class="p">,</span><span class="n">ones_like</span>
+    <span class="c1">#from pyfits import open</span>
+    
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">dustmap</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;dustmap is not a string&#39;</span><span class="p">)</span>
+    <span class="n">dml</span><span class="o">=</span><span class="n">dustmap</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">dml</span> <span class="o">==</span> <span class="s1">&#39;ebv&#39;</span> <span class="ow">or</span> <span class="n">dml</span> <span class="o">==</span> <span class="s1">&#39;eb-v&#39;</span> <span class="ow">or</span> <span class="n">dml</span> <span class="o">==</span> <span class="s1">&#39;e(b-v)&#39;</span> <span class="p">:</span>
+        <span class="n">dustmapfn</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;STELLARPOPMODELS_DIR&#39;</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;/data/SFD_dust_4096_</span><span class="si">%s</span><span class="s1">.fits&#39;</span>
+    <span class="k">elif</span> <span class="n">dml</span> <span class="o">==</span> <span class="s1">&#39;i100&#39;</span><span class="p">:</span>
+        <span class="n">dustmapfn</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;STELLARPOPMODELS_DIR&#39;</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;/data/SFD_i100_4096_</span><span class="si">%s</span><span class="s1">.fits&#39;</span>
+    <span class="k">elif</span> <span class="n">dml</span> <span class="o">==</span> <span class="s1">&#39;x&#39;</span><span class="p">:</span>
+        <span class="n">dustmapfn</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;STELLARPOPMODELS_DIR&#39;</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;/data/SFD_xmap_</span><span class="si">%s</span><span class="s1">.fits&#39;</span>
+    <span class="k">elif</span> <span class="n">dml</span> <span class="o">==</span> <span class="s1">&#39;t&#39;</span><span class="p">:</span>
+        <span class="n">dustmapfn</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;STELLARPOPMODELS_DIR&#39;</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;/data/SFD_temp_</span><span class="si">%s</span><span class="s1">.fits&#39;</span>
+    <span class="k">elif</span> <span class="n">dml</span> <span class="o">==</span> <span class="s1">&#39;mask&#39;</span><span class="p">:</span>
+        <span class="n">dustmapfn</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;STELLARPOPMODELS_DIR&#39;</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;/data/SFD_mask_4096_</span><span class="si">%s</span><span class="s1">.fits&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">dustmapfn</span><span class="o">=</span><span class="n">dustmap</span>
+    
+    <span class="k">if</span> <span class="n">isscalar</span><span class="p">(</span><span class="n">long</span><span class="p">):</span>
+        <span class="n">l</span><span class="o">=</span><span class="n">array</span><span class="p">([</span><span class="n">long</span><span class="p">])</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">180</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">l</span><span class="o">=</span><span class="n">array</span><span class="p">(</span><span class="n">long</span><span class="p">)</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">180</span>
+    <span class="k">if</span> <span class="n">isscalar</span><span class="p">(</span><span class="n">lat</span><span class="p">):</span>
+        <span class="n">b</span><span class="o">=</span><span class="n">array</span><span class="p">([</span><span class="n">lat</span><span class="p">])</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">180</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">b</span><span class="o">=</span><span class="n">array</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">180</span>
+        
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">l</span><span class="p">)</span><span class="o">==</span><span class="nb">len</span><span class="p">(</span><span class="n">b</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;input coordinate arrays are of different length&#39;</span><span class="p">)</span>
+    
+    
+    
+    <span class="k">if</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dustmapfn</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">=</span><span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">dustmapfn</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">mapds</span><span class="o">=</span><span class="p">[</span><span class="n">f</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">]</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="n">mapds</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">mapds</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="s1">&#39;map dimensions not equal - incorrect map file?&#39;</span>
+        
+        <span class="n">polename</span><span class="o">=</span><span class="n">dustmapfn</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">polename</span><span class="o">==</span><span class="s1">&#39;ngp&#39;</span><span class="p">:</span>
+            <span class="n">n</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="n">b</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">b</span><span class="o">=</span><span class="n">b</span>
+        <span class="k">elif</span> <span class="n">polename</span><span class="o">==</span><span class="s1">&#39;sgp&#39;</span><span class="p">:</span>
+            <span class="n">n</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="n">b</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">b</span><span class="o">=</span><span class="n">b</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;couldn&#39;t determine South/North from filename - should have &#39;sgp&#39; or &#39;ngp in it somewhere&quot;</span><span class="p">)</span>
+        <span class="n">masks</span> <span class="o">=</span> <span class="p">[</span><span class="n">ones_like</span><span class="p">(</span><span class="n">b</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)]</span>
+    <span class="k">else</span><span class="p">:</span> <span class="c1">#need to do things seperately for north and south files</span>
+        <span class="n">nmask</span> <span class="o">=</span> <span class="n">b</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+        <span class="n">smask</span> <span class="o">=</span> <span class="o">~</span><span class="n">nmask</span>
+        
+        <span class="n">masks</span> <span class="o">=</span> <span class="p">[</span><span class="n">nmask</span><span class="p">,</span><span class="n">smask</span><span class="p">]</span>
+        <span class="n">ns</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        
+        <span class="n">mapds</span><span class="o">=</span><span class="p">[]</span>
+        <span class="n">f</span><span class="o">=</span><span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">dustmapfn</span><span class="o">%</span><span class="s1">&#39;ngp&#39;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">mapds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="n">mapds</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">mapds</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="s1">&#39;map dimensions not equal - incorrect map file?&#39;</span>
+        <span class="n">f</span><span class="o">=</span><span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">dustmapfn</span><span class="o">%</span><span class="s1">&#39;sgp&#39;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">mapds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="n">mapds</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">mapds</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="s1">&#39;map dimensions not equal - incorrect map file?&#39;</span>
+    
+    <span class="n">retvals</span><span class="o">=</span><span class="p">[]</span>
+    <span class="k">for</span> <span class="n">n</span><span class="p">,</span><span class="n">mapd</span><span class="p">,</span><span class="n">m</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">ns</span><span class="p">,</span><span class="n">mapds</span><span class="p">,</span><span class="n">masks</span><span class="p">):</span>
+        <span class="c1">#project from galactic longitude/latitude to lambert pixels (see SFD98)</span>
+        <span class="n">npix</span><span class="o">=</span><span class="n">mapd</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        
+        <span class="n">x</span><span class="o">=</span><span class="n">npix</span><span class="o">/</span><span class="mi">2</span><span class="o">*</span><span class="n">cos</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="n">m</span><span class="p">])</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">n</span><span class="o">*</span><span class="n">sin</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="n">m</span><span class="p">]))</span><span class="o">**</span><span class="mf">0.5</span><span class="o">+</span><span class="n">npix</span><span class="o">/</span><span class="mi">2</span><span class="o">-</span><span class="mf">0.5</span>
+        <span class="n">y</span><span class="o">=-</span><span class="n">npix</span><span class="o">/</span><span class="mi">2</span><span class="o">*</span><span class="n">n</span><span class="o">*</span><span class="n">sin</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="n">m</span><span class="p">])</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">n</span><span class="o">*</span><span class="n">sin</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="n">m</span><span class="p">]))</span><span class="o">**</span><span class="mf">0.5</span><span class="o">+</span><span class="n">npix</span><span class="o">/</span><span class="mi">2</span><span class="o">-</span><span class="mf">0.5</span>
+        <span class="c1">#now remap indecies - numpy arrays have y and x convention switched from SFD98 appendix</span>
+        <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span><span class="n">x</span>
+        
+        <span class="k">if</span> <span class="n">interpolate</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">scipy.ndimage</span> <span class="k">import</span> <span class="n">map_coordinates</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">interpolate</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">:</span>
+                <span class="n">retvals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">map_coordinates</span><span class="p">(</span><span class="n">mapd</span><span class="p">,[</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">],</span><span class="n">order</span><span class="o">=</span><span class="n">interpolate</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">retvals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">map_coordinates</span><span class="p">(</span><span class="n">mapd</span><span class="p">,[</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">]))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+            <span class="n">y</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+            <span class="n">retvals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mapd</span><span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">])</span>
+            
+            
+    
+        
+    <span class="k">if</span> <span class="n">isscalar</span><span class="p">(</span><span class="n">long</span><span class="p">)</span> <span class="ow">or</span> <span class="n">isscalar</span><span class="p">(</span><span class="n">lat</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">retvals</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span><span class="s1">&#39;None of the return value arrays were populated - incorrect inputs?&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1">#now recombine the possibly two arrays from above into one that looks like  the original</span>
+        <span class="n">retval</span><span class="o">=</span><span class="n">ndarray</span><span class="p">(</span><span class="n">l</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">m</span><span class="p">,</span><span class="n">val</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">masks</span><span class="p">,</span><span class="n">retvals</span><span class="p">):</span>
+            <span class="n">retval</span><span class="p">[</span><span class="n">m</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="k">return</span> <span class="n">retval</span></div>
+        
+    
+<div class="viewcode-block" id="eq2gal"><a class="viewcode-back" href="../firefly_dust.html#firefly_dust.eq2gal">[docs]</a><span class="k">def</span> <span class="nf">eq2gal</span><span class="p">(</span><span class="n">ra</span><span class="p">,</span><span class="n">dec</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	Convert Equatorial coordinates to Galactic Coordinates in the epch J2000.</span>
+
+<span class="sd">	Keywords arguments:</span>
+<span class="sd">	ra  -- Right Ascension (in radians)</span>
+<span class="sd">	dec -- Declination (in radians)</span>
+
+<span class="sd">	Return a tuple (l, b):</span>
+<span class="sd">	l -- Galactic longitude (in radians)</span>
+<span class="sd">	b -- Galactic latitude (in radians)</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+	<span class="c1"># RA(radians),Dec(radians),distance(kpc) of Galactic center in J2000</span>
+	<span class="n">Galactic_Center_Equatorial</span><span class="o">=</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="mf">266.40510</span><span class="p">),</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="o">-</span><span class="mf">28.936175</span><span class="p">),</span> <span class="mf">8.33</span><span class="p">)</span>
+
+	<span class="c1"># RA(radians),Dec(radians) of Galactic Northpole in J2000</span>
+	<span class="n">Galactic_Northpole_Equatorial</span><span class="o">=</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="mf">192.859508</span><span class="p">),</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="mf">27.128336</span><span class="p">))</span>
+
+	<span class="n">alpha</span> <span class="o">=</span> <span class="n">Galactic_Northpole_Equatorial</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+	<span class="n">delta</span> <span class="o">=</span> <span class="n">Galactic_Northpole_Equatorial</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+	<span class="n">la</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="mf">33.0</span><span class="p">)</span>
+
+	<span class="n">b</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">asin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">dec</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">delta</span><span class="p">)</span> <span class="o">+</span>
+					<span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">dec</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">delta</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">ra</span> <span class="o">-</span> <span class="n">alpha</span><span class="p">))</span>
+
+	<span class="n">l</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">atan2</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">dec</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">delta</span><span class="p">)</span> <span class="o">-</span> 
+					<span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">dec</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">delta</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">ra</span> <span class="o">-</span> <span class="n">alpha</span><span class="p">),</span> 
+					<span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">dec</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">ra</span> <span class="o">-</span> <span class="n">alpha</span><span class="p">)</span>
+					<span class="p">)</span> <span class="o">+</span> <span class="n">la</span>
+
+	<span class="n">l</span> <span class="o">=</span> <span class="n">l</span> <span class="k">if</span> <span class="n">l</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="p">(</span><span class="n">l</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="mf">2.0</span><span class="p">)</span>
+
+	<span class="n">l</span> <span class="o">=</span> <span class="n">l</span> <span class="o">%</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+
+
+	<span class="k">return</span> <span class="n">l</span><span class="o">*</span><span class="mf">180.0</span><span class="o">/</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">b</span><span class="o">*</span><span class="mf">180.0</span><span class="o">/</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span></div>
+
+<div class="viewcode-block" id="get_dust_radec"><a class="viewcode-back" href="../firefly_dust.html#firefly_dust.get_dust_radec">[docs]</a><span class="k">def</span> <span class="nf">get_dust_radec</span><span class="p">(</span><span class="n">ra</span><span class="p">,</span><span class="n">dec</span><span class="p">,</span><span class="n">dustmap</span><span class="p">,</span><span class="n">interpolate</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	Gets the value of dust from MW at ra and dec.</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+	<span class="c1">#from .coords import equatorial_to_galactic</span>
+	<span class="n">l</span><span class="p">,</span><span class="n">b</span> <span class="o">=</span> <span class="n">eq2gal</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">ra</span><span class="p">),</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">dec</span><span class="p">))</span>
+	<span class="k">return</span> <span class="n">get_SFD_dust</span><span class="p">(</span><span class="n">l</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">dustmap</span><span class="p">,</span><span class="n">interpolate</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="unred"><a class="viewcode-back" href="../firefly_dust.html#firefly_dust.unred">[docs]</a><span class="k">def</span> <span class="nf">unred</span><span class="p">(</span><span class="n">wave</span><span class="p">,</span> <span class="n">ebv</span><span class="p">,</span> <span class="n">R_V</span><span class="o">=</span><span class="mf">3.1</span><span class="p">,</span> <span class="n">LMC2</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">AVGLMC</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	 Deredden a flux vector using the Fitzpatrick (1999) parameterization</span>
+<span class="sd"> </span>
+<span class="sd">	 Parameters</span>
+<span class="sd">	 ----------</span>
+<span class="sd">	 wave :   array</span>
+<span class="sd">			  Wavelength in Angstrom</span>
+<span class="sd">	 flux :   array</span>
+<span class="sd">			  Calibrated flux vector, same number of elements as wave.</span>
+<span class="sd">	 ebv  :   float, optional</span>
+<span class="sd">			  Color excess E(B-V). If a negative ebv is supplied,</span>
+<span class="sd">			  then fluxes will be reddened rather than dereddened.</span>
+<span class="sd">			  The default is 3.1.</span>
+<span class="sd">	 AVGLMC : boolean</span>
+<span class="sd">			  If True, then the default fit parameters c1,c2,c3,c4,gamma,x0 </span>
+<span class="sd">			  are set to the average values determined for reddening in the </span>
+<span class="sd">			  general Large Magellanic Cloud (LMC) field by</span>
+<span class="sd">			  Misselt et al. (1999, ApJ, 515, 128). The default is</span>
+<span class="sd">			  False.</span>
+<span class="sd">	 LMC2 :   boolean</span>
+<span class="sd">			  If True, the fit parameters are set to the values determined</span>
+<span class="sd">			  for the LMC2 field (including 30 Dor) by Misselt et al.</span>
+<span class="sd">			  Note that neither `AVGLMC` nor `LMC2` will alter the default value </span>
+<span class="sd">			  of R_V, which is poorly known for the LMC.</span>
+<span class="sd">   </span>
+<span class="sd">	 Returns</span>
+<span class="sd">	 -------             </span>
+<span class="sd">	 new_flux : array </span>
+<span class="sd">				Dereddened flux vector, same units and number of elements</span>
+<span class="sd">				as input flux.</span>
+<span class="sd"> </span>
+<span class="sd">	 Notes</span>
+<span class="sd">	 -----</span>
+
+<span class="sd">	 .. note:: This function was ported from the IDL Astronomy User&#39;s Library.</span>
+
+<span class="sd">	 :IDL - Documentation:</span>
+<span class="sd"> </span>
+<span class="sd">	  PURPOSE:</span>
+<span class="sd">	   Deredden a flux vector using the Fitzpatrick (1999) parameterization</span>
+<span class="sd">	  EXPLANATION:</span>
+<span class="sd">	   The R-dependent Galactic extinction curve is that of Fitzpatrick &amp; Massa </span>
+<span class="sd">	   (Fitzpatrick, 1999, PASP, 111, 63; astro-ph/9809387 ).    </span>
+<span class="sd">	   Parameterization is valid from the IR to the far-UV (3.5 microns to 0.1 </span>
+<span class="sd">	   microns).    UV extinction curve is extrapolated down to 912 Angstroms.</span>
+
+<span class="sd">	  CALLING SEQUENCE:</span>
+<span class="sd">		FM_UNRED, wave, flux, ebv, [ funred, R_V = , /LMC2, /AVGLMC, ExtCurve= </span>
+<span class="sd">						  gamma =, x0=, c1=, c2=, c3=, c4= ]</span>
+<span class="sd">	  INPUT:</span>
+<span class="sd">		 WAVE - wavelength vector (Angstroms)</span>
+<span class="sd">		 FLUX - calibrated flux vector, same number of elements as WAVE</span>
+<span class="sd">				  If only 3 parameters are supplied, then this vector will</span>
+<span class="sd">				  updated on output to contain the dereddened flux.</span>
+<span class="sd">		 EBV  - color excess E(B-V), scalar.  If a negative EBV is supplied,</span>
+<span class="sd">				  then fluxes will be reddened rather than dereddened.</span>
+
+<span class="sd">	  OUTPUT:</span>
+<span class="sd">		 FUNRED - unreddened flux vector, same units and number of elements</span>
+<span class="sd">				  as FLUX</span>
+
+<span class="sd">	  OPTIONAL INPUT KEYWORDS</span>
+<span class="sd">		  R_V - scalar specifying the ratio of total to selective extinction</span>
+<span class="sd">				   R(V) = A(V) / E(B - V).    If not specified, then R = 3.1</span>
+<span class="sd">				   Extreme values of R(V) range from 2.3 to 5.3</span>
+
+<span class="sd">	   /AVGLMC - if set, then the default fit parameters c1,c2,c3,c4,gamma,x0 </span>
+<span class="sd">				 are set to the average values determined for reddening in the </span>
+<span class="sd">				 general Large Magellanic Cloud (LMC) field by Misselt et al. </span>
+<span class="sd">				 (1999, ApJ, 515, 128)</span>
+<span class="sd">		/LMC2 - if set, then the fit parameters are set to the values determined</span>
+<span class="sd">				 for the LMC2 field (including 30 Dor) by Misselt et al.</span>
+<span class="sd">				 Note that neither /AVGLMC or /LMC2 will alter the default value </span>
+<span class="sd">				 of R_V which is poorly known for the LMC. </span>
+<span class="sd">			</span>
+<span class="sd">		 The following five input keyword parameters allow the user to customize</span>
+<span class="sd">		 the adopted extinction curve.    For example, see Clayton et al. (2003,</span>
+<span class="sd">		 ApJ, 588, 871) for examples of these parameters in different interstellar</span>
+<span class="sd">		 environments.</span>
+
+<span class="sd">		 x0 - Centroid of 2200 A bump in microns (default = 4.596)</span>
+<span class="sd">		 gamma - Width of 2200 A bump in microns (default  =0.99)</span>
+<span class="sd">		 c3 - Strength of the 2200 A bump (default = 3.23)</span>
+<span class="sd">		 c4 - FUV curvature (default = 0.41)</span>
+<span class="sd">		 c2 - Slope of the linear UV extinction component </span>
+<span class="sd">			  (default = -0.824 + 4.717/R)</span>
+<span class="sd">		 c1 - Intercept of the linear UV extinction component </span>
+<span class="sd">			  (default = 2.030 - 3.007*c2</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+
+	<span class="n">x</span> <span class="o">=</span> <span class="mf">10000.</span><span class="o">/</span> <span class="n">wave</span> <span class="c1"># Convert to inverse microns </span>
+	<span class="n">curve</span> <span class="o">=</span> <span class="n">x</span><span class="o">*</span><span class="mf">0.</span>
+
+	<span class="c1"># Set some standard values:</span>
+	<span class="n">x0</span> <span class="o">=</span> <span class="mf">4.596</span>
+	<span class="n">gamma</span> <span class="o">=</span>  <span class="mf">0.99</span>
+	<span class="n">c3</span> <span class="o">=</span>  <span class="mf">3.23</span>      
+	<span class="n">c4</span> <span class="o">=</span>  <span class="mf">0.41</span>    
+	<span class="n">c2</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.824</span> <span class="o">+</span> <span class="mf">4.717</span><span class="o">/</span><span class="n">R_V</span>
+	<span class="n">c1</span> <span class="o">=</span>  <span class="mf">2.030</span> <span class="o">-</span> <span class="mf">3.007</span><span class="o">*</span><span class="n">c2</span>
+
+	<span class="k">if</span> <span class="n">LMC2</span><span class="p">:</span>
+		<span class="n">x0</span>    <span class="o">=</span>  <span class="mf">4.626</span>
+		<span class="n">gamma</span> <span class="o">=</span>  <span class="mf">1.05</span>   
+		<span class="n">c4</span>   <span class="o">=</span>  <span class="mf">0.42</span>   
+		<span class="n">c3</span>    <span class="o">=</span>  <span class="mf">1.92</span>      
+		<span class="n">c2</span>    <span class="o">=</span> <span class="mf">1.31</span>
+		<span class="n">c1</span>    <span class="o">=</span>  <span class="o">-</span><span class="mf">2.16</span>
+	<span class="k">elif</span> <span class="n">AVGLMC</span><span class="p">:</span>   
+		<span class="n">x0</span> <span class="o">=</span> <span class="mf">4.596</span>  
+		<span class="n">gamma</span> <span class="o">=</span> <span class="mf">0.91</span>
+		<span class="n">c4</span>   <span class="o">=</span>  <span class="mf">0.64</span>  
+		<span class="n">c3</span>    <span class="o">=</span>  <span class="mf">2.73</span>      
+		<span class="n">c2</span>    <span class="o">=</span> <span class="mf">1.11</span>
+		<span class="n">c1</span>    <span class="o">=</span>  <span class="o">-</span><span class="mf">1.28</span>
+
+	<span class="c1"># Compute UV portion of A(lambda)/E(B-V) curve using FM fitting function and </span>
+	<span class="c1"># R-dependent coefficients</span>
+	<span class="n">xcutuv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">10000.0</span><span class="o">/</span><span class="mf">2700.0</span><span class="p">])</span>
+	<span class="n">xspluv</span> <span class="o">=</span> <span class="mf">10000.0</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">2700.0</span><span class="p">,</span><span class="mf">2600.0</span><span class="p">])</span>
+
+	<span class="n">iuv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">x</span> <span class="o">&gt;=</span> <span class="n">xcutuv</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+	<span class="n">N_UV</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">iuv</span><span class="p">)</span>
+	<span class="n">iopir</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">x</span> <span class="o">&lt;</span> <span class="n">xcutuv</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+	<span class="n">Nopir</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">iopir</span><span class="p">)</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">N_UV</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span> <span class="n">xuv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">xspluv</span><span class="p">,</span><span class="n">x</span><span class="p">[</span><span class="n">iuv</span><span class="p">]))</span>
+	<span class="k">else</span><span class="p">:</span>  <span class="n">xuv</span> <span class="o">=</span> <span class="n">xspluv</span>
+
+	<span class="n">yuv</span> <span class="o">=</span> <span class="n">c1</span>  <span class="o">+</span> <span class="n">c2</span><span class="o">*</span><span class="n">xuv</span>
+	<span class="n">yuv</span> <span class="o">=</span> <span class="n">yuv</span> <span class="o">+</span> <span class="n">c3</span><span class="o">*</span><span class="n">xuv</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="p">((</span><span class="n">xuv</span><span class="o">**</span><span class="mi">2</span><span class="o">-</span><span class="n">x0</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span><span class="p">(</span><span class="n">xuv</span><span class="o">*</span><span class="n">gamma</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+	<span class="n">yuv</span> <span class="o">=</span> <span class="n">yuv</span> <span class="o">+</span> <span class="n">c4</span><span class="o">*</span><span class="p">(</span><span class="mf">0.5392</span><span class="o">*</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">xuv</span><span class="p">,</span><span class="mf">5.9</span><span class="p">)</span><span class="o">-</span><span class="mf">5.9</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="mf">0.05644</span><span class="o">*</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">xuv</span><span class="p">,</span><span class="mf">5.9</span><span class="p">)</span><span class="o">-</span><span class="mf">5.9</span><span class="p">)</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span>
+	<span class="n">yuv</span> <span class="o">=</span> <span class="n">yuv</span> <span class="o">+</span> <span class="n">R_V</span>
+	<span class="n">yspluv</span>  <span class="o">=</span> <span class="n">yuv</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span>  <span class="c1"># save spline points</span>
+ 
+	<span class="k">if</span> <span class="p">(</span><span class="n">N_UV</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span> <span class="n">curve</span><span class="p">[</span><span class="n">iuv</span><span class="p">]</span> <span class="o">=</span> <span class="n">yuv</span><span class="p">[</span><span class="mi">2</span><span class="p">::]</span> <span class="c1"># remove spline points</span>
+
+	<span class="c1"># Compute optical portion of A(lambda)/E(B-V) curve</span>
+	<span class="c1"># using cubic spline anchored in UV, optical, and IR</span>
+	<span class="n">xsplopir</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(([</span><span class="mi">0</span><span class="p">],</span><span class="mf">10000.0</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">26500.0</span><span class="p">,</span><span class="mf">12200.0</span><span class="p">,</span><span class="mf">6000.0</span><span class="p">,</span><span class="mf">5470.0</span><span class="p">,</span><span class="mf">4670.0</span><span class="p">,</span><span class="mf">4110.0</span><span class="p">])))</span>
+	<span class="n">ysplir</span>   <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span><span class="mf">0.26469</span><span class="p">,</span><span class="mf">0.82925</span><span class="p">])</span><span class="o">*</span><span class="n">R_V</span><span class="o">/</span><span class="mf">3.1</span> 
+	<span class="n">ysplop</span>   <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">polyval</span><span class="p">([</span><span class="o">-</span><span class="mf">4.22809e-01</span><span class="p">,</span> <span class="mf">1.00270</span><span class="p">,</span> <span class="mf">2.13572e-04</span><span class="p">][::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">R_V</span> <span class="p">),</span> 
+			<span class="n">np</span><span class="o">.</span><span class="n">polyval</span><span class="p">([</span><span class="o">-</span><span class="mf">5.13540e-02</span><span class="p">,</span> <span class="mf">1.00216</span><span class="p">,</span> <span class="o">-</span><span class="mf">7.35778e-05</span><span class="p">][::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">R_V</span> <span class="p">),</span> 
+			<span class="n">np</span><span class="o">.</span><span class="n">polyval</span><span class="p">([</span> <span class="mf">7.00127e-01</span><span class="p">,</span> <span class="mf">1.00184</span><span class="p">,</span> <span class="o">-</span><span class="mf">3.32598e-05</span><span class="p">][::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">R_V</span> <span class="p">),</span> 
+			<span class="n">np</span><span class="o">.</span><span class="n">polyval</span><span class="p">([</span> <span class="mf">1.19456</span><span class="p">,</span> <span class="mf">1.01707</span><span class="p">,</span> <span class="o">-</span><span class="mf">5.46959e-03</span><span class="p">,</span> <span class="mf">7.97809e-04</span><span class="p">,</span> <span class="o">-</span><span class="mf">4.45636e-05</span><span class="p">][::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">R_V</span> <span class="p">)</span> <span class="p">))</span>
+	<span class="n">ysplopir</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">ysplir</span><span class="p">,</span><span class="n">ysplop</span><span class="p">))</span>
+
+	<span class="k">if</span> <span class="p">(</span><span class="n">Nopir</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span> 
+	  <span class="n">tck</span> <span class="o">=</span> <span class="n">interpolate</span><span class="o">.</span><span class="n">splrep</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">xsplopir</span><span class="p">,</span><span class="n">xspluv</span><span class="p">)),</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">ysplopir</span><span class="p">,</span><span class="n">yspluv</span><span class="p">)),</span><span class="n">s</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+	  <span class="n">curve</span><span class="p">[</span><span class="n">iopir</span><span class="p">]</span> <span class="o">=</span> <span class="n">interpolate</span><span class="o">.</span><span class="n">splev</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">iopir</span><span class="p">],</span> <span class="n">tck</span><span class="p">)</span>
+
+	<span class="c1">#Now apply extinction correction to input flux vector</span>
+	<span class="n">curve</span> <span class="o">*=</span> <span class="n">ebv</span>
+
+	<span class="k">return</span> <span class="mf">10.</span><span class="o">**</span><span class="p">(</span><span class="mf">0.4</span><span class="o">*</span><span class="n">curve</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="hpf"><a class="viewcode-back" href="../firefly_dust.html#firefly_dust.hpf">[docs]</a><span class="k">def</span> <span class="nf">hpf</span><span class="p">(</span><span class="n">flux</span><span class="p">,</span><span class="n">windowsize</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">w_start</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	What does this one do ? High pass filtering ?</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+	<span class="n">D</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">flux</span><span class="p">)</span>
+	<span class="n">w</span> <span class="o">=</span> <span class="n">w_start</span>
+	<span class="n">f</span> <span class="o">=</span> <span class="n">flux</span>
+
+	<span class="c1"># Rita&#39;s typical inputs for SDSS:</span>
+	<span class="c1"># w = 10 # 10</span>
+	<span class="c1"># windowsize = 20 # 20</span>
+
+	<span class="c1"># My MaNGA inputs:</span>
+	<span class="c1"># if w == 0 and windowsize == 0:</span>
+	<span class="c1">#     w = 40</span>
+	<span class="c1">#     windowsize = 0</span>
+	<span class="k">if</span> <span class="n">w</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">windowsize</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+		<span class="n">w</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">D</span><span class="o">/</span><span class="mf">100.0</span><span class="p">)</span>
+		<span class="n">windowsize</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+	<span class="n">h</span>           <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+	<span class="n">h_filtered</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">D</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+	<span class="n">window</span>      <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">D</span><span class="p">)</span>
+	<span class="n">unwindow</span>    <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">D</span><span class="p">)</span>
+	<span class="n">dw</span>          <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">windowsize</span><span class="p">)</span>
+	<span class="n">dw_float</span>    <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">windowsize</span><span class="p">)</span>
+	<span class="n">window</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>   <span class="o">=</span> <span class="mi">1</span> <span class="c1"># keep F0 for normalisation</span>
+	<span class="n">unwindow</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+	<span class="k">if</span> <span class="n">windowsize</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dw</span><span class="p">):</span>
+			<span class="n">window</span><span class="p">[</span><span class="n">w</span><span class="o">+</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mf">1.0</span><span class="p">)</span><span class="o">/</span><span class="n">dw_float</span>
+			<span class="n">window</span><span class="p">[</span><span class="n">D</span><span class="o">-</span><span class="mi">1</span><span class="o">-</span><span class="p">(</span><span class="n">w</span><span class="o">+</span><span class="n">dw</span><span class="o">-</span><span class="n">i</span><span class="p">)]</span> <span class="o">=</span> <span class="p">(</span><span class="n">dw_float</span><span class="o">-</span><span class="n">i</span><span class="p">)</span><span class="o">/</span><span class="n">dw_float</span>
+
+		<span class="n">window</span><span class="p">[</span><span class="n">w</span><span class="o">+</span><span class="n">dw</span><span class="p">:</span><span class="n">D</span><span class="o">-</span><span class="p">(</span><span class="n">w</span><span class="o">+</span><span class="n">dw</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="n">window</span><span class="p">[</span><span class="n">w</span><span class="p">:</span><span class="n">D</span><span class="o">-</span><span class="n">w</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+
+	<span class="n">unwindow</span>        <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">window</span>
+	<span class="n">unwindow</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>     <span class="o">=</span> <span class="mi">1</span>
+
+	<span class="n">h_filtered</span>      <span class="o">=</span> <span class="n">h</span> <span class="o">*</span> <span class="n">window</span>
+	<span class="n">un_h_filtered</span>   <span class="o">=</span> <span class="n">h</span><span class="o">*</span><span class="n">unwindow</span>
+
+	<span class="n">res</span>     <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifft</span><span class="p">(</span><span class="n">h_filtered</span><span class="p">))</span>
+	<span class="n">unres</span>   <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifft</span><span class="p">(</span><span class="n">un_h_filtered</span><span class="p">))</span> 
+	<span class="n">res_out</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span><span class="o">+</span><span class="p">(</span><span class="n">res</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">res</span><span class="p">))</span><span class="o">/</span><span class="n">unres</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">res</span><span class="p">)</span> 
+
+	<span class="k">return</span> <span class="n">res_out</span> </div>
+
+
+<div class="viewcode-block" id="determine_attenuation"><a class="viewcode-back" href="../firefly_dust.html#firefly_dust.determine_attenuation">[docs]</a><span class="k">def</span> <span class="nf">determine_attenuation</span><span class="p">(</span><span class="n">wave</span><span class="p">,</span><span class="n">data_flux</span><span class="p">,</span><span class="n">error_flux</span><span class="p">,</span><span class="n">model_flux</span><span class="p">,</span><span class="n">SPM</span><span class="p">,</span><span class="n">age</span><span class="p">,</span><span class="n">metal</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	Determines the dust attenuation to be applied to the models based on the data.</span>
+<span class="sd">	 * 1. high pass filters the data and the models : makes hpf_model and hpf_data</span>
+<span class="sd">	 * 2. normalises the hpf_models to the median hpf_data</span>
+<span class="sd">	 * 3. fits the hpf models to data : chi2 maps</span>
+<span class="sd">	 * </span>
+<span class="sd">	:param wave: wavelength</span>
+<span class="sd">	:param data_flux: data flux</span>
+<span class="sd">	:param error_flux: error flux</span>
+<span class="sd">	:param model_flux: model flux</span>
+<span class="sd">	:param SPM: SPM StellarPopulationModel object</span>
+<span class="sd">	:param age: age</span>
+<span class="sd">	:param metal: metallicity</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+	<span class="c1"># 1. high pass filters the data and the models</span>
+	<span class="n">smoothing_length</span> <span class="o">=</span> <span class="n">SPM</span><span class="o">.</span><span class="n">dust_smoothing_length</span>
+	<span class="n">hpf_data</span>    <span class="o">=</span> <span class="n">hpf</span><span class="p">(</span><span class="n">data_flux</span><span class="p">)</span>
+	<span class="n">hpf_models</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">model_flux</span><span class="p">))</span>
+	<span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">model_flux</span><span class="p">)):</span>
+		<span class="n">hpf_models</span><span class="p">[</span><span class="n">m</span><span class="p">]</span> <span class="o">=</span> <span class="n">hpf</span><span class="p">(</span><span class="n">model_flux</span><span class="p">[</span><span class="n">m</span><span class="p">])</span>
+
+	<span class="n">zero_dat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">hpf_data</span><span class="p">))</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isinf</span><span class="p">(</span><span class="n">hpf_data</span><span class="p">))</span> <span class="p">)</span>
+	<span class="n">hpf_data</span><span class="p">[</span><span class="n">zero_dat</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+	<span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">model_flux</span><span class="p">)):</span>
+		<span class="n">hpf_models</span><span class="p">[</span><span class="n">m</span><span class="p">,</span><span class="n">zero_dat</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+	<span class="n">hpf_error</span>    <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">error_flux</span><span class="p">))</span>
+	<span class="n">hpf_error</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">error_flux</span><span class="p">)</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">data_flux</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">hpf_data</span><span class="p">)</span>
+	<span class="n">hpf_error</span><span class="p">[</span><span class="n">zero_dat</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">hpf_error</span><span class="p">)</span><span class="o">*</span><span class="mf">999999.9</span>
+	<span class="c1"># 2. normalises the hpf_models to the median hpf_data</span>
+	<span class="n">hpf_models</span><span class="p">,</span><span class="n">mass_factors</span> <span class="o">=</span> <span class="n">normalise_spec</span><span class="p">(</span><span class="n">hpf_data</span><span class="p">,</span><span class="n">hpf_models</span><span class="p">)</span>
+	<span class="c1"># 3. fits the hpf models to data : chi2 maps</span>
+	<span class="n">hpf_weights</span><span class="p">,</span><span class="n">hpf_chis</span><span class="p">,</span><span class="n">hpf_branch</span> <span class="o">=</span> <span class="n">fitter</span><span class="p">(</span><span class="n">wave</span><span class="p">,</span><span class="n">hpf_data</span><span class="p">,</span><span class="n">hpf_error</span><span class="p">,</span> <span class="n">hpf_models</span> <span class="p">,</span> <span class="n">SPM</span> <span class="p">)</span>
+	<span class="c1"># 4. use best fit to determine the attenuation curve : fine_attenuation</span>
+	<span class="n">best_fit_index</span>  <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">hpf_chis</span><span class="p">)]</span>
+	<span class="n">best_fit_hpf</span>    <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">hpf_weights</span><span class="p">[</span><span class="n">best_fit_index</span><span class="p">],</span><span class="n">hpf_models</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+	<span class="n">best_fit</span>        <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">hpf_weights</span><span class="p">[</span><span class="n">best_fit_index</span><span class="p">],</span><span class="n">model_flux</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+	<span class="n">fine_attenuation</span><span class="o">=</span> <span class="p">(</span><span class="n">data_flux</span> <span class="o">/</span> <span class="n">best_fit</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="n">hpf_data</span><span class="o">/</span><span class="n">best_fit_hpf</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+	<span class="n">bad_atten</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">fine_attenuation</span><span class="p">)</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">isinf</span><span class="p">(</span><span class="n">fine_attenuation</span><span class="p">)</span>
+	<span class="n">fine_attenuation</span><span class="p">[</span><span class="n">bad_atten</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+	<span class="n">hpf_error</span><span class="p">[</span><span class="n">bad_atten</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">hpf_error</span><span class="p">)</span><span class="o">*</span><span class="mf">9999999999.9</span> 
+	<span class="n">fine_attenuation</span><span class="o">=</span> <span class="n">fine_attenuation</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">fine_attenuation</span><span class="p">)</span>
+	<span class="c1"># 5. propagates the hpf to the age and metallicity estimates</span>
+	<span class="n">av_age_hpf</span>      <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">hpf_weights</span><span class="p">,</span><span class="n">age</span><span class="p">)</span>
+	<span class="n">av_metal_hpf</span>    <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">hpf_weights</span><span class="p">,</span><span class="n">metal</span><span class="p">)</span>
+	<span class="c1"># 6. smoothes the attenuation curve obtained</span>
+	<span class="n">smooth_attenuation</span> <span class="o">=</span> <span class="n">curve_smoother</span><span class="p">(</span><span class="n">wave</span><span class="p">,</span><span class="n">fine_attenuation</span><span class="p">,</span><span class="n">smoothing_length</span><span class="p">)</span>
+	<span class="c1"># Fit a dust attenuation law to the best fit attenuation.</span>
+	<span class="k">if</span> <span class="n">SPM</span><span class="o">.</span><span class="n">dust_law</span> <span class="o">==</span> <span class="s1">&#39;calzetti&#39;</span><span class="p">:</span>
+		<span class="c1"># Assume E(B-V) distributed 0 to max_ebv</span>
+		<span class="n">num_laws</span> <span class="o">=</span> <span class="n">SPM</span><span class="o">.</span><span class="n">num_dust_vals</span>
+		<span class="n">ebv_arr</span>     <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">num_laws</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">SPM</span><span class="o">.</span><span class="n">max_ebv</span><span class="o">*</span><span class="n">num_laws</span><span class="o">*</span><span class="mf">1.0</span><span class="p">)</span>
+		<span class="n">chi_dust</span>    <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_laws</span><span class="p">)</span>
+		<span class="k">for</span> <span class="n">ei</span><span class="p">,</span><span class="n">e</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ebv_arr</span><span class="p">):</span>
+			<span class="n">laws</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dust_calzetti_py</span><span class="p">(</span><span class="n">e</span><span class="p">,</span><span class="n">wave</span><span class="p">))</span>
+			<span class="n">laws</span> <span class="o">=</span> <span class="n">laws</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">laws</span><span class="p">)</span>
+			<span class="n">chi_dust_arr</span> <span class="o">=</span> <span class="p">(</span><span class="n">smooth_attenuation</span><span class="o">-</span><span class="n">laws</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+			<span class="n">chi_clipped_arr</span>     <span class="o">=</span> <span class="n">sigmaclip</span><span class="p">(</span><span class="n">chi_dust_arr</span><span class="p">,</span> <span class="n">low</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mf">3.0</span><span class="p">)</span>
+			<span class="n">chi_clip_sq</span>         <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">chi_clipped_arr</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+			<span class="n">chi_dust</span><span class="p">[</span><span class="n">ei</span><span class="p">]</span>        <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">chi_clip_sq</span><span class="p">)</span>
+
+		<span class="n">dust_fit</span> 			<span class="o">=</span> <span class="n">ebv_arr</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">chi_dust</span><span class="p">)]</span>
+		<span class="c1">#laws                = np.array(dust_calzetti_py(dust_fit,wave))</span>
+		<span class="c1">#laws 				= laws/np.median(laws)</span>
+		<span class="c1">#chi_dust_arr        = (smooth_attenuation-laws)**2</span>
+		<span class="c1">#chi_clipped_arr     = sigmaclip(chi_dust_arr, low=3.0, high=3.0)</span>
+		<span class="c1">#chi_clip_sq         = np.square(chi_clipped_arr[0])</span>
+		<span class="c1">#clipped_arr         = np.where((chi_dust_arr &gt; chi_clipped_arr[1]) &amp; (chi_dust_arr &lt; chi_clipped_arr[2]))[0]</span>
+		<span class="c1">#	</span>
+		<span class="c1">#for m in range(min([100,np.size(hpf_chis)])):</span>
+		<span class="c1">#	sort_ind = np.argsort(hpf_chis)</span>
+		<span class="c1">#	attenuation= data_flux/(np.dot(hpf_weights[sort_ind[m]],model_flux))</span>
+		<span class="c1">#	attenuation= attenuation/np.median(attenuation)</span>
+
+	<span class="nb">print</span> <span class="s2">&quot;Best E(B-V) = &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">dust_fit</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">dust_fit</span><span class="p">,</span><span class="n">smooth_attenuation</span></div>
+
+</pre></div>
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      
+        <p>
+        <a class="uplink" href="../index.html">Contents</a>
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2015, johan comparat.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.6.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,10 @@
+# MVIR function
+================================
+
+# to be run in this order to reproduce the analysis :
+
+python mvir-0-gather-measurements.py
+python mvir-1-plotData.py
+python mvir-2-plotCovariance.py
+python mvir-3-joint_fit.py
+python mvir-4-compare-previous-fits.py

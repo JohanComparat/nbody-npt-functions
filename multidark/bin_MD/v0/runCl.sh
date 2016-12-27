@@ -1,0 +1,36 @@
+#!/bin/bash/
+
+/home2/jcomparat/code/CUTE-1.1/CUTE/CUTE /data2/DATA/eBOSS/ELG/HAM-mocks/SHAM_ELGdensity_radecz.param2PCFangular
+/home2/jcomparat/code/CUTE-1.1/CUTE/CUTE /data2/DATA/eBOSS/ELG/HAM-mocks/SHAM_ELGdensity_radecz.param2PCFmonopole
+/home2/jcomparat/code/CUTE-1.1/CUTE/CUTE /data2/DATA/eBOSS/ELG/HAM-mocks/SHAM_inc10000_ELGdensity_radecz.param2PCFangular
+/home2/jcomparat/code/CUTE-1.1/CUTE/CUTE /data2/DATA/eBOSS/ELG/HAM-mocks/SHAM_inc10000_ELGdensity_radecz.param2PCFmonopole
+/home2/jcomparat/code/CUTE-1.1/CUTE/CUTE /data2/DATA/eBOSS/ELG/HAM-mocks/SHAM_inc1000_ELGdensity_radecz.param2PCFangular
+/home2/jcomparat/code/CUTE-1.1/CUTE/CUTE /data2/DATA/eBOSS/ELG/HAM-mocks/SHAM_inc1000_ELGdensity_radecz.param2PCFmonopole
+/home2/jcomparat/code/CUTE-1.1/CUTE/CUTE /data2/DATA/eBOSS/ELG/HAM-mocks/SHAM_inc100_ELGdensity_radecz.param2PCFangular
+/home2/jcomparat/code/CUTE-1.1/CUTE/CUTE /data2/DATA/eBOSS/ELG/HAM-mocks/SHAM_inc100_ELGdensity_radecz.param2PCFmonopole
+/home2/jcomparat/code/CUTE-1.1/CUTE/CUTE /data2/DATA/eBOSS/ELG/HAM-mocks/SHAM_inc10_ELGdensity_radecz.param2PCFangular
+/home2/jcomparat/code/CUTE-1.1/CUTE/CUTE /data2/DATA/eBOSS/ELG/HAM-mocks/SHAM_inc10_ELGdensity_radecz.param2PCFmonopole
+/home2/jcomparat/code/CUTE-1.1/CUTE/CUTE /data2/DATA/eBOSS/ELG/HAM-mocks/SHAM_inc200_ELGdensity_radecz.param2PCFangular
+/home2/jcomparat/code/CUTE-1.1/CUTE/CUTE /data2/DATA/eBOSS/ELG/HAM-mocks/SHAM_inc200_ELGdensity_radecz.param2PCFmonopole
+/home2/jcomparat/code/CUTE-1.1/CUTE/CUTE /data2/DATA/eBOSS/ELG/HAM-mocks/SHAM_inc2_ELGdensity_radecz.param2PCFangular
+/home2/jcomparat/code/CUTE-1.1/CUTE/CUTE /data2/DATA/eBOSS/ELG/HAM-mocks/SHAM_inc2_ELGdensity_radecz.param2PCFmonopole
+/home2/jcomparat/code/CUTE-1.1/CUTE/CUTE /data2/DATA/eBOSS/ELG/HAM-mocks/SHAM_inc300_ELGdensity_radecz.param2PCFangular
+/home2/jcomparat/code/CUTE-1.1/CUTE/CUTE /data2/DATA/eBOSS/ELG/HAM-mocks/SHAM_inc300_ELGdensity_radecz.param2PCFmonopole
+/home2/jcomparat/code/CUTE-1.1/CUTE/CUTE /data2/DATA/eBOSS/ELG/HAM-mocks/SHAM_inc4000_ELGdensity_radecz.param2PCFangular
+/home2/jcomparat/code/CUTE-1.1/CUTE/CUTE /data2/DATA/eBOSS/ELG/HAM-mocks/SHAM_inc4000_ELGdensity_radecz.param2PCFmonopole
+/home2/jcomparat/code/CUTE-1.1/CUTE/CUTE /data2/DATA/eBOSS/ELG/HAM-mocks/SHAM_inc400_ELGdensity_radecz.param2PCFangular
+/home2/jcomparat/code/CUTE-1.1/CUTE/CUTE /data2/DATA/eBOSS/ELG/HAM-mocks/SHAM_inc400_ELGdensity_radecz.param2PCFmonopole
+/home2/jcomparat/code/CUTE-1.1/CUTE/CUTE /data2/DATA/eBOSS/ELG/HAM-mocks/SHAM_inc5000_ELGdensity_radecz.param2PCFangular
+/home2/jcomparat/code/CUTE-1.1/CUTE/CUTE /data2/DATA/eBOSS/ELG/HAM-mocks/SHAM_inc5000_ELGdensity_radecz.param2PCFmonopole
+/home2/jcomparat/code/CUTE-1.1/CUTE/CUTE /data2/DATA/eBOSS/ELG/HAM-mocks/SHAM_inc500_ELGdensity_radecz.param2PCFangular
+/home2/jcomparat/code/CUTE-1.1/CUTE/CUTE /data2/DATA/eBOSS/ELG/HAM-mocks/SHAM_inc500_ELGdensity_radecz.param2PCFmonopole
+/home2/jcomparat/code/CUTE-1.1/CUTE/CUTE /data2/DATA/eBOSS/ELG/HAM-mocks/SHAM_inc5_ELGdensity_radecz.param2PCFangular
+/home2/jcomparat/code/CUTE-1.1/CUTE/CUTE /data2/DATA/eBOSS/ELG/HAM-mocks/SHAM_inc5_ELGdensity_radecz.param2PCFmonopole
+/home2/jcomparat/code/CUTE-1.1/CUTE/CUTE /data2/DATA/eBOSS/ELG/HAM-mocks/SHAM_inc6000_ELGdensity_radecz.param2PCFangular
+/home2/jcomparat/code/CUTE-1.1/CUTE/CUTE /data2/DATA/eBOSS/ELG/HAM-mocks/SHAM_inc6000_ELGdensity_radecz.param2PCFmonopole
+/home2/jcomparat/code/CUTE-1.1/CUTE/CUTE /data2/DATA/eBOSS/ELG/HAM-mocks/SHAM_inc600_ELGdensity_radecz.param2PCFangular
+/home2/jcomparat/code/CUTE-1.1/CUTE/CUTE /data2/DATA/eBOSS/ELG/HAM-mocks/SHAM_inc600_ELGdensity_radecz.param2PCFmonopole
+/home2/jcomparat/code/CUTE-1.1/CUTE/CUTE /data2/DATA/eBOSS/ELG/HAM-mocks/SHAM_inc7000_ELGdensity_radecz.param2PCFangular
+/home2/jcomparat/code/CUTE-1.1/CUTE/CUTE /data2/DATA/eBOSS/ELG/HAM-mocks/SHAM_inc7000_ELGdensity_radecz.param2PCFmonopole
+/home2/jcomparat/code/CUTE-1.1/CUTE/CUTE /data2/DATA/eBOSS/ELG/HAM-mocks/SHAM_inc90_ELGdensity_radecz.param2PCFangular
+/home2/jcomparat/code/CUTE-1.1/CUTE/CUTE /data2/DATA/eBOSS/ELG/HAM-mocks/SHAM_inc90_ELGdensity_radecz.param2PCFmonopole

@@ -1,0 +1,211 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Stellar population model &#8212; pySU, python Skies and Universes 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="pySU, python Skies and Universes 1.0 documentation" href="index.html" />
+    <link rel="prev" title="FIREFLY Spectra" href="GalaxySpectrumFIREFLY.html" /> 
+  </head>
+  <body role="document">
+      <div class="header" role="banner"><h1 class="heading"><a href="index.html">
+          <span>pySU, python Skies and Universes 1.0 documentation</span></a></h1>
+        <h2 class="heading"><span>Stellar population model</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="top navigation">
+      
+        <p>
+        «&#160;&#160;<a href="GalaxySpectrumFIREFLY.html">FIREFLY Spectra</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="stellar-population-model">
+<h1>Stellar population model<a class="headerlink" href="#stellar-population-model" title="Permalink to this headline">¶</a></h1>
+<p>This class is dedicated to handling the fitting of the stellar population model with the FIREFLY code, see Wilkinson et al. 2015.</p>
+<p><a class="reference external" href="https://arxiv.org/abs/1503.01124">https://arxiv.org/abs/1503.01124</a></p>
+<span class="target" id="module-StellarPopulationModel"></span><div class="section" id="general-purpose">
+<h2>General purpose:<a class="headerlink" href="#general-purpose" title="Permalink to this headline">¶</a></h2>
+<p>The class StellarPopulationModel is a wrapper dedicated to handling the fit of stellar population models on observed spectra. 
+It gathers all inputs : from the model and from the data.</p>
+<p><em>Imports</em>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">astropy.io.fits</span> <span class="k">as</span> <span class="nn">pyfits</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">u</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">firefly_instrument</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">firefly_dust</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">firefly_fitter</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">firefly_library</span> <span class="k">import</span> <span class="o">*</span>
+</pre></div>
+</div>
+<dl class="class">
+<dt id="StellarPopulationModel.StellarPopulationModel">
+<em class="property">class </em><code class="descclassname">StellarPopulationModel.</code><code class="descname">StellarPopulationModel</code><span class="sig-paren">(</span><em>specObs, outputFile, cosmo, models='m11', model_libs=['MILES_UVextended'], imfs=['ss', 'kr'], hpf_mode='on', age_limits=[6, 10.1], downgrade_models=True, dust_law='calzetti', max_ebv=1.5, num_dust_vals=200, dust_smoothing_length=200, max_iterations=10, fit_per_iteration_cap=1000, pdf_sampling=300, data_wave_medium='vacuum', Z_limits=[-0.1, 0.1], wave_limits=[0, 99999990], suffix='-fireflyFits.fits', use_downgraded_models=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/StellarPopulationModel.html#StellarPopulationModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#StellarPopulationModel.StellarPopulationModel" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>specObs</strong> &#8211; specObs observed spectrum object initiated with the  GalaxySpectrumFIREFLY class.</li>
+<li><strong>models</strong> &#8211; <p>choose between &#8216;m11&#8217;, &#8216;bc03&#8217; or &#8216;m09&#8217;.</p>
+<ul>
+<li>m11 corresponds to all the models compared in <a class="reference external" href="http://adsabs.harvard.edu/abs/2011MNRAS.418.2785M">Maraston and Stromback 2011</a>.</li>
+<li>m09 to <a class="reference external" href="http://adsabs.harvard.edu/abs/2009A%26A...493..425M">Maraston et al. 2009</a>.</li>
+<li>bc03 to the <a class="reference external" href="http://adsabs.harvard.edu/abs/2003MNRAS.344.1000B">Bruzual and Charlot 2003 models</a>.</li>
+</ul>
+</li>
+<li><strong>model_libs</strong> &#8211; only necessary if using m11.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Choose between <a class="reference external" href="http://adsabs.harvard.edu/abs/2011A%26A...532A..95F">MILES</a>, MILES revisednearIRslope, MILES UVextended, <a class="reference external" href="http://adsabs.harvard.edu/abs/2003A%26A...402..433L">STELIB</a>, <a class="reference external" href="http://adsabs.harvard.edu/abs/2007astro.ph..3658P">ELODIE</a>, <a class="reference external" href="http://adsabs.harvard.edu/abs/2008A%26A...486..951G">MARCS</a>.</p>
+<blockquote>
+<div><ul class="simple">
+<li>MILES, MILES revisednearIRslope, MILES UVextended, STELIB, ELODIE are empirical libraries.</li>
+<li>MARCS is a theoretical library.</li>
+</ul>
+</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>imfs</strong> &#8211; <p>choose the <a class="reference external" href="https://en.wikipedia.org/wiki/Initial_mass_function">initial mass function</a>:</p>
+<blockquote>
+<div><ul class="simple">
+<li>&#8216;ss&#8217; for <a href="#id1"><span class="problematic" id="id2">`</span></a>Salpeter &lt;<a class="reference external" href="http://adsabs.harvard.edu/abs/1955ApJ...121..161S">http://adsabs.harvard.edu/abs/1955ApJ...121..161S</a>&gt;`_or</li>
+<li>&#8216;kr&#8217; for <a class="reference external" href="http://adsabs.harvard.edu/cgi-bin/bib_query?arXiv:1112.3340">Kroupa</a> or</li>
+<li>&#8216;cha&#8217; for <a class="reference external" href="http://adsabs.harvard.edu/abs/2003PASP..115..763C">Chabrier</a>.</li>
+</ul>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<dl class="last docutils">
+<dt><em>This is how it proceeds :</em></dt>
+<dd><ol class="first last arabic simple">
+<li>reads the parameter file by using parameters_obtain(parameters.py)</li>
+<li>It opens the data file, model files, then it matches their resolutions by downgrading the models to instrumental and velocity dispersion resolution</li>
+<li>Determines dust attenuation curve to be applied to the models. Two options : through HPF fitting (3.1.) or through filtered values to determing SP properties (3.2.).</li>
+<li>It fits the models to the data</li>
+<li>Gets mass-weighted SSP contributions using saved M/L ratio.</li>
+<li>Convert chis into probabilities and calculates all average properties and errors (assuming the number of degrees of freedom is the number of wavelength points)</li>
+<li>Optionally produces a plot</li>
+<li>Finally, it writes the output files</li>
+</ol>
+</dd>
+</dl>
+</div>
+<dl class="method">
+<dt id="StellarPopulationModel.StellarPopulationModel.fit_models_to_data">
+<code class="descname">fit_models_to_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/StellarPopulationModel.html#StellarPopulationModel.fit_models_to_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#StellarPopulationModel.StellarPopulationModel.fit_models_to_data" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Once the data and models are loaded, then execute this function to find the best model. It loops overs the models to be fitted on the data:</dt>
+<dd><ol class="first last arabic simple">
+<li>gets the models</li>
+<li>matches the model and data to the same resolution</li>
+<li>normalises the spectra</li>
+</ol>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="StellarPopulationModel.StellarPopulationModel.get_model">
+<code class="descname">get_model</code><span class="sig-paren">(</span><em>model_used</em>, <em>imf_used</em>, <em>deltal</em>, <em>vdisp</em>, <em>wave_instrument</em>, <em>r_instrument</em>, <em>ebv_mw</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/StellarPopulationModel.html#StellarPopulationModel.get_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#StellarPopulationModel.StellarPopulationModel.get_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves all relevant model files, in their downgraded format.
+If they aren&#8217;t downgraded to the correct resolution / velocity dispersion,
+takes the base models in their native form and converts to downgraded files.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>model_used</strong> &#8211; list of models to be used, for example [&#8216;m11&#8217;, &#8216;m09&#8217;].</li>
+<li><strong>imf_used</strong> &#8211; list of imf to be used, for example [&#8216;ss&#8217;, &#8216;cha&#8217;].</li>
+<li><strong>deltal</strong> &#8211; delta lambda in the models.</li>
+<li><strong>vdisp</strong> &#8211; velocity dispersion observed in the galaxy.</li>
+<li><strong>wave_instrument</strong> &#8211; wavelength array from the observations</li>
+<li><strong>r_instrument</strong> &#8211; resolution array from the observations</li>
+<li><strong>ebv_mw</strong> &#8211; E(B-V) from the dust maps for the galaxy.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<div><ol class="upperalpha">
+<li><p class="first">loads the models m11 or m09: maps parameters to the right files. Then it constructs the model array. Finally converts wavelengths to air or vacuum.</p>
+</li>
+<li><p class="first">downgrades the model to match data resolution</p>
+</li>
+<li><p class="first">applies attenuation</p>
+</li>
+<li><dl class="first docutils">
+<dt>stores models in </dt>
+<dd><p class="first last">self.model_wavelength, 
+self.model_flux, 
+self.age_model, 
+self.metal_model</p>
+</dd>
+</dl>
+</li>
+</ol>
+<p>and returns it as well</p>
+</div></blockquote>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      
+        <p>
+        «&#160;&#160;<a href="GalaxySpectrumFIREFLY.html">FIREFLY Spectra</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2015, johan comparat.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.6.
+    </div>
+  </body>
+</html>
