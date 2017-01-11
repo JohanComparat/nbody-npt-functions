@@ -37,6 +37,14 @@ from astropy.cosmology import FlatLambdaCDM
 import astropy.units as u
 cosmo = FlatLambdaCDM(H0=67.77*u.km/u.s/u.Mpc, Om0=0.307115, Ob0=0.048206)
 
+
+qty = 'mvir'
+dir = join(os.environ['MVIR_DIR'])
+# loads summary file
+dataMF = fits.open( join(dir, qty+"_summary.fits"))[1].data
+zzero = (dataMF['redshift']==0) & (dataMF['log_mvir']>3+dataMF['logMpart']) & (dataMF['dN_counts_cen'] > 10 )
+dlnSigM = abs(n.log(dataMF['log_mvir_max']-dataMF['log_mvir_min'])*dataMF['dlnsigmaMdlnM'])
+
 #lib.covariance_factor
 #lib.f_BH(sigma, 0.333, 0.788, 0.807, 1.795)
 bias = lambda sigma : lib.b_BH(sigma, a=0.8915, p=0.5524, q=1.578)
@@ -84,16 +92,16 @@ def plot_COV(fileC, binFile, gt14):
 	Then creates a dimension-less mass function matrix (1000 mass functions)
 	
 	"""
-	# hig mass end
+	# hig mass end M25 and M40
 	if gt14:
-		snFactor = n.array([4.8, 5.5, 8., 11., 12.])
-		svFactor = n.array([1./2., 1./3.2, 4.5, 5, 4.5])
+		snFactor = n.array([4.8,     4.2,   6.6, 9.1/1.3, 12.])
+		svFactor = n.array([1./3.2, 1./1.5, 3., 5/1.3  , 4.5])
 		binW = 0.025 
 		plotDir = "covariance_gt14"
-	#low mass end
+	#low mass end M04 and M10
 	else:
-		snFactor = n.array([4.8, 5.5, 8., 11., 12])
-		svFactor = n.array([1./2., 1./3.2, 4.5, 5, 4.5])
+		snFactor = n.array([4.8/1.1,    4.2/0.95,  6.6, 9.1, 12])
+		svFactor = n.array([2./1.1, 3.5/0.95 , 3.1,  5,    4.5])
 		binW = 0.125 
 		plotDir = "covariance_lt14"
 
@@ -130,12 +138,12 @@ def plot_COV(fileC, binFile, gt14):
 
 	nickname = {"MD_0.4Gpc": "M04", "MD_1Gpc": "M10", "MD_2.5Gpc": "M25", "MD_4Gpc": "M40","MD_2.5GpcNW": "M25n", "MD_4GpcNW": "M40n" , "DS_8Gpc": "D80" }
 	p.figure(1,(6,6))
-	p.axes([0.17, 0.17, 0.78, 0.78])
+	p.axes([0.17, 0.17, 0.75, 0.78])
 	p.title(nickname[boxName])#+" total")
 	tp=(xcv>ycv)# (xcv!=ycv)
-	p.scatter(-n.log10(xcv[tp]), -n.log10(ycv[tp]), c=n.log10(ctotal[tp]), s=25, edgecolors='none',vmin=-2,vmax=2., marker='s', label='data')
+	p.scatter(-n.log10(xcv[tp]), -n.log10(ycv[tp]), c=n.log10(ctotal[tp]), s=60, edgecolors='none',vmin=-2,vmax=2., marker='s', label='data')
 	tp=(xcv<ycv)# (xcv!=ycv)
-	p.scatter(-n.log10(xcv[tp]), -n.log10(ycv[tp]), c=n.log10(model[boxName](xcv, ycv)[tp]), s=25, edgecolors='none', vmin=-2,vmax=2, marker='o', label='model')
+	p.scatter(-n.log10(xcv[tp]), -n.log10(ycv[tp]), c=n.log10(model[boxName](xcv, ycv)[tp]), s=60, edgecolors='none', vmin=-2,vmax=2, marker='o', label='model')
 	cb = p.colorbar(shrink=0.7)
 	cb.set_label(r'$\log_{10}(C(\sigma_1, \sigma_2))$')
 	p.xlabel(r'$log_{10}(\sigma_1^{-1})$')
@@ -184,9 +192,9 @@ def plot_COV(fileC, binFile, gt14):
 	p.figure(2,(6,6))
 	p.axes([0.17, 0.17, 0.78, 0.78])
 	p.title(nickname[boxName])
-	tp=(xcv>ycv)
+	tp=(xcv>=ycv)
 	residuals = n.log10(ctotal[tp]/model[boxName](xcv, ycv)[tp])
-	p.scatter(-n.log10(xcv[tp]), -n.log10(ycv[tp]), c=residuals, s=25, edgecolors='none', vmin=-0.5,vmax=0.5, marker='s')
+	p.scatter(-n.log10(xcv[tp]), -n.log10(ycv[tp]), c=residuals, s=60, edgecolors='none', vmin=-0.5,vmax=0.5, marker='s')
 	cb = p.colorbar(shrink=0.7)
 	cb.set_label(r'$\log_{10}$(data/model)')
 	#p.xlim((-0.7, 0.6))
@@ -209,21 +217,27 @@ def plot_COV(fileC, binFile, gt14):
 	p.savefig(join(os.environ['MVIR_DIR'],plotDir,"cv_test"+boxName+".png"))
 	p.clf()
 	
+	
+	zSel = (zzero) & (dataMF['boxName'] ==boxName)
+		
 	p.figure(2,(6,6))
 	p.axes([0.17, 0.17, 0.78, 0.78])
 	p.title(nickname[boxName])
-	p.errorbar(-n.log10(xcv.diagonal()), n.log10(ctotal.diagonal()),yerr=0.1, label='data')
-	y=model[boxName](xcv, ycv)
-	p.plot(-n.log10(xcv.diagonal()), n.log10(y.diagonal()), 'k', label='model')
 	y=model_sn[boxName](xcv, ycv)
-	p.plot(-n.log10(xcv.diagonal()), n.log10(y.diagonal()), 'k-.', label='model sn')
+	p.plot(-n.log10(xcv.diagonal()), n.log10(y.diagonal()), 'k-.', label='shot noise')
 	y=model_sv[boxName](xcv, ycv)
-	p.plot(-n.log10(xcv.diagonal()), n.log10(y.diagonal()), 'k--', label='model sv')
+	p.plot(-n.log10(xcv.diagonal()), n.log10(y.diagonal()), 'k--', label='sample variance')
+	y=model[boxName](xcv, ycv)
+	p.plot(-n.log10(xcv.diagonal()), n.log10(y.diagonal()), 'k', label='$C_{model}$')
+
+	p.plot(-n.log10(xcv.diagonal()), n.log10(ctotal.diagonal()), 'b+', label=r'$C$')
+	p.plot(-n.log10(dataMF['sigmaM'][zSel]), n.log10(dataMF["std90_pc_cen"][zSel]), 'rx', label=r'$C^{JK}$')
+
 	#p.xlim((-0.7, 0.6))
 	p.grid()
 	#p.ylim((-0.7, 0.6))
 	p.xlabel(r'$log_{10}(\sigma^{-1})$')
-	p.ylabel(r'$log_{10}(C_{Diag})$')
+	p.ylabel(r'$log_{10}(C,\; C_{JK})$')
 	gl=p.legend(loc=0, frameon=False)
 	p.savefig(join(os.environ['MVIR_DIR'],plotDir,"covariance_matrix_"+boxName+"_diagonal.png"))
 	p.clf()
@@ -232,7 +246,7 @@ def plot_COV(fileC, binFile, gt14):
 	p.axes([0.17, 0.17, 0.78, 0.78])
 	p.title(nickname[boxName])
 	y=model[boxName](xcv, ycv).diagonal() / ctotal.diagonal()
-	p.plot(-n.log10(xcv.diagonal()), y, 'k', label='model')
+	p.plot(-n.log10(xcv.diagonal()), y, 'k')
 	#p.xlim((-0.7, 0.6))
 	p.grid()
 	#p.ylim((-0.7, 0.6))
@@ -249,12 +263,14 @@ def compCov(gt):
 	dout = []
 	if gt:
 		plotDir = "covariance_gt14"
-		for ii in iis:
+		MDnames= n.array([ 'M25','M25n','M40','M40n'])# , 'D80'])
+		for ii in iis[2:]:
 			dout.append( plot_COV(fileC[ii], fileB[ii], gt ))
 	#low mass end
 	else:
 		plotDir = "covariance_lt14"
-		for ii in iis[:-2]:
+		MDnames= n.array(['M04', 'M10'])
+		for ii in iis[:2]:
 			dout.append( plot_COV(fileC[ii], fileB[ii], gt ))
 
 	"""
@@ -267,7 +283,7 @@ def compCov(gt):
 	"""
 	f_mean, f_matrix, count_matrix, sigma, mass, residuals = n.transpose(dout)
 
-	MDnames= n.array(['M04', 'M10', 'M25','M25n','M40','M40n', 'D80'])
+	#MDnames= n.array(['M04', 'M10', 'M25','M25n','M40','M40n', 'D80'])
 
 	xmax = n.empty(len(MDnames))
 	p.figure(6,(6,6))
@@ -286,7 +302,7 @@ def compCov(gt):
 	p.clf()
 
 	print "data/model most populated bin"
-	for nm, xm in  zip(MDnames, xmax)[:-1]:
+	for nm, xm in  zip(MDnames, xmax):
 		print nm, 10**xm
 
 compCov(True)
@@ -320,13 +336,6 @@ var_total_L25_90 = lambda s1, s2 : var_sn_L25_90(s1) + var_sv_L25_90(s1, s2)
 var_total_L40_90 = lambda s1, s2 : var_sn_L40_90(s1) + var_sv_L40_90(s1, s2) 
 var_total_L80_90 = lambda s1, s2 : var_sn_L80_90(s1) + var_sv_L80_90(s1, s2) 
 
-
-qty = 'mvir'
-dir = join(os.environ['MVIR_DIR'])
-# loads summary file
-dataMF = fits.open( join(dir, qty+"_summary.fits"))[1].data
-zzero = (dataMF['redshift']==0) & (dataMF['log_mvir']>3+dataMF['logMpart']) & (dataMF['dN_counts_cen'] > 10 )
-dlnSigM = abs(n.log(dataMF['log_mvir_max']-dataMF['log_mvir_min'])*dataMF['dlnsigmaMdlnM'])
 
 p.figure(0, (6,6))
 p.axes([0.17, 0.17, 0.78, 0.78])
