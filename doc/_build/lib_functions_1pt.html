@@ -49,6 +49,349 @@
   <div class="section" id="library-of-functions-to-handleone-point-functions">
 <h1>Library of functions to handleone point functions<a class="headerlink" href="#library-of-functions-to-handleone-point-functions" title="Permalink to this headline">¶</a></h1>
 <p>This class helps measuring one point functions</p>
+<span class="target" id="module-lib_functions_1pt"></span><dl class="function">
+<dt id="lib_functions_1pt.b_BH">
+<code class="descclassname">lib_functions_1pt.</code><code class="descname">b_BH</code><span class="sig-paren">(</span><em>sigma</em>, <em>a</em>, <em>p</em>, <em>q</em><span class="sig-paren">)</span><a class="headerlink" href="#lib_functions_1pt.b_BH" title="Permalink to this definition">¶</a></dt>
+<dd><p>M200c
+ftT08 = f_T08(sigma, 0.186, 1.47, 2.57, 1.19)
+ftSk14 = f_T08(sigma, 0.18587, 1.46690, 2.57110, 1.19396)
+ftK16 = f_T08(sigma, 0.224, 1.67, 1.80, 1.48)
+ftA12 = f_T08 (sigma, 0.201, 1.7, 2.08, 1.172)
+ftW13 = f_T08 (sigma, 0.282, 2.163, 1.406, 1.21)
+ftST01 = f_ST(sigma, 0.3222, 0.707, 0.3)
+#ftD16 = f_dsp(sigma, 0.287, 0.903, 0.322 )
+ftC16 = f_T08(sigma, 0.12, 1.19, 3.98, 1.35)
+ftC16st = f_dsp(sigma, 0.2906, 0.8962, 0.1935 )</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib_functions_1pt.convert_pkl_mass">
+<code class="descclassname">lib_functions_1pt.</code><code class="descname">convert_pkl_mass</code><span class="sig-paren">(</span><em>fileC</em>, <em>fileS</em>, <em>binFile</em>, <em>qty='mvir'</em>, <em>delta_wrt='mean'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib_functions_1pt.html#convert_pkl_mass"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib_functions_1pt.convert_pkl_mass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a fits file with each measurements made. It linksglobal parameters to the HMF values.
+:param qty: one point function variable.Default: mvir.
+:param fileC: file with the central halo statistics
+:param fileS: file with the satelitte halo statistics
+:param binFile: file with the bins
+:return: a fits table containing the one point function histograms</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib_functions_1pt.convert_pkl_massFunction_covarianceMatrix">
+<code class="descclassname">lib_functions_1pt.</code><code class="descname">convert_pkl_massFunction_covarianceMatrix</code><span class="sig-paren">(</span><em>fileC</em>, <em>binFile</em>, <em>qty='mvir'</em>, <em>delta_wrt='mean'</em>, <em>gt14=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib_functions_1pt.html#convert_pkl_massFunction_covarianceMatrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib_functions_1pt.convert_pkl_massFunction_covarianceMatrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a mass function covariance matrix
+:param qty: one point function variable.Default: mvir.
+:param file: file with the central halo statistics
+:param binFile: file with the bins
+:return: a fits table containing the one point function histograms</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib_functions_1pt.convert_pkl_velocity">
+<code class="descclassname">lib_functions_1pt.</code><code class="descname">convert_pkl_velocity</code><span class="sig-paren">(</span><em>fileC</em>, <em>fileS</em>, <em>binFile</em>, <em>qty='vmax'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib_functions_1pt.html#convert_pkl_velocity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib_functions_1pt.convert_pkl_velocity" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>qty</strong> &#8211; one point function variable. Default vmax.</li>
+<li><strong>fileC</strong> &#8211; file with the central halo statistics</li>
+<li><strong>fileS</strong> &#8211; file with the satelitte halo statistics</li>
+<li><strong>binFile</strong> &#8211; file with the bins</li>
+<li><strong>zList_files</strong> &#8211; list of file with linking snapshot number and redshift</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a fits table containing the one point function histograms</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib_functions_1pt.fit_mvir_function_z0">
+<code class="descclassname">lib_functions_1pt.</code><code class="descname">fit_mvir_function_z0</code><span class="sig-paren">(</span><em>data</em>, <em>x_data</em>, <em>y_data</em>, <em>y_err</em>, <em>p0</em>, <em>tolerance=0.03</em>, <em>cos='cen'</em>, <em>dir='D:\\data\\onePTfunction\\v2\\mvir'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib_functions_1pt.html#fit_mvir_function_z0"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib_functions_1pt.fit_mvir_function_z0" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fits a function to the mvir data
+:param data: data table of the selected points for the fit
+:param x_data: x coordinate
+:param y_data: y coordinate
+:param y_err: error
+:param p0: first guess
+:param tolerance: percentage error tolerance to compute how many points are outside of the fit
+:param cos: central or satelitte
+:param mode: fitting mode, &#8220;curve_fit&#8221; or &#8220;minimize&#8221;
+:param dir: working dir
+:param qty: mvir here
+:return: result of the fit: best parameter array and covariance matrix
+produces a plot of the residuals</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib_functions_1pt.fit_mvir_function_zTrend">
+<code class="descclassname">lib_functions_1pt.</code><code class="descname">fit_mvir_function_zTrend</code><span class="sig-paren">(</span><em>data, x_data, y_data, z_data, y_err, ps0=[0.0, 0.0, 0.0], tolerance=0.03, cos='cen', mode='curve_fit', dir='D:\\data\\onePTfunction\\v2\\mvir', zmin=0, zmax=2.5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib_functions_1pt.html#fit_mvir_function_zTrend"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib_functions_1pt.fit_mvir_function_zTrend" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fits a function to the mvir data
+:param data: data table of the selected points for the fit
+:param x_data: x coordinate
+:param y_data: y coordinate
+:param z_data: redshift coordinate
+:param y_err: error
+:param ps0: first guess
+:param tolerance: percentage error tolerance to compute how many points are outside of the fit
+:param cos: central or satelitte
+:param mode: fitting mode, &#8220;curve_fit&#8221; or &#8220;minimize&#8221;
+:param dir: working dir
+:param qty: mvir here
+:return: result of the fit: best parameter array and covariance matrix
+produces a plot of the residuals</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib_functions_1pt.fit_vmax_function_z0">
+<code class="descclassname">lib_functions_1pt.</code><code class="descname">fit_vmax_function_z0</code><span class="sig-paren">(</span><em>data</em>, <em>x_data</em>, <em>y_data</em>, <em>y_err</em>, <em>p0</em>, <em>tolerance=0.03</em>, <em>cos='cen'</em>, <em>mode='curve_fit'</em>, <em>dir='D:\\data\\onePTfunction\\v2\\vmax'</em>, <em>suffix='0'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib_functions_1pt.html#fit_vmax_function_z0"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib_functions_1pt.fit_vmax_function_z0" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fits a function to the vmax data
+:param data: data table of the selected points for the fit
+:param x_data: x coordinate
+:param y_data: y coordinate
+:param y_err: error
+:param p0: first guess
+:param tolerance: percentage error tolerance to compute how many points are outside of the fit
+:param cos: central or satelitte
+:param mode: fitting mode, &#8220;curve_fit&#8221; or &#8220;minimize&#8221;
+:param dir: working dir
+:param qty: vmax here
+:return: result of the fit: best parameter array and covariance matrix
+produces a plot of the residuals</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib_functions_1pt.getStat">
+<code class="descclassname">lib_functions_1pt.</code><code class="descname">getStat</code><span class="sig-paren">(</span><em>file</em>, <em>volume</em>, <em>unitVolume</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib_functions_1pt.html#getStat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib_functions_1pt.getStat" title="Permalink to this definition">¶</a></dt>
+<dd><p>From the pickle file output by the Multidark class, we output the number counts (differential and cumulative) per unit volume per mass bin.
+:param file: filename
+:param volume: total volume of the box
+:param unitVolume: sub volume used in the jackknife
+:return: Number counts, cumulative number counts, count density, cumulative count density, jackknife mean, jackknife std, cumulative jackknife mean, cumulative jackknife std</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib_functions_1pt.get_basic_info">
+<code class="descclassname">lib_functions_1pt.</code><code class="descname">get_basic_info</code><span class="sig-paren">(</span><em>fileC</em>, <em>boxZN</em>, <em>delta_wrt='mean'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib_functions_1pt.html#get_basic_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib_functions_1pt.get_basic_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>For a HMF measurement, this function returns all the basic information about the simulation used:
+- a HMF model with the corrected sigma8 value: hf,
+- size of the box: boxLength, boxLengthComoving
+- name of the simulation used later when writing results boxName
+- the redshiftof the measured HMF: boxRedshift, 7
+- the logmass of one particle: logmp,
+- correction to the mass measured due to force resolution: massCorrection</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib_functions_1pt.get_hf">
+<code class="descclassname">lib_functions_1pt.</code><code class="descname">get_hf</code><span class="sig-paren">(</span><em>sigma_val=0.8228</em>, <em>boxRedshift=0.0</em>, <em>delta_wrt='mean'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib_functions_1pt.html#get_hf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib_functions_1pt.get_hf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Halo mass function model for the MultiDark simulation.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib_functions_1pt.get_hf_ds">
+<code class="descclassname">lib_functions_1pt.</code><code class="descname">get_hf_ds</code><span class="sig-paren">(</span><em>sigma_val=0.8355</em>, <em>boxRedshift=0.0</em>, <em>delta_wrt='mean'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib_functions_1pt.html#get_hf_ds"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib_functions_1pt.get_hf_ds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Halo mass function model for the Darkskies simulation.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib_functions_1pt.plot_jackknife_poisson_error">
+<code class="descclassname">lib_functions_1pt.</code><code class="descname">plot_jackknife_poisson_error</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>MD04</em>, <em>MD10</em>, <em>MD25</em>, <em>MD25NW</em>, <em>MD40</em>, <em>MD40NW</em>, <em>DS80</em>, <em>cos='cen'</em>, <em>dir='D:\\data\\onePTfunction\\v2\\mvir'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib_functions_1pt.html#plot_jackknife_poisson_error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib_functions_1pt.plot_jackknife_poisson_error" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>x</strong> &#8211; x coordinates</li>
+<li><strong>y</strong> &#8211; y coordinates</li>
+<li><strong>cos</strong> &#8211; centra or satelitte. Default: &#8220;cen&#8221;</li>
+<li><strong>dir</strong> &#8211; working directory.  :param qty: quantity studied. Default: &#8216;vmax&#8217;</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib_functions_1pt.plot_mvir_function_data">
+<code class="descclassname">lib_functions_1pt.</code><code class="descname">plot_mvir_function_data</code><span class="sig-paren">(</span><em>log_mvir</em>, <em>logsigM1</em>, <em>logNu</em>, <em>log_MF</em>, <em>log_MF_c</em>, <em>redshift</em>, <em>zmin</em>, <em>zmax</em>, <em>cos='cen'</em>, <em>figName=''</em>, <em>dir='D:\\data\\onePTfunction\\v2\\mvir'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib_functions_1pt.html#plot_mvir_function_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib_functions_1pt.plot_mvir_function_data" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>log_mvir</strong> &#8211; x coordinates</li>
+<li><strong>log_VF</strong> &#8211; y coordinates</li>
+<li><strong>redshift</strong> &#8211; color coordinate</li>
+<li><strong>zmin</strong> &#8211; minimum redshift</li>
+<li><strong>zmax</strong> &#8211; maximum redshift</li>
+<li><strong>cos</strong> &#8211; centra or satelitte. Default: &#8220;cen&#8221;</li>
+<li><strong>figName</strong> &#8211; string to be added to the figure name. Default:=&#8221;&#8220;</li>
+<li><strong>dir</strong> &#8211; working directory.  :param qty: quantity studied. Default: &#8216;mvir&#8217;</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib_functions_1pt.plot_mvir_function_data_error">
+<code class="descclassname">lib_functions_1pt.</code><code class="descname">plot_mvir_function_data_error</code><span class="sig-paren">(</span><em>log_mvir</em>, <em>error</em>, <em>redshift</em>, <em>label</em>, <em>zmin</em>, <em>zmax</em>, <em>cos='cen'</em>, <em>figName='mvir-cen-data04-uncertainty.png'</em>, <em>dir='D:\\data\\onePTfunction\\v2\\mvir'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib_functions_1pt.html#plot_mvir_function_data_error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib_functions_1pt.plot_mvir_function_data_error" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>log_mvir</strong> &#8211; x coordinates</li>
+<li><strong>error</strong> &#8211; y coordinates</li>
+<li><strong>redshift</strong> &#8211; color coordinate</li>
+<li><strong>label</strong> &#8211; label in the caption</li>
+<li><strong>zmin</strong> &#8211; minimum redshift</li>
+<li><strong>zmax</strong> &#8211; maximum redshift</li>
+<li><strong>cos</strong> &#8211; centra or satelitte. Default: &#8220;cen&#8221;</li>
+<li><strong>figName</strong> &#8211; string to be added to the figure name. Default:=&#8221;&#8220;</li>
+<li><strong>dir</strong> &#8211; working directory.  :param qty: quantity studied. Default: &#8216;mvir&#8217;</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib_functions_1pt.plot_mvir_function_data_perBox">
+<code class="descclassname">lib_functions_1pt.</code><code class="descname">plot_mvir_function_data_perBox</code><span class="sig-paren">(</span><em>log_mvir</em>, <em>log_VF</em>, <em>MD04</em>, <em>MD10</em>, <em>MD25</em>, <em>MD25NW</em>, <em>MD40</em>, <em>MD40NW</em>, <em>cos='cen'</em>, <em>figName=''</em>, <em>dir='D:\\data\\onePTfunction\\v2\\mvir'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib_functions_1pt.html#plot_mvir_function_data_perBox"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib_functions_1pt.plot_mvir_function_data_perBox" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>log_mvir</strong> &#8211; x coordinates</li>
+<li><strong>log_VF</strong> &#8211; y coordinates</li>
+<li><strong>cos</strong> &#8211; centra or satelitte. Default: &#8220;cen&#8221;</li>
+<li><strong>figName</strong> &#8211; string to be added to the figure name. Default:=&#8221;&#8220;</li>
+<li><strong>dir</strong> &#8211; working directory.</li>
+<li><strong>qty</strong> &#8211; quantity studied. Default: &#8216;mvir&#8217;</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib_functions_1pt.plot_mvir_function_jackknife_poisson_error">
+<code class="descclassname">lib_functions_1pt.</code><code class="descname">plot_mvir_function_jackknife_poisson_error</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>MD04</em>, <em>MD10</em>, <em>MD25</em>, <em>MD25NW</em>, <em>MD40</em>, <em>MD40NW</em>, <em>cos='cen'</em>, <em>dir='D:\\data\\onePTfunction\\v2\\mvir'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib_functions_1pt.html#plot_mvir_function_jackknife_poisson_error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib_functions_1pt.plot_mvir_function_jackknife_poisson_error" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>x</strong> &#8211; x coordinates</li>
+<li><strong>y</strong> &#8211; y coordinates</li>
+<li><strong>cos</strong> &#8211; centra or satelitte. Default: &#8220;cen&#8221;</li>
+<li><strong>dir</strong> &#8211; working directory.</li>
+<li><strong>qty</strong> &#8211; quantity studied. Default: &#8216;mvir&#8217;</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib_functions_1pt.plot_vmax_function_data">
+<code class="descclassname">lib_functions_1pt.</code><code class="descname">plot_vmax_function_data</code><span class="sig-paren">(</span><em>log_vmax</em>, <em>log_VF</em>, <em>log_VF_c</em>, <em>redshift</em>, <em>zmin</em>, <em>zmax</em>, <em>cos='cen'</em>, <em>figName=''</em>, <em>dir='D:\\data\\onePTfunction\\v2\\vmax'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib_functions_1pt.html#plot_vmax_function_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib_functions_1pt.plot_vmax_function_data" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>log_vmax</strong> &#8211; x coordinates</li>
+<li><strong>log_VF</strong> &#8211; y coordinates</li>
+<li><strong>redshift</strong> &#8211; color coordinate</li>
+<li><strong>zmin</strong> &#8211; minimum redshift</li>
+<li><strong>zmax</strong> &#8211; maximum redshift</li>
+<li><strong>cos</strong> &#8211; centra or satelitte. Default: &#8220;cen&#8221;</li>
+<li><strong>figName</strong> &#8211; string to be added to the figure name. Default:=&#8221;&#8220;</li>
+<li><strong>dir</strong> &#8211; working directory.  :param qty: quantity studied. Default: &#8216;vmax&#8217;</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib_functions_1pt.plot_vmax_function_data_error">
+<code class="descclassname">lib_functions_1pt.</code><code class="descname">plot_vmax_function_data_error</code><span class="sig-paren">(</span><em>log_vmax</em>, <em>error</em>, <em>redshift</em>, <em>label</em>, <em>zmin</em>, <em>zmax</em>, <em>cos='cen'</em>, <em>figName='vmax-cen-data04-uncertainty.png'</em>, <em>dir='D:\\data\\onePTfunction\\v2\\vmax'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib_functions_1pt.html#plot_vmax_function_data_error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib_functions_1pt.plot_vmax_function_data_error" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>log_vmax</strong> &#8211; x coordinates</li>
+<li><strong>error</strong> &#8211; y coordinates</li>
+<li><strong>redshift</strong> &#8211; color coordinate</li>
+<li><strong>label</strong> &#8211; label in the caption</li>
+<li><strong>zmin</strong> &#8211; minimum redshift</li>
+<li><strong>zmax</strong> &#8211; maximum redshift</li>
+<li><strong>cos</strong> &#8211; centra or satelitte. Default: &#8220;cen&#8221;</li>
+<li><strong>figName</strong> &#8211; string to be added to the figure name. Default:=&#8221;&#8220;</li>
+<li><strong>dir</strong> &#8211; working directory.  :param qty: quantity studied. Default: &#8216;vmax&#8217;</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib_functions_1pt.plot_vmax_function_data_perBox">
+<code class="descclassname">lib_functions_1pt.</code><code class="descname">plot_vmax_function_data_perBox</code><span class="sig-paren">(</span><em>log_vmax</em>, <em>log_VF</em>, <em>log_VF_c</em>, <em>MD04</em>, <em>MD10</em>, <em>MD25</em>, <em>MD25NW</em>, <em>MD40</em>, <em>MD40NW</em>, <em>cos='cen'</em>, <em>figName=''</em>, <em>dir='D:\\data\\onePTfunction\\v2\\vmax'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib_functions_1pt.html#plot_vmax_function_data_perBox"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib_functions_1pt.plot_vmax_function_data_perBox" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>log_vmax</strong> &#8211; x coordinates</li>
+<li><strong>log_VF</strong> &#8211; y coordinates</li>
+<li><strong>cos</strong> &#8211; centra or satelitte. Default: &#8220;cen&#8221;</li>
+<li><strong>figName</strong> &#8211; string to be added to the figure name. Default:=&#8221;&#8220;</li>
+<li><strong>dir</strong> &#8211; working directory.  :param qty: quantity studied. Default: &#8216;vmax&#8217;</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib_functions_1pt.vf_ps">
+<code class="descclassname">lib_functions_1pt.</code><code class="descname">vf_ps</code><span class="sig-paren">(</span><em>v</em>, <em>ps</em><span class="sig-paren">)</span><a class="headerlink" href="#lib_functions_1pt.vf_ps" title="Permalink to this definition">¶</a></dt>
+<dd><p># sheth and tormen function
+fnu_ST = lambda nu, A, a, p: A * (2./n.pi)**(0.5) * (a*nu) * ( 1 + (a * nu) <a href="#id1"><span class="problematic" id="id2">**</span></a>(-2.*p) ) * n.e**( -( a * nu )**2. / 2.)
+log_fnu_ST = lambda logNu, Anorm, a, q : n.log10( fnu_ST(10.**logNu, Anorm, a, q) )
+log_fnu_ST_ps = lambda logNu, ps : n.log10( fnu_ST(10.**logNu, ps[0], ps[1], ps[2]) )</p>
+<p>p_ST_despali = [0.333, 0.794, 0.247]
+p_ST_sheth = [0.3222, 0.707, 0.3]
+p_T08_klypin = [0.224, 1.67, 1.80, 1.48]
+p_T08_RP = [0.144, 1.351, 3.113, 1.187]</p>
+<p># tinker function
+fsigma_T08 = lambda sigma, A, a, b, c :  A <a href="#id3"><span class="problematic" id="id4">*</span></a>(1+ (b/sigma)**a) * n.e**(-c/sigma**2.)
+log_fsigma_T08 = lambda  logsigma, A, a, b, c :  n.log10(A <a href="#id5"><span class="problematic" id="id6">*</span></a>(1+ (b/(10**logsigma))**a) * n.e**(-c/(10**logsigma)**2.))
+log_fsigma_T08_ps = lambda logsigma, ps : log_fsigma_T08(logsigma, ps[0], ps[1], ps[2], ps[3])</p>
+<p>#fnu_SMT = lambda nu, Anorm, a, q : Anorm * (2./n.pi)**(0.5) * (a*nu) * ( 1 + (a*nu) <a href="#id7"><span class="problematic" id="id8">**</span></a>(-2*q) ) * n.e**( - (a*nu)**2. / 2.) #
+#fnu_SMT = lambda nu, Anorm, a, q : Anorm <a href="#id9"><span class="problematic" id="id10">*</span></a>a * (2.*n.pi)**(-0.5) *  ( 1 + (a**2*nu) <a href="#id11"><span class="problematic" id="id12">**</span></a>(-q) ) * n.e**( - a**2*nu / 2.)
+#log_fnu_ST01 = lambda logNu, Anorm, a, q : n.log10( fnu_SMT(10.**logNu, Anorm, a, q) )
+#log_fnu_ST01_ps = lambda logNu, ps : n.log10( fnu_SMT(10.**logNu, ps[0], ps[1], ps[2]) )</p>
+</dd></dl>
+
 </div>
 
 

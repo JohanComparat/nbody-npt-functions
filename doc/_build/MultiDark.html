@@ -52,6 +52,157 @@
   <div class="section" id="library-of-functions-to-handle-multidark-simulations">
 <h1>Library of functions to handle Multidark simulations<a class="headerlink" href="#library-of-functions-to-handle-multidark-simulations" title="Permalink to this headline">¶</a></h1>
 <p>This class handles the MultiDark data</p>
+<span class="target" id="module-MultiDark"></span><dl class="class">
+<dt id="MultiDark.MultiDark">
+<em class="property">class </em><code class="descclassname">MultiDark.</code><code class="descname">MultiDark</code><a class="headerlink" href="#MultiDark.MultiDark" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>The class MultiDark is a wrapper to handle Multidark simulations results / outputs.</p>
+<dl class="class">
+<dt id="MultiDark.MultiDarkSimulation">
+<em class="property">class </em><code class="descclassname">MultiDark.</code><code class="descname">MultiDarkSimulation</code><span class="sig-paren">(</span><em>Lbox=&lt;Quantity 2500.0 Mpc&gt;</em>, <em>wdir='/data2/DATA/eBOSS/Multidark-lightcones/'</em>, <em>boxDir='MD_2.5Gpc'</em>, <em>snl=array([]</em>, <em>dtype=float64)</em>, <em>zsl=None</em>, <em>zArray=array([ 0.2</em>, <em>0.3</em>, <em>0.4</em>, <em>0.5</em>, <em>0.6</em>, <em>0.7</em>, <em>0.8</em>, <em>0.9</em>, <em>1.</em>, <em>1.1</em>, <em>1.2</em>, <em>1.3</em>, <em>1.4</em>, <em>1.5</em>, <em>1.6</em>, <em>1.7</em>, <em>1.8</em>, <em>1.9</em>, <em>2.</em>, <em>2.1</em>, <em>2.2</em>, <em>2.3])</em>, <em>Hbox=&lt;Quantity 67.77 km / (Mpc s)&gt;</em>, <em>Melement=23593750000.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/MultiDark.html#MultiDarkSimulation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#MultiDark.MultiDarkSimulation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads the environement proper to the Multidark simulations. This is the fixed framework of the simulation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>Lbox</strong> &#8211; length of the box in Mpc/h</li>
+<li><strong>wdir</strong> &#8211; Path to the multidark lightcone directory</li>
+<li><strong>boxDir</strong> &#8211; box directory name</li>
+<li><strong>snl</strong> &#8211; list of snapshots available</li>
+<li><strong>zsl</strong> &#8211; list of redshift corresponding to the snapshots</li>
+<li><strong>zArray</strong> &#8211; redshift array to be considered to interpolate the redshift &#8211; distance conversion</li>
+<li><strong>Hbox</strong> &#8211; Hubble constant at redshift 0 of the box</li>
+<li><strong>Melement</strong> &#8211; Mass of the resolution element in solar masses.</li>
+<li><strong>columnDict</strong> &#8211; dictionnary to convert column name into the index to find it in the snapshots</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="MultiDark.MultiDarkSimulation.combinesDoubleDistributionFunction">
+<code class="descname">combinesDoubleDistributionFunction</code><span class="sig-paren">(</span><em>ii</em>, <em>nameA</em>, <em>nameB</em>, <em>binsA</em>, <em>binsB</em>, <em>type='Central'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/MultiDark.html#MultiDarkSimulation.combinesDoubleDistributionFunction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#MultiDark.MultiDarkSimulation.combinesDoubleDistributionFunction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Coombines the outputs of computeDoubleDistributionFunction.
+:param ii: index of the snapshot
+:param name: name of the quantity studies
+:param bins: bins the histogram was done with
+:param type: &#8220;Central&#8221; or &#8220;Satellite&#8221;</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MultiDark.MultiDarkSimulation.combinesSingleDistributionFunction">
+<code class="descname">combinesSingleDistributionFunction</code><span class="sig-paren">(</span><em>ii</em>, <em>name='Vpeak'</em>, <em>bins=array([  1.00000000e+00</em>, <em>1.02329299e+00</em>, <em>1.04712855e+00</em>, <em>1.07151931e+00</em>, <em>1.09647820e+00</em>, <em>1.12201845e+00</em>, <em>1.14815362e+00</em>, <em>1.17489755e+00</em>, <em>1.20226443e+00</em>, <em>1.23026877e+00</em>, <em>1.25892541e+00</em>, <em>1.28824955e+00</em>, <em>1.31825674e+00</em>, <em>1.34896288e+00</em>, <em>1.38038426e+00</em>, <em>1.41253754e+00</em>, <em>1.44543977e+00</em>, <em>1.47910839e+00</em>, <em>1.51356125e+00</em>, <em>1.54881662e+00</em>, <em>1.58489319e+00</em>, <em>1.62181010e+00</em>, <em>1.65958691e+00</em>, <em>1.69824365e+00</em>, <em>1.73780083e+00</em>, <em>1.77827941e+00</em>, <em>1.81970086e+00</em>, <em>1.86208714e+00</em>, <em>1.90546072e+00</em>, <em>1.94984460e+00</em>, <em>1.99526231e+00</em>, <em>2.04173794e+00</em>, <em>2.08929613e+00</em>, <em>2.13796209e+00</em>, <em>2.18776162e+00</em>, <em>2.23872114e+00</em>, <em>2.29086765e+00</em>, <em>2.34422882e+00</em>, <em>2.39883292e+00</em>, <em>2.45470892e+00</em>, <em>2.51188643e+00</em>, <em>2.57039578e+00</em>, <em>2.63026799e+00</em>, <em>2.69153480e+00</em>, <em>2.75422870e+00</em>, <em>2.81838293e+00</em>, <em>2.88403150e+00</em>, <em>2.95120923e+00</em>, <em>3.01995172e+00</em>, <em>3.09029543e+00</em>, <em>3.16227766e+00</em>, <em>3.23593657e+00</em>, <em>3.31131121e+00</em>, <em>3.38844156e+00</em>, <em>3.46736850e+00</em>, <em>3.54813389e+00</em>, <em>3.63078055e+00</em>, <em>3.71535229e+00</em>, <em>3.80189396e+00</em>, <em>3.89045145e+00</em>, <em>3.98107171e+00</em>, <em>4.07380278e+00</em>, <em>4.16869383e+00</em>, <em>4.26579519e+00</em>, <em>4.36515832e+00</em>, <em>4.46683592e+00</em>, <em>4.57088190e+00</em>, <em>4.67735141e+00</em>, <em>4.78630092e+00</em>, <em>4.89778819e+00</em>, <em>5.01187234e+00</em>, <em>5.12861384e+00</em>, <em>5.24807460e+00</em>, <em>5.37031796e+00</em>, <em>5.49540874e+00</em>, <em>5.62341325e+00</em>, <em>5.75439937e+00</em>, <em>5.88843655e+00</em>, <em>6.02559586e+00</em>, <em>6.16595002e+00</em>, <em>6.30957344e+00</em>, <em>6.45654229e+00</em>, <em>6.60693448e+00</em>, <em>6.76082975e+00</em>, <em>6.91830971e+00</em>, <em>7.07945784e+00</em>, <em>7.24435960e+00</em>, <em>7.41310241e+00</em>, <em>7.58577575e+00</em>, <em>7.76247117e+00</em>, <em>7.94328235e+00</em>, <em>8.12830516e+00</em>, <em>8.31763771e+00</em>, <em>8.51138038e+00</em>, <em>8.70963590e+00</em>, <em>8.91250938e+00</em>, <em>9.12010839e+00</em>, <em>9.33254301e+00</em>, <em>9.54992586e+00</em>, <em>9.77237221e+00</em>, <em>1.00000000e+01</em>, <em>1.02329299e+01</em>, <em>1.04712855e+01</em>, <em>1.07151931e+01</em>, <em>1.09647820e+01</em>, <em>1.12201845e+01</em>, <em>1.14815362e+01</em>, <em>1.17489755e+01</em>, <em>1.20226443e+01</em>, <em>1.23026877e+01</em>, <em>1.25892541e+01</em>, <em>1.28824955e+01</em>, <em>1.31825674e+01</em>, <em>1.34896288e+01</em>, <em>1.38038426e+01</em>, <em>1.41253754e+01</em>, <em>1.44543977e+01</em>, <em>1.47910839e+01</em>, <em>1.51356125e+01</em>, <em>1.54881662e+01</em>, <em>1.58489319e+01</em>, <em>1.62181010e+01</em>, <em>1.65958691e+01</em>, <em>1.69824365e+01</em>, <em>1.73780083e+01</em>, <em>1.77827941e+01</em>, <em>1.81970086e+01</em>, <em>1.86208714e+01</em>, <em>1.90546072e+01</em>, <em>1.94984460e+01</em>, <em>1.99526231e+01</em>, <em>2.04173794e+01</em>, <em>2.08929613e+01</em>, <em>2.13796209e+01</em>, <em>2.18776162e+01</em>, <em>2.23872114e+01</em>, <em>2.29086765e+01</em>, <em>2.34422882e+01</em>, <em>2.39883292e+01</em>, <em>2.45470892e+01</em>, <em>2.51188643e+01</em>, <em>2.57039578e+01</em>, <em>2.63026799e+01</em>, <em>2.69153480e+01</em>, <em>2.75422870e+01</em>, <em>2.81838293e+01</em>, <em>2.88403150e+01</em>, <em>2.95120923e+01</em>, <em>3.01995172e+01</em>, <em>3.09029543e+01</em>, <em>3.16227766e+01</em>, <em>3.23593657e+01</em>, <em>3.31131121e+01</em>, <em>3.38844156e+01</em>, <em>3.46736850e+01</em>, <em>3.54813389e+01</em>, <em>3.63078055e+01</em>, <em>3.71535229e+01</em>, <em>3.80189396e+01</em>, <em>3.89045145e+01</em>, <em>3.98107171e+01</em>, <em>4.07380278e+01</em>, <em>4.16869383e+01</em>, <em>4.26579519e+01</em>, <em>4.36515832e+01</em>, <em>4.46683592e+01</em>, <em>4.57088190e+01</em>, <em>4.67735141e+01</em>, <em>4.78630092e+01</em>, <em>4.89778819e+01</em>, <em>5.01187234e+01</em>, <em>5.12861384e+01</em>, <em>5.24807460e+01</em>, <em>5.37031796e+01</em>, <em>5.49540874e+01</em>, <em>5.62341325e+01</em>, <em>5.75439937e+01</em>, <em>5.88843655e+01</em>, <em>6.02559586e+01</em>, <em>6.16595002e+01</em>, <em>6.30957344e+01</em>, <em>6.45654229e+01</em>, <em>6.60693448e+01</em>, <em>6.76082975e+01</em>, <em>6.91830971e+01</em>, <em>7.07945784e+01</em>, <em>7.24435960e+01</em>, <em>7.41310241e+01</em>, <em>7.58577575e+01</em>, <em>7.76247117e+01</em>, <em>7.94328235e+01</em>, <em>8.12830516e+01</em>, <em>8.31763771e+01</em>, <em>8.51138038e+01</em>, <em>8.70963590e+01</em>, <em>8.91250938e+01</em>, <em>9.12010839e+01</em>, <em>9.33254301e+01</em>, <em>9.54992586e+01</em>, <em>9.77237221e+01</em>, <em>1.00000000e+02</em>, <em>1.02329299e+02</em>, <em>1.04712855e+02</em>, <em>1.07151931e+02</em>, <em>1.09647820e+02</em>, <em>1.12201845e+02</em>, <em>1.14815362e+02</em>, <em>1.17489755e+02</em>, <em>1.20226443e+02</em>, <em>1.23026877e+02</em>, <em>1.25892541e+02</em>, <em>1.28824955e+02</em>, <em>1.31825674e+02</em>, <em>1.34896288e+02</em>, <em>1.38038426e+02</em>, <em>1.41253754e+02</em>, <em>1.44543977e+02</em>, <em>1.47910839e+02</em>, <em>1.51356125e+02</em>, <em>1.54881662e+02</em>, <em>1.58489319e+02</em>, <em>1.62181010e+02</em>, <em>1.65958691e+02</em>, <em>1.69824365e+02</em>, <em>1.73780083e+02</em>, <em>1.77827941e+02</em>, <em>1.81970086e+02</em>, <em>1.86208714e+02</em>, <em>1.90546072e+02</em>, <em>1.94984460e+02</em>, <em>1.99526231e+02</em>, <em>2.04173794e+02</em>, <em>2.08929613e+02</em>, <em>2.13796209e+02</em>, <em>2.18776162e+02</em>, <em>2.23872114e+02</em>, <em>2.29086765e+02</em>, <em>2.34422882e+02</em>, <em>2.39883292e+02</em>, <em>2.45470892e+02</em>, <em>2.51188643e+02</em>, <em>2.57039578e+02</em>, <em>2.63026799e+02</em>, <em>2.69153480e+02</em>, <em>2.75422870e+02</em>, <em>2.81838293e+02</em>, <em>2.88403150e+02</em>, <em>2.95120923e+02</em>, <em>3.01995172e+02</em>, <em>3.09029543e+02</em>, <em>3.16227766e+02</em>, <em>3.23593657e+02</em>, <em>3.31131121e+02</em>, <em>3.38844156e+02</em>, <em>3.46736850e+02</em>, <em>3.54813389e+02</em>, <em>3.63078055e+02</em>, <em>3.71535229e+02</em>, <em>3.80189396e+02</em>, <em>3.89045145e+02</em>, <em>3.98107171e+02</em>, <em>4.07380278e+02</em>, <em>4.16869383e+02</em>, <em>4.26579519e+02</em>, <em>4.36515832e+02</em>, <em>4.46683592e+02</em>, <em>4.57088190e+02</em>, <em>4.67735141e+02</em>, <em>4.78630092e+02</em>, <em>4.89778819e+02</em>, <em>5.01187234e+02</em>, <em>5.12861384e+02</em>, <em>5.24807460e+02</em>, <em>5.37031796e+02</em>, <em>5.49540874e+02</em>, <em>5.62341325e+02</em>, <em>5.75439937e+02</em>, <em>5.88843655e+02</em>, <em>6.02559586e+02</em>, <em>6.16595002e+02</em>, <em>6.30957344e+02</em>, <em>6.45654229e+02</em>, <em>6.60693448e+02</em>, <em>6.76082975e+02</em>, <em>6.91830971e+02</em>, <em>7.07945784e+02</em>, <em>7.24435960e+02</em>, <em>7.41310241e+02</em>, <em>7.58577575e+02</em>, <em>7.76247117e+02</em>, <em>7.94328235e+02</em>, <em>8.12830516e+02</em>, <em>8.31763771e+02</em>, <em>8.51138038e+02</em>, <em>8.70963590e+02</em>, <em>8.91250938e+02</em>, <em>9.12010839e+02</em>, <em>9.33254301e+02</em>, <em>9.54992586e+02</em>, <em>9.77237221e+02</em>, <em>1.00000000e+03</em>, <em>1.02329299e+03</em>, <em>1.04712855e+03</em>, <em>1.07151931e+03</em>, <em>1.09647820e+03</em>, <em>1.12201845e+03</em>, <em>1.14815362e+03</em>, <em>1.17489755e+03</em>, <em>1.20226443e+03</em>, <em>1.23026877e+03</em>, <em>1.25892541e+03</em>, <em>1.28824955e+03</em>, <em>1.31825674e+03</em>, <em>1.34896288e+03</em>, <em>1.38038426e+03</em>, <em>1.41253754e+03</em>, <em>1.44543977e+03</em>, <em>1.47910839e+03</em>, <em>1.51356125e+03</em>, <em>1.54881662e+03</em>, <em>1.58489319e+03</em>, <em>1.62181010e+03</em>, <em>1.65958691e+03</em>, <em>1.69824365e+03</em>, <em>1.73780083e+03</em>, <em>1.77827941e+03</em>, <em>1.81970086e+03</em>, <em>1.86208714e+03</em>, <em>1.90546072e+03</em>, <em>1.94984460e+03</em>, <em>1.99526231e+03</em>, <em>2.04173794e+03</em>, <em>2.08929613e+03</em>, <em>2.13796209e+03</em>, <em>2.18776162e+03</em>, <em>2.23872114e+03</em>, <em>2.29086765e+03</em>, <em>2.34422882e+03</em>, <em>2.39883292e+03</em>, <em>2.45470892e+03</em>, <em>2.51188643e+03</em>, <em>2.57039578e+03</em>, <em>2.63026799e+03</em>, <em>2.69153480e+03</em>, <em>2.75422870e+03</em>, <em>2.81838293e+03</em>, <em>2.88403150e+03</em>, <em>2.95120923e+03</em>, <em>3.01995172e+03</em>, <em>3.09029543e+03])</em>, <em>type='Central'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/MultiDark.html#MultiDarkSimulation.combinesSingleDistributionFunction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#MultiDark.MultiDarkSimulation.combinesSingleDistributionFunction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Coombines the outputs of computeSingleDistributionFunction.
+:param ii: index of the snapshot
+:param name: name of the quantity studies
+:param bins: bins the histogram was done with
+:param type: &#8220;Central&#8221; or &#8220;Satellite&#8221;</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MultiDark.MultiDarkSimulation.compute2PCF">
+<code class="descname">compute2PCF</code><span class="sig-paren">(</span><em>catalogList</em>, <em>vmin=65</em>, <em>rmax=200</em>, <em>dlogBin=0.05</em>, <em>Nmax=4000000.0</em>, <em>dr=1.0</em>, <em>name=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/MultiDark.html#MultiDarkSimulation.compute2PCF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#MultiDark.MultiDarkSimulation.compute2PCF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extracts the 2PCF out of a catalog of halos        
+:param catalog: where the catalog is
+:param vmin: minimum circular velocity.
+:param dlogBin: bin width.
+:param rmax: maximum distance</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MultiDark.MultiDarkSimulation.computeDoubleDistributionFunction">
+<code class="descname">computeDoubleDistributionFunction</code><span class="sig-paren">(</span><em>ii</em>, <em>nameA</em>, <em>nameB</em>, <em>binsA</em>, <em>binsB</em>, <em>Mfactor=100.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/MultiDark.html#MultiDarkSimulation.computeDoubleDistributionFunction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#MultiDark.MultiDarkSimulation.computeDoubleDistributionFunction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extracts the distributions of two quantity and their correlation &#8216;name&#8217; out of all snapshots of the Multidark simulation.
+:param ii: index of the snapshot in the list self.snl
+:param name: name of the quantity of interest, mass, velocity.
+:param index: of the quantity of interest in the snapshots.
+:param bins: binning scheme to compute the historgram.
+:param Mfactor: only halos with Mvir &gt; Mfact* Melement are used.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MultiDark.MultiDarkSimulation.computeSingleDistributionFunction">
+<code class="descname">computeSingleDistributionFunction</code><span class="sig-paren">(</span><em>ii</em>, <em>name</em>, <em>bins</em>, <em>Mfactor=10.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/MultiDark.html#MultiDarkSimulation.computeSingleDistributionFunction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#MultiDark.MultiDarkSimulation.computeSingleDistributionFunction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extracts the distribution of quantity &#8216;name&#8217; out of all snapshots of the Multidark simulation.        
+:param ii: index of the snapshot in the list self.snl
+:param name: name of the quantity of interest, mass, velocity.
+:param index: of the quantity of interest in the snapshots.
+:param bins: binning scheme to compute the historgram.
+:param Mfactor: only halos with Mvir &gt; Mfact* Melement are used.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MultiDark.MultiDarkSimulation.computeSingleDistributionFunctionJKresampling">
+<code class="descname">computeSingleDistributionFunctionJKresampling</code><span class="sig-paren">(</span><em>fileList</em>, <em>rootname</em>, <em>name</em>, <em>bins</em>, <em>Ljk=100.0</em>, <em>overlap=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/MultiDark.html#MultiDarkSimulation.computeSingleDistributionFunctionJKresampling"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#MultiDark.MultiDarkSimulation.computeSingleDistributionFunctionJKresampling" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extracts the distribution of quantity &#8216;name&#8217; out of all snapshots of the Multidark simulation.
+Resamples the box in smaller boxes of length Ljk in Mpc/h
+:param ii: index of the snapshot in the list self.snl
+:param name: name of the quantity of interest, mass, velocity.
+:param index: of the quantity of interest in the snapshots.
+:param bins: binning scheme to compute the historgram.
+:param Ljk: length of the resampled box
+:param overlap: allowed overlap between resampled realizations : 1 = no overlap 2 : 50% overlap ...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MultiDark.MultiDarkSimulation.computeSingleDistributionFunctionV2">
+<code class="descname">computeSingleDistributionFunctionV2</code><span class="sig-paren">(</span><em>fileList</em>, <em>rootname</em>, <em>name</em>, <em>bins</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/MultiDark.html#MultiDarkSimulation.computeSingleDistributionFunctionV2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#MultiDark.MultiDarkSimulation.computeSingleDistributionFunctionV2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extracts the distribution of quantity &#8216;name&#8217; out of all snapshots of the Multidark simulation.
+Resamples the box in smaller boxes of length Ljk in Mpc/h
+:param ii: index of the snapshot in the list self.snl
+:param name: name of the quantity of interest, mass, velocity.
+:param index: of the quantity of interest in the snapshots.
+:param bins: binning scheme to compute the historgram.
+:param Ljk: length of the resampled box
+:param overlap: allowed overlap between resampled realizations : 1 = no overlap 2 : 50% overlap ...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MultiDark.MultiDarkSimulation.cornerLCpositionCatalog">
+<code class="descname">cornerLCpositionCatalog</code><span class="sig-paren">(</span><em>ii</em>, <em>DMIN=0.0</em>, <em>DMAX=1000.0</em>, <em>vmin=190</em>, <em>vmax=100000</em>, <em>NperBatch=10000000</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/MultiDark.html#MultiDarkSimulation.cornerLCpositionCatalog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#MultiDark.MultiDarkSimulation.cornerLCpositionCatalog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extracts the positions and velocity out of a snapshot of the Multidark simulation.              
+:param ii: index of the snapshot in the list self.snl
+:param DMIN:maximum distance for the pointto be included.
+:param DMAX:maximum distance for the pointto be included.
+:param vmin: name of the quantity of interest, mass, velocity.
+:param vmax: of the quantity of interest in the snapshots.
+:param NperBatch: number of line per fits file, default: 1000000</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MultiDark.MultiDarkSimulation.writePositionCatalogPM">
+<code class="descname">writePositionCatalogPM</code><span class="sig-paren">(</span><em>ii</em>, <em>vmin=30.0</em>, <em>mmin=100000000</em>, <em>NperBatch=20000000</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/MultiDark.html#MultiDarkSimulation.writePositionCatalogPM"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#MultiDark.MultiDarkSimulation.writePositionCatalogPM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extracts the positions and velocity out of a snapshot of the Multidark simulation.        
+:param ii: index of the snapshot in the list self.snl
+:param vmin: name of the quantity of interest, mass, velocity.
+:param vmax: of the quantity of interest in the snapshots.
+:param NperBatch: number of line per fits file, default: 1000000</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MultiDark.MultiDarkSimulation.writePositionCatalogVmax">
+<code class="descname">writePositionCatalogVmax</code><span class="sig-paren">(</span><em>ii</em>, <em>vmin=190</em>, <em>vmax=10000</em>, <em>NperBatch=10000000</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/MultiDark.html#MultiDarkSimulation.writePositionCatalogVmax"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#MultiDark.MultiDarkSimulation.writePositionCatalogVmax" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extracts the positions and velocity out of a snapshot of the Multidark simulation.        
+:param ii: index of the snapshot in the list self.snl
+:param vmin: name of the quantity of interest, mass, velocity.
+:param vmax: of the quantity of interest in the snapshots.
+:param NperBatch: number of line per fits file, default: 1000000</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MultiDark.MultiDarkSimulation.writePositionCatalogVmaxM200c">
+<code class="descname">writePositionCatalogVmaxM200c</code><span class="sig-paren">(</span><em>ii</em>, <em>vmin=190</em>, <em>vmax=10000</em>, <em>NperBatch=10000000</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/MultiDark.html#MultiDarkSimulation.writePositionCatalogVmaxM200c"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#MultiDark.MultiDarkSimulation.writePositionCatalogVmaxM200c" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extracts the positions and velocity out of a snapshot of the Multidark simulation.        
+:param ii: index of the snapshot in the list self.snl
+:param vmin: name of the quantity of interest, mass, velocity.
+:param vmax: of the quantity of interest in the snapshots.
+:param NperBatch: number of line per fits file, default: 1000000</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 

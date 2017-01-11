@@ -52,6 +52,235 @@
   <div class="section" id="library-of-functions-to-perform-halo-abundance-matching">
 <h1>Library of functions to perform halo abundance matching<a class="headerlink" href="#library-of-functions-to-perform-halo-abundance-matching" title="Permalink to this headline">¶</a></h1>
 <p>This class handles a light cone and assigns galaxies to the halos</p>
+<span class="target" id="module-HaloSelection"></span><p>Library of function to create halo catalogs matched to a density.</p>
+<dl class="class">
+<dt id="HaloSelection.MultiDarkMock">
+<em class="property">class </em><code class="descclassname">HaloSelection.</code><code class="descname">MultiDarkMock</code><span class="sig-paren">(</span><em>hdu</em>, <em>area</em>, <em>mockOutput_dir</em>, <em>mockName</em>, <em>zmin</em>, <em>zmax</em>, <em>nGal_Deg2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HaloSelection.html#MultiDarkMock"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HaloSelection.MultiDarkMock" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>hdu</strong> &#8211; hdu of the lightcone</li>
+<li><strong>area</strong> &#8211; area in deg2</li>
+<li><strong>mockOutput_dir</strong> &#8211; directory where to output mocks</li>
+<li><strong>mockName</strong> &#8211; name of the file where to save the mock</li>
+<li><strong>zmin</strong> &#8211; minimum redshift array defining the bins</li>
+<li><strong>zmax</strong> &#8211; maximum redshift array defining the bins</li>
+<li><strong>nGal_Deg2</strong> &#8211; number of galaxies per square degrees</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="HaloSelection.MultiDarkMock.compare_clustering_data_mock">
+<code class="descname">compare_clustering_data_mock</code><span class="sig-paren">(</span><em>w_data</em>, <em>xi_data</em>, <em>theta_min_chi2=-2.3</em>, <em>theta_max_chi2=-1.5</em>, <em>w_bins=15</em>, <em>s_min_chi2=0.5</em>, <em>s_max_chi2=1.2</em>, <em>s_bins=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HaloSelection.html#MultiDarkMock.compare_clustering_data_mock"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HaloSelection.MultiDarkMock.compare_clustering_data_mock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compares the clustering of the mock catalog and the clustering of the data.
+:param w_data: angular clustering from the data [x, y, yErr].
+:param xi_data: monopole clustering from the data [x, y, yErr].</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="HaloSelection.MultiDarkMock.compute_clustering">
+<code class="descname">compute_clustering</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/HaloSelection.html#MultiDarkMock.compute_clustering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HaloSelection.MultiDarkMock.compute_clustering" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs the CUTE code to estimate clustering using the LS estimator.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="HaloSelection.MultiDarkMock.create_random_catalog">
+<code class="descname">create_random_catalog</code><span class="sig-paren">(</span><em>factor=5.0</em>, <em>dz=0.025</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HaloSelection.html#MultiDarkMock.create_random_catalog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HaloSelection.MultiDarkMock.create_random_catalog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes a random catalog</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="HaloSelection.MultiDarkMock.get_distrib_QTY">
+<code class="descname">get_distrib_QTY</code><span class="sig-paren">(</span><em>colN</em>, <em>z1</em>, <em>z2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HaloSelection.html#MultiDarkMock.get_distrib_QTY"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HaloSelection.MultiDarkMock.get_distrib_QTY" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the cumulative histogram of a column for halos in the range z1, z2.
+:param colN: name of the column you want to take the histogram.
+:param z1: minimum redshift
+:param z2: maximum redshift</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="HaloSelection.MultiDarkMock.get_distrib_QTY_cen">
+<code class="descname">get_distrib_QTY_cen</code><span class="sig-paren">(</span><em>colN</em>, <em>z1</em>, <em>z2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HaloSelection.html#MultiDarkMock.get_distrib_QTY_cen"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HaloSelection.MultiDarkMock.get_distrib_QTY_cen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the cumulative histogram of a column for central halos in the range z1, z2.
+:param colN: name of the column you want to take the histogram.
+:param z1: minimum redshift
+:param z2: maximum redshift</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="HaloSelection.MultiDarkMock.get_distrib_QTY_sat">
+<code class="descname">get_distrib_QTY_sat</code><span class="sig-paren">(</span><em>colN</em>, <em>z1</em>, <em>z2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HaloSelection.html#MultiDarkMock.get_distrib_QTY_sat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HaloSelection.MultiDarkMock.get_distrib_QTY_sat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the cumulative histogram of a column for satellite halos in the range z1, z2.
+:param colN: name of the column you want to take the histogram.
+:param z1: minimum redshift
+:param z2: maximum redshift</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="HaloSelection.MultiDarkMock.initialize">
+<code class="descname">initialize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/HaloSelection.html#MultiDarkMock.initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HaloSelection.MultiDarkMock.initialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the procedure by putting into memroy arrays of central and satellites.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="HaloSelection.MultiDarkMock.make_GaussianFsat_catalog">
+<code class="descname">make_GaussianFsat_catalog</code><span class="sig-paren">(</span><em>colN</em>, <em>means</em>, <em>scatters</em>, <em>fsats</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HaloSelection.html#MultiDarkMock.make_GaussianFsat_catalog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HaloSelection.MultiDarkMock.make_GaussianFsat_catalog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates lists of ids of centrals and satellite galaxies corresponding to the density given in the n(z).
+:param colN: name of the column you construct the catalog with
+:param means: means of the Gaussians, array the same length of the redshift bin
+:param scatters: scatters of the Gaussians, array the same length of the redshift bin
+:param fsats: fractions of satellite, array the same length of the redshift bin</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="HaloSelection.MultiDarkMock.make_Gaussian_catalog">
+<code class="descname">make_Gaussian_catalog</code><span class="sig-paren">(</span><em>colN</em>, <em>means</em>, <em>scatters</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HaloSelection.html#MultiDarkMock.make_Gaussian_catalog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HaloSelection.MultiDarkMock.make_Gaussian_catalog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates lists of ids of centrals and satellite galaxies corresponding to the density given in the n(z).
+:param colN: name of the column you construct the catalog with
+:param means: means of the Gaussians, array the same length of the redshift bin
+:param scatters: scatters of the Gaussians, array the same length of the redshift bin</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="HaloSelection.MultiDarkMock.make_LogNorm_catalog">
+<code class="descname">make_LogNorm_catalog</code><span class="sig-paren">(</span><em>colN</em>, <em>means</em>, <em>scatters</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HaloSelection.html#MultiDarkMock.make_LogNorm_catalog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HaloSelection.MultiDarkMock.make_LogNorm_catalog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates lists of ids of centrals and satellite galaxies corresponding to the density given in the n(z).
+:param colN: name of the column you construct the catalog with
+:param means: means of the Gaussians, array the same length of the redshift bin
+:param scatters: scatters of the Gaussians, array the same length of the redshift bin</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="HaloSelection.MultiDarkMock.make_shamIncomplete_catalog">
+<code class="descname">make_shamIncomplete_catalog</code><span class="sig-paren">(</span><em>colN</em>, <em>incompletenessFactor</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HaloSelection.html#MultiDarkMock.make_shamIncomplete_catalog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HaloSelection.MultiDarkMock.make_shamIncomplete_catalog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates lists of ids of halos corresponding to the density given in the n(z). 
+For every bin of redshift, it gets the distribution o fthe column of interest and matches to the density of galaxies in the NZ given.
+Then provides a column of ids extracted from teh lightcone.
+:param colN: name of the column you wish to work on for the sham.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="HaloSelection.MultiDarkMock.make_shamMAX_catalog">
+<code class="descname">make_shamMAX_catalog</code><span class="sig-paren">(</span><em>colN</em>, <em>maxQTY</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HaloSelection.html#MultiDarkMock.make_shamMAX_catalog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HaloSelection.MultiDarkMock.make_shamMAX_catalog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates lists of ids of centrals and satellite galaxies corresponding to the density given in the n(z). 
+For every bin of redshift, it gets the distribution o fthe column of interest and matches to the density of galaxies in the NZ given.
+Then provides a column of ids extracted from teh lightcone.
+:param colN: name of the column you wish to work on for the sham.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="HaloSelection.MultiDarkMock.make_sham_catalog">
+<code class="descname">make_sham_catalog</code><span class="sig-paren">(</span><em>colN='mvir'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HaloSelection.html#MultiDarkMock.make_sham_catalog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HaloSelection.MultiDarkMock.make_sham_catalog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates lists of ids of halos corresponding to the density given in the n(z). 
+For every bin of redshift, it gets the distribution o fthe column of interest and matches to the density of galaxies in the NZ given.
+Then provides a column of ids extracted from teh lightcone.
+:param colN: name of the column you wish to work on for the sham.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="HaloSelection.MultiDarkMock.select_Gaussian">
+<code class="descname">select_Gaussian</code><span class="sig-paren">(</span><em>meanQTY</em>, <em>scatterQTY</em>, <em>nGal_perbin</em>, <em>IDhz</em>, <em>QTY</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HaloSelection.html#MultiDarkMock.select_Gaussian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HaloSelection.MultiDarkMock.select_Gaussian" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates lists of ids of centrals and satellite galaxies corresponding to the density given in the n(z) and to a gaussian distribution . 
+For every bin of redshift, it gets the distribution o fthe column of interest and matches to the density of galaxies in the NZ given.
+Then provides a column of ids extracted from teh lightcone.
+:param colN: name of the column you wish to work on for the sham.
+:param meanQTY: mean of the distribution
+:param scatterQTY: scatter of the distribution
+:param nGal_perbin: total number of galaxies in this bins to mock
+:param IDhz: IDs of the halos in this bin
+:param QTY: array of the column to do the match on, mass, velocity, ...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="HaloSelection.MultiDarkMock.select_GaussianFsat">
+<code class="descname">select_GaussianFsat</code><span class="sig-paren">(</span><em>meanQTY</em>, <em>scatterQTY</em>, <em>fsat</em>, <em>nGal_perbin</em>, <em>IDhz_c</em>, <em>QTY_c</em>, <em>IDhz_s</em>, <em>QTY_s</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HaloSelection.html#MultiDarkMock.select_GaussianFsat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HaloSelection.MultiDarkMock.select_GaussianFsat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extracts the ids of halos to create a mock with a Gaussian distribution.
+:param colN: name of the column you wish to work on for the sham.
+:param meanQTY: mean of the distribution
+:param scatterQTY: scatter of the distribution
+:param fsat: fraction of satellite in this bin
+:param nGal_perbin: total number of galaxies in this bins to mock
+:param IDhz_c: IDs of the central halos in this bin
+:param QTY_c: column to do the match on, mass, velocity, ... for the central halos
+:param IDhz_s: IDs of the satellite halos in this bin
+:param QTY_s: column to do the match on, mass, velocity, ... for the satellite halos</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="HaloSelection.MultiDarkMock.select_LogNorm">
+<code class="descname">select_LogNorm</code><span class="sig-paren">(</span><em>meanQTY</em>, <em>scatterQTY</em>, <em>nGal_perbin</em>, <em>IDhz</em>, <em>QTY</em>, <em>nn</em>, <em>bb</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HaloSelection.html#MultiDarkMock.select_LogNorm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HaloSelection.MultiDarkMock.select_LogNorm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates lists of ids of centrals and satellite galaxies corresponding to the density given in the n(z) and to a gaussian distribution . 
+For every bin of redshift, it gets the distribution o fthe column of interest and matches to the density of galaxies in the NZ given.
+Then provides a column of ids extracted from teh lightcone.
+:param colN: name of the column you wish to work on for the sham.
+:param meanQTY: mean of the distribution
+:param scatterQTY: scatter of the distribution
+:param nGal_perbin: total number of galaxies in this bins to mock
+:param IDhz: IDs of the halos in this bin
+:param QTY: array of the column to do the match on, mass, velocity, ...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="HaloSelection.MultiDarkMock.select_sham">
+<code class="descname">select_sham</code><span class="sig-paren">(</span><em>nGal_perbin</em>, <em>IDhz</em>, <em>QTY</em>, <em>nn</em>, <em>bb</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HaloSelection.html#MultiDarkMock.select_sham"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HaloSelection.MultiDarkMock.select_sham" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the ids corresponding to a given density.
+:param nGal_perbin: number of galaxies to be selected
+:param IDhz: parent ID distribution
+:param QTY: quantity to select halos on
+:param nn: cumulative distribution o QTY
+:param bb: bins of the cumulative distribution</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="HaloSelection.MultiDarkMock.select_shamIncomplete">
+<code class="descname">select_shamIncomplete</code><span class="sig-paren">(</span><em>incompFactor</em>, <em>nGal_perbin</em>, <em>IDhz</em>, <em>QTY</em>, <em>nn</em>, <em>bb</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HaloSelection.html#MultiDarkMock.select_shamIncomplete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HaloSelection.MultiDarkMock.select_shamIncomplete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the ids corresponding to a given density and an incompleteness factor.
+:param nGal_perbin: number of galaxies to be selected
+:param IDhz: parent ID distribution
+:param QTY: quantity to select halos on
+:param nn: cumulative distribution o QTY
+:param bb: bins of the cumulative distribution
+:param incompFactor: incompleteness factor compared to the max of QTY : max(QTY)/incompFactor will be set as the max of the extracted distribution.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="HaloSelection.MultiDarkMock.select_shamMAX">
+<code class="descname">select_shamMAX</code><span class="sig-paren">(</span><em>QTY_max</em>, <em>nGal_perbin</em>, <em>IDhz</em>, <em>QTY</em>, <em>nn</em>, <em>bb</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HaloSelection.html#MultiDarkMock.select_shamMAX"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HaloSelection.MultiDarkMock.select_shamMAX" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the ids corresponding to a given density with a maximum in the QTY.
+:param nGal_perbin: number of galaxies to be selected
+:param IDhz: parent ID distribution
+:param QTY: quantity to select halos on
+:param nn: cumulative distribution o QTY
+:param bb: bins of the cumulative distribution
+:param QTY_max: the max of QTY is set to QTY_max.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="HaloSelection.MultiDarkMock.writeClusteringParamFile">
+<code class="descname">writeClusteringParamFile</code><span class="sig-paren">(</span><em>type</em>, <em>decade=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HaloSelection.html#MultiDarkMock.writeClusteringParamFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HaloSelection.MultiDarkMock.writeClusteringParamFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes the clustering commands that command the CUTE code, see Alonso et al. 2012 <a class="reference external" href="https://arxiv.org/abs/1210.1833">https://arxiv.org/abs/1210.1833</a>
+:param type: monopole or angular or ...
+:param decade: string suffix that is appended if you study different scales (decades) _d1, _d2, _d3 are used for the angular clustering.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="HaloSelection.MultiDarkMock.write_catalog_ascii">
+<code class="descname">write_catalog_ascii</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/HaloSelection.html#MultiDarkMock.write_catalog_ascii"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HaloSelection.MultiDarkMock.write_catalog_ascii" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes the obtained mock catalog for clustering estimation: just ra, dec and redshift.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="HaloSelection.MultiDarkMock.write_full_catalog_fits">
+<code class="descname">write_full_catalog_fits</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/HaloSelection.html#MultiDarkMock.write_full_catalog_fits"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HaloSelection.MultiDarkMock.write_full_catalog_fits" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes the obtained with all the columns from the parent lightcone catalog.</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 
