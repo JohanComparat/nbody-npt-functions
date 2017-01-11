@@ -7,12 +7,14 @@ import os
 import sys
 
 #Quantity studied
+version = 'v3'
 qty = "mvir"
 
+
 # one point function lists
-fileC = n.array(glob.glob( join(os.environ['MD_DIR'],"MD_*Gpc*", "properties", qty,"*t_*_Central_JKresampling.pkl")))
-fileB = n.array(glob.glob( join( os.environ['MD_DIR'],"MD_*Gpc*","properties", qty,"*t_*_"+qty+"_JKresampling.bins")))
-fileS = n.array(glob.glob( join( os.environ['MD_DIR'],"MD_*Gpc*","properties", qty,"*t_*_Satellite_JKresampling.pkl")))
+fileC = n.array(glob.glob( join(os.environ['MD_DIR'], "MD_*Gpc*",  version, qty,"out_*_Central_JKresampling.pkl")))
+fileB = n.array(glob.glob( join( os.environ['MD_DIR'], "MD_*Gpc*", version, qty,"out_*_"+qty+"_JKresampling.bins")))
+fileS = n.array(glob.glob( join( os.environ['MD_DIR'], "MD_*Gpc*", version, qty,"out_*_Satellite_JKresampling.pkl")))
 
 fileC.sort()
 fileS.sort()
@@ -26,6 +28,44 @@ for ii, el in enumerate(fileC):
 	print fileS[ii]
 	print fileB[ii]
 	lib.convert_pkl_mass(fileC[ii], fileS[ii], fileB[ii], qty)
+
+
+fileC = n.array(glob.glob( join(os.environ['DS_DIR'], version, qty,"ds*_Central_JKresampling.pkl")))
+fileB = n.array(glob.glob( join( os.environ['DS_DIR'], version, qty,"ds*_"+qty+"_JKresampling.bins")))
+fileS = n.array(glob.glob( join( os.environ['DS_DIR'], version, qty,"ds*_Satellite_JKresampling.pkl")))
+
+fileC.sort()
+fileS.sort()
+fileB.sort()
+print len(fileC), len(fileB), len(fileS)
+
+print "considers ",len(fileC), qty , " function files"
+
+for ii, el in enumerate(fileC):
+	print el
+	print fileS[ii]
+	print fileB[ii]
+	lib.convert_pkl_mass(fileC[ii], fileS[ii], fileB[ii], qty)
+	
+
+print qty
+af = n.array(glob.glob(join(os.environ['MVIR_DIR'], "data", "*_"+qty+".fits") ) )
+print af[0]
+d0 = fits.open(af[0])[1].data
+#print len(d0['log_mvir']), d0['log_mvir']
+
+for ii in range(1,len(af),1):
+	d1 = fits.open(af[ii])[1].data
+	d0 = n.hstack((d0,d1))
+
+hdu2 = fits.BinTableHDU.from_columns(d0)
+
+writeName = join(os.environ['MVIR_DIR'], qty+"_summary.fits")
+if os.path.isfile(writeName):
+	os.remove(writeName)
+	
+hdu2.writeto( writeName )
+
 
 """
 sys.exit()
@@ -61,23 +101,4 @@ trb = d0['log_mvir']
 mode = 'middle'
 trb_o = rebinMe(trb, mode)
 """
-print qty
-af = n.array(glob.glob(join(os.environ['MVIR_DIR'], "data", "MD_*_"+qty+".fits") ) )
-print af[0]
-d0 = fits.open(af[0])[1].data
-print len(d0['log_mvir']), d0['log_mvir']
-
-for ii in range(1,len(af),1):
-	d1 = fits.open(af[ii])[1].data
-	d0 = n.hstack((d0,d1))
-
-hdu2 = fits.BinTableHDU.from_columns(d0)
-
-writeName = join(os.environ['MVIR_DIR'], "MD_"+qty+"_summary.fits")
-if os.path.isfile(writeName):
-	os.remove(writeName)
-	
-hdu2.writeto( writeName )
-
-
 

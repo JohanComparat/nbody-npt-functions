@@ -1,0 +1,1 @@
+C:\Python27\Scripts\sphinx-build.exe -b html D:\documents\GitHub\nbody-npt-functions\doc D:\documents\GitHub\nbody-npt-functions\doc\_build

@@ -28,7 +28,7 @@ from scipy.interpolate import griddata
 # plotting modules
 import matplotlib
 #matplotlib.use('pdf')
-matplotlib.rcParams['font.size']=12
+matplotlib.rcParams['font.size']=14
 import matplotlib.pyplot as p
 
 # mass function theory
@@ -39,42 +39,294 @@ cosmo = FlatLambdaCDM(H0=67.77*u.km/u.s/u.Mpc, Om0=0.307115, Ob0=0.048206)
 
 #lib.covariance_factor
 #lib.f_BH(sigma, 0.333, 0.788, 0.807, 1.795)
-bias = lambda sigma : lib.b_BH(sigma, a=0.908, p=0.671, q=1.737)
+bias = lambda sigma : lib.b_BH(sigma, a=0.8915, p=0.5524, q=1.578)
 
-# diagonal error
-dn_n_L04 = lambda sigma :  ((bias(sigma) * lib.hmf.growth_factor)**2. * (lib.covariance_factor[0]) )
-dn_n_L10 = lambda sigma :  ((bias(sigma) * lib.hmf.growth_factor)**2. * (lib.covariance_factor[1]) )
-dn_n_L25 = lambda sigma : ((bias(sigma) * lib.hmf.growth_factor)**2. * (lib.covariance_factor[2]) )
-dn_n_L40 = lambda sigma :  ((bias(sigma) * lib.hmf.growth_factor)**2. * (lib.covariance_factor[3]) )
+# sample variance equation 16
+var_sv_L04 = lambda sa, sb, fc=lib.covariance_factor_jk : bias(sa) * bias(sb) * (lib.hmf.growth_factor)**2. * fc[0]
+var_sv_L10 = lambda sa, sb, fc=lib.covariance_factor_jk : bias(sa) * bias(sb) * (lib.hmf.growth_factor)**2. * fc[1]
+var_sv_L25 = lambda sa, sb, fc=lib.covariance_factor_jk : bias(sa) * bias(sb) * (lib.hmf.growth_factor)**2. * fc[2]
+var_sv_L40 = lambda sa, sb, fc=lib.covariance_factor_jk : bias(sa) * bias(sb) * (lib.hmf.growth_factor)**2. * fc[3]
+var_sv_L80 = lambda sa, sb, fc=lib.covariance_factor_jk : bias(sa) * bias(sb) * (lib.hmf.growth_factor)**2. * fc[4]
 
-dn_L04 = lambda sigma :  (((bias(sigma) * lib.hmf.growth_factor)**2. * (lib.covariance_factor[0]))**2. + lib.shot_noise(sigma, 400.**3.)  )**0.5
-dn_L10 = lambda sigma :  (((bias(sigma) * lib.hmf.growth_factor)**2. * (lib.covariance_factor[1]) )**2. + lib.shot_noise(sigma, 1000.**3.) )**0.5  
-dn_L25 = lambda sigma : (((bias(sigma) * lib.hmf.growth_factor)**2. * (lib.covariance_factor[2]) )**2. + lib.shot_noise(sigma, 2500.**3.) )**0.5  
-dn_L40 = lambda sigma :  (((bias(sigma) * lib.hmf.growth_factor)**2. * (lib.covariance_factor[3]) )**2. + lib.shot_noise(sigma, 4000.**3.) )**0.5  
+# shot noise variance 
+var_sn_L04 = lambda sigma, lbox=40.   : lib.shot_simple(sigma, lbox**3.)
+var_sn_L10 = lambda sigma, lbox=100. : lib.shot_simple(sigma, lbox**3.)
+var_sn_L25 = lambda sigma, lbox=250. : lib.shot_simple(sigma, lbox**3.)
+var_sn_L40 = lambda sigma, lbox=400. : lib.shot_simple(sigma, lbox**3.)
+var_sn_L80 = lambda sigma, lbox=800. : lib.shot_simple(sigma, lbox**3.)
 
-dn_n_sn_L04 = lambda sigma : ( lib.shot_noise(sigma, 400.**3.)  )**0.5 
-dn_n_sn_L10 = lambda sigma : ( lib.shot_noise(sigma, 1000.**3.) )**0.5 
-dn_n_sn_L25 = lambda sigma : ( lib.shot_noise(sigma, 2500.**3.)  )**0.5 
-dn_n_sn_L40 = lambda sigma : ( lib.shot_noise(sigma, 4000.**3.)  )**0.5 
+# total covariance equation 17
 
-# off diagonal error 
-# (lib.nbar(s1) * lib.nbar(s2) )**0.5 *
-dn_cov_L04 = lambda s1, s2 : (dn_L04(s1)*dn_L04(s2))**0.5 # (  (bias(s1)*bias(s2) * lib.hmf.growth_factor**2.  * (lib.covariance_factor[0]) )**2.+ lib.shot_noise(n.min([s1,s2]), 400.**3.)  )**0.5   
-dn_cov_L10 = lambda s1, s2 : (dn_L10(s1)*dn_L10(s2) )**0.5#(  (bias(s1)*bias(s2) * lib.hmf.growth_factor**2.  * (lib.covariance_factor[1]) )**2.+ lib.shot_noise(n.min([s1,s2]), 1000.**3.)  )**0.5   
-dn_cov_L25 = lambda s1, s2 : (dn_L25(s1)*dn_L25(s2) )**0.5#(  (bias(s1)*bias(s2) * lib.hmf.growth_factor**2.  * (lib.covariance_factor[2]) )**2.+ lib.shot_noise(n.min([s1,s2]), 2500.**3.)  )**0.5   
-dn_cov_L40 = lambda s1, s2 : (dn_L40(s1)*dn_L40(s2) )**0.5#(  (bias(s1)*bias(s2) * lib.hmf.growth_factor**2.  * (lib.covariance_factor[3]) )**2.+ lib.shot_noise(n.min([s1,s2]), 4000.**3.)  )**0.5   
+print '--------------------------------------------------'
+print '--------------------------------------------------'
+print '------------------MATRIX------------------'
+print '--------------------------------------------------'
+print '--------------------------------------------------'
 
-dn_cr_L04 = lambda s1, s2 : (  (bias(s1)*bias(s2) * lib.hmf.growth_factor**2.  * (lib.covariance_factor[0]) )**2.+ lib.shot_noise(n.min([s1,s2]), 400.**3.)  )**0.5 / (bias(s1)*bias(s2))**2.
-dn_cr_L10 = lambda s1, s2 : (  (bias(s1)*bias(s2) * lib.hmf.growth_factor**2.  * (lib.covariance_factor[1]) )**2.+ lib.shot_noise(n.min([s1,s2]), 1000.**3.)  )**0.5 / (bias(s1)*bias(s2))**2.
-dn_cr_L25 = lambda s1, s2 : (  (bias(s1)*bias(s2) * lib.hmf.growth_factor**2.  * (lib.covariance_factor[2]) )**2.+ lib.shot_noise(n.min([s1,s2]), 2500.**3.)  )**0.5 / (bias(s1)*bias(s2))**2.
-dn_cr_L40 = lambda s1, s2 : (  (bias(s1)*bias(s2) * lib.hmf.growth_factor**2.  * (lib.covariance_factor[3]) )**2.+ lib.shot_noise(n.min([s1,s2]), 4000.**3.)  )**0.5 / (bias(s1)*bias(s2))**2.
+#Quantity studied
+qty = "mvir"
+version = 'v3'
+# measurement files
+fileC = n.array(glob.glob( join(os.environ['MD_DIR'], "MD_*Gpc*",  version, qty,"out_*_Central_JKresampling.pkl")))
+fileB = n.array(glob.glob( join( os.environ['MD_DIR'], "MD_*Gpc*", version, qty,"out_*_"+qty+"_JKresampling.bins")))
+fileS = n.array(glob.glob( join( os.environ['MD_DIR'], "MD_*Gpc*", version, qty,"out_*_Satellite_JKresampling.pkl")))
+
+# redshift 0 data
+iis = [8, 13, 29, 31, 60, -10]#[-1, -2, -4, -9, -22, 3]
+print fileC[iis]
+
+def plot_COV(fileC, binFile, gt14):
+	"""
+	Reads the data and extract mass function covariance matrix
+	
+	First gets the basic info about the data
+	
+	Then creates a dimension-less mass function matrix (1000 mass functions)
+	
+	"""
+	# hig mass end
+	if gt14:
+		snFactor = n.array([4.8, 5.5, 8., 11., 12.])
+		svFactor = n.array([1./2., 1./3.2, 4.5, 5, 4.5])
+		binW = 0.025 
+		plotDir = "covariance_gt14"
+	#low mass end
+	else:
+		snFactor = n.array([4.8, 5.5, 8., 11., 12])
+		svFactor = n.array([1./2., 1./3.2, 4.5, 5, 4.5])
+		binW = 0.125 
+		plotDir = "covariance_lt14"
+
+	ddd, boxName = lib.convert_pkl_massFunction_covarianceMatrix(fileC, binFile, qty='mvir', delta_wrt='mean', gt14=gt14)
+	#print ddd
+	print len(ddd)
+	f_mean, f_matrix, count_matrix, sigma, mass = ddd
+	cv = n.cov(f_matrix.T, ddof=0)#/(dxcv*dycv)
+	ctotal = (cv + count_matrix**(-0.5) )#/(dxcv*dycv)
+
+	var_total_sv_L04 = lambda s1, s2 : var_sv_L04(s1, s2, lib.covariance_factor_jk2) / svFactor[0]
+	var_total_sv_L10 = lambda s1, s2 : var_sv_L10(s1, s2, lib.covariance_factor_jk2) / svFactor[1]
+	var_total_sv_L25 = lambda s1, s2 : var_sv_L25(s1, s2, lib.covariance_factor_jk2) / svFactor[2]
+	var_total_sv_L40 = lambda s1, s2 : var_sv_L40(s1, s2, lib.covariance_factor_jk2) / svFactor[3]
+	var_total_sv_L80 = lambda s1, s2 : var_sv_L80(s1, s2, lib.covariance_factor_jk2) / svFactor[4]
+
+	var_total_sn_L04 = lambda s1, s2 : lib.shot_double(s1, s2, (  40.)**3.  , binW) / snFactor[0] 
+	var_total_sn_L10 = lambda s1, s2 : lib.shot_double(s1, s2, ( 100.)**3. , binW) / snFactor[1] 
+	var_total_sn_L25 = lambda s1, s2 : lib.shot_double(s1, s2, ( 250.)**3. , binW) / snFactor[2] 
+	var_total_sn_L40 = lambda s1, s2 : lib.shot_double(s1, s2, ( 400.)**3. , binW) / snFactor[3] 
+	var_total_sn_L80 = lambda s1, s2 : lib.shot_double(s1, s2, ( 800.)**3. , binW) / snFactor[4] 
+
+	var_total_L04 = lambda s1, s2 : (var_total_sn_L04(s1, s2) + var_total_sv_L04(s1, s2))
+	var_total_L10 = lambda s1, s2 : (var_total_sn_L10(s1, s2) + var_total_sv_L10(s1, s2))
+	var_total_L25 = lambda s1, s2 : (var_total_sn_L25(s1, s2) + var_total_sv_L25(s1, s2))
+	var_total_L40 = lambda s1, s2 : (var_total_sn_L40(s1, s2) + var_total_sv_L40(s1, s2))
+	var_total_L80 = lambda s1, s2 : (var_total_sn_L80(s1, s2) + var_total_sv_L80(s1, s2))
+	
+	xcv, ycv = n.meshgrid(sigma, sigma)
+	
+	model = {"MD_0.4Gpc": var_total_L04, "MD_1Gpc": var_total_L10, "MD_2.5Gpc": var_total_L25, "MD_4Gpc": var_total_L40,"MD_2.5GpcNW": var_total_L25, "MD_4GpcNW": var_total_L40 , "DS_8Gpc": var_total_L80 }
+	model_sn = {"MD_0.4Gpc": var_total_sn_L04, "MD_1Gpc": var_total_sn_L10, "MD_2.5Gpc": var_total_sn_L25, "MD_4Gpc": var_total_sn_L40,"MD_2.5GpcNW": var_total_sn_L25, "MD_4GpcNW": var_total_sn_L40 , "DS_8Gpc": var_total_sn_L80 }
+	model_sv = {"MD_0.4Gpc": var_total_sv_L04, "MD_1Gpc": var_total_sv_L10, "MD_2.5Gpc": var_total_sv_L25, "MD_4Gpc": var_total_sv_L40,"MD_2.5GpcNW": var_total_sv_L25, "MD_4GpcNW": var_total_sv_L40 , "DS_8Gpc": var_total_sv_L80 }
+
+	nickname = {"MD_0.4Gpc": "M04", "MD_1Gpc": "M10", "MD_2.5Gpc": "M25", "MD_4Gpc": "M40","MD_2.5GpcNW": "M25n", "MD_4GpcNW": "M40n" , "DS_8Gpc": "D80" }
+	p.figure(1,(6,6))
+	p.axes([0.17, 0.17, 0.78, 0.78])
+	p.title(nickname[boxName])#+" total")
+	tp=(xcv>ycv)# (xcv!=ycv)
+	p.scatter(-n.log10(xcv[tp]), -n.log10(ycv[tp]), c=n.log10(ctotal[tp]), s=25, edgecolors='none',vmin=-2,vmax=2., marker='s', label='data')
+	tp=(xcv<ycv)# (xcv!=ycv)
+	p.scatter(-n.log10(xcv[tp]), -n.log10(ycv[tp]), c=n.log10(model[boxName](xcv, ycv)[tp]), s=25, edgecolors='none', vmin=-2,vmax=2, marker='o', label='model')
+	cb = p.colorbar(shrink=0.7)
+	cb.set_label(r'$\log_{10}(C(\sigma_1, \sigma_2))$')
+	p.xlabel(r'$log_{10}(\sigma_1^{-1})$')
+	p.ylabel(r'$log_{10}(\sigma_2^{-1})$')
+	#p.xlim((-0.7, 0.6))
+	#p.ylim((-0.7, 0.6))
+	p.grid()
+	gl=p.legend(loc=0, frameon=False)
+	p.savefig(join(os.environ['MVIR_DIR'],plotDir,"covariance_matrix_"+boxName+"_dataTOT.png"))
+	p.clf()
+	"""
+	p.figure(1,(6,6))
+	p.axes([0.17, 0.17, 0.78, 0.78])
+	p.title(nickname[boxName]+" sn")
+	tp=(xcv>ycv)# (xcv!=ycv)
+	p.scatter(-n.log10(xcv[tp]), -n.log10(ycv[tp]), c=n.log10(ctotal[tp]), s=15, edgecolors='none',vmin=-2,vmax=2., marker='s')
+	tp=(xcv<ycv)# (xcv!=ycv)
+	p.scatter(-n.log10(xcv[tp]), -n.log10(ycv[tp]), c=n.log10(model_sn[boxName](xcv, ycv)[tp]), s=15, edgecolors='none', vmin=-2,vmax=2, marker='s')
+	cb = p.colorbar(shrink=0.7)
+	cb.set_label(r'$\log_{10}(C(\sigma_1, \sigma_2))$')
+	p.xlabel(r'$log_{10}(\sigma_1^{-1})$')
+	p.ylabel(r'$log_{10}(\sigma_2^{-1})$')
+	p.xlim((-0.7, 0.6))
+	p.ylim((-0.7, 0.6))
+	p.grid()
+	p.savefig(join(os.environ['MVIR_DIR'],plotDir,"covariance_matrix_"+boxName+"_dataSN.png"))
+	p.clf()
+	
+	p.figure(1,(6,6))
+	p.axes([0.17, 0.17, 0.78, 0.78])
+	p.title(nickname[boxName]+" sv")
+	tp=(xcv>ycv)# (xcv!=ycv)
+	p.scatter(-n.log10(xcv[tp]), -n.log10(ycv[tp]), c=n.log10(ctotal[tp]), s=15, edgecolors='none',vmin=-2,vmax=2., marker='s')
+	tp=(xcv<ycv)# (xcv!=ycv)
+	p.scatter(-n.log10(xcv[tp]), -n.log10(ycv[tp]), c=n.log10(model_sv[boxName](xcv, ycv)[tp]), s=15, edgecolors='none', vmin=-2,vmax=2, marker='s')
+	cb = p.colorbar(shrink=0.7)
+	cb.set_label(r'$\log_{10}(C(\sigma_1, \sigma_2))$')
+	p.xlabel(r'$log_{10}(\sigma_1^{-1})$')
+	p.ylabel(r'$log_{10}(\sigma_2^{-1})$')
+	p.xlim((-0.7, 0.6))
+	p.ylim((-0.7, 0.6))
+	p.grid()
+	p.savefig(join(os.environ['MVIR_DIR'],plotDir,"covariance_matrix_"+boxName+"_dataSV.png"))
+	p.clf()
+	"""
+	p.figure(2,(6,6))
+	p.axes([0.17, 0.17, 0.78, 0.78])
+	p.title(nickname[boxName])
+	tp=(xcv>ycv)
+	residuals = n.log10(ctotal[tp]/model[boxName](xcv, ycv)[tp])
+	p.scatter(-n.log10(xcv[tp]), -n.log10(ycv[tp]), c=residuals, s=25, edgecolors='none', vmin=-0.5,vmax=0.5, marker='s')
+	cb = p.colorbar(shrink=0.7)
+	cb.set_label(r'$\log_{10}$(data/model)')
+	#p.xlim((-0.7, 0.6))
+	p.grid()
+	#p.ylim((-0.7, 0.6))
+	p.xlabel(r'$log_{10}(\sigma_1^{-1})$')
+	p.ylabel(r'$log_{10}(\sigma_2^{-1})$')
+	p.savefig(join(os.environ['MVIR_DIR'],plotDir,"covariance_matrix_"+boxName+"_model.png"))
+	p.clf()
+	
+	p.figure(12)
+	for el in f_matrix:
+		p.plot(-n.log10(sigma), n.log10(el), 'k', alpha=0.1)
+		
+	p.plot(-n.log10(sigma), n.log10(f_mean),'r',lw=2)
+	p.ylim((-3., -0.4))
+	p.xlim((-0.5, 0.5))
+	p.xlabel(r'$log_{10}(\sigma^{-1})$')
+	p.ylabel(r'$\log_{10}\left[ \frac{M}{\rho_m} \frac{dn}{d\ln M} \left|\frac{d\ln M }{d\ln \sigma}\right|\right] $') 
+	p.savefig(join(os.environ['MVIR_DIR'],plotDir,"cv_test"+boxName+".png"))
+	p.clf()
+	
+	p.figure(2,(6,6))
+	p.axes([0.17, 0.17, 0.78, 0.78])
+	p.title(nickname[boxName])
+	p.errorbar(-n.log10(xcv.diagonal()), n.log10(ctotal.diagonal()),yerr=0.1, label='data')
+	y=model[boxName](xcv, ycv)
+	p.plot(-n.log10(xcv.diagonal()), n.log10(y.diagonal()), 'k', label='model')
+	y=model_sn[boxName](xcv, ycv)
+	p.plot(-n.log10(xcv.diagonal()), n.log10(y.diagonal()), 'k-.', label='model sn')
+	y=model_sv[boxName](xcv, ycv)
+	p.plot(-n.log10(xcv.diagonal()), n.log10(y.diagonal()), 'k--', label='model sv')
+	#p.xlim((-0.7, 0.6))
+	p.grid()
+	#p.ylim((-0.7, 0.6))
+	p.xlabel(r'$log_{10}(\sigma^{-1})$')
+	p.ylabel(r'$log_{10}(C_{Diag})$')
+	gl=p.legend(loc=0, frameon=False)
+	p.savefig(join(os.environ['MVIR_DIR'],plotDir,"covariance_matrix_"+boxName+"_diagonal.png"))
+	p.clf()
+	
+	p.figure(2,(6,6))
+	p.axes([0.17, 0.17, 0.78, 0.78])
+	p.title(nickname[boxName])
+	y=model[boxName](xcv, ycv).diagonal() / ctotal.diagonal()
+	p.plot(-n.log10(xcv.diagonal()), y, 'k', label='model')
+	#p.xlim((-0.7, 0.6))
+	p.grid()
+	#p.ylim((-0.7, 0.6))
+	p.xlabel(r'$log_{10}(\sigma^{-1})$')
+	p.ylabel(r'diagonal $C_{model}/C_{data}$')
+	gl=p.legend(loc=0, frameon=False)
+	p.savefig(join(os.environ['MVIR_DIR'],plotDir,"covariance_matrix_"+boxName+"_diagonal_residual.png"))
+	p.clf()
+	
+	
+	return f_mean, f_matrix, count_matrix, sigma, mass, residuals
+
+def compCov(gt):
+	dout = []
+	if gt:
+		plotDir = "covariance_gt14"
+		for ii in iis:
+			dout.append( plot_COV(fileC[ii], fileB[ii], gt ))
+	#low mass end
+	else:
+		plotDir = "covariance_lt14"
+		for ii in iis[:-2]:
+			dout.append( plot_COV(fileC[ii], fileB[ii], gt ))
+
+	"""
+	fileC = n.array(glob.glob( join(os.environ['DS_DIR'], version, qty,"ds*_Central_JKresampling.pkl")))
+	fileB = n.array(glob.glob( join( os.environ['DS_DIR'], version, qty,"ds*_"+qty+"_JKresampling.bins")))
+	fileS = n.array(glob.glob( join( os.environ['DS_DIR'], version, qty,"ds*_Satellite_JKresampling.pkl")))
+	plot_COV(fileC[0], fileB[0])
+	ii=0
+	dout.append( plot_COV(fileC[ii], fileB[ii]) )
+	"""
+	f_mean, f_matrix, count_matrix, sigma, mass, residuals = n.transpose(dout)
+
+	MDnames= n.array(['M04', 'M10', 'M25','M25n','M40','M40n', 'D80'])
+
+	xmax = n.empty(len(MDnames))
+	p.figure(6,(6,6))
+	for ii,el in enumerate(residuals):
+		triM = n.tril(el, k=-1)
+		nn,bb,pp=p.hist(triM[(triM>-2000)&(triM<2000)&(triM!=0)], bins=25, histtype='step',label=MDnames[ii], normed=True)
+		xmax[ii]=(bb[n.argmax(nn)]+bb[n.argmax(nn)+1])/2.
+		
+	p.xlabel('log(data/model)')
+	p.ylabel('normed counts')
+	p.title('Off diagonal covariance')
+	p.grid()
+	p.xlim((-0.4, 0.4))
+	gl=p.legend(loc=0, frameon=False)
+	p.savefig(join(os.environ['MVIR_DIR'],plotDir,"residuals.png"))
+	p.clf()
+
+	print "data/model most populated bin"
+	for nm, xm in  zip(MDnames, xmax)[:-1]:
+		print nm, 10**xm
+
+compCov(True)
+compCov(False)
+
+sys.exit()
+
+
+print '--------------------------------------------------'
+print '--------------------------------------------------'
+print '------------------DIAGONAL------------------'
+print '--------------------------------------------------'
+print '--------------------------------------------------'
+
+# projection for the diagonal error using 90% of the volume: only one shot noise term
+var_sv_L04_90 = lambda sa, sb : var_sv_L04(sa, sb, lib.covariance_factor_90)
+var_sv_L10_90 = lambda sa, sb : var_sv_L10(sa, sb, lib.covariance_factor_90)
+var_sv_L25_90 = lambda sa, sb : var_sv_L25(sa, sb, lib.covariance_factor_90)
+var_sv_L40_90 = lambda sa, sb : var_sv_L40(sa, sb, lib.covariance_factor_90)
+var_sv_L80_90 = lambda sa, sb : var_sv_L80(sa, sb, lib.covariance_factor_90)
+
+var_sn_L04_90 = lambda sigma:  var_sn_L04(sigma, lbox=400.*0.9**(1./3.)   )
+var_sn_L10_90 = lambda sigma : var_sn_L10(sigma, lbox=1000.*0.9**(1./3.) )
+var_sn_L25_90 = lambda sigma : var_sn_L25(sigma, lbox=2500.*0.9**(1./3.) ) 
+var_sn_L40_90 = lambda sigma : var_sn_L40(sigma, lbox=4000.*0.9**(1./3.) ) 
+var_sn_L80_90 = lambda sigma : var_sn_L80(sigma, lbox=8000.*0.9**(1./3.) ) 
+
+var_total_L04_90 = lambda s1, s2 : var_sn_L04_90(s1) + var_sv_L04_90(s1, s2) 
+var_total_L10_90 = lambda s1, s2 : var_sn_L10_90(s1) + var_sv_L10_90(s1, s2) 
+var_total_L25_90 = lambda s1, s2 : var_sn_L25_90(s1) + var_sv_L25_90(s1, s2) 
+var_total_L40_90 = lambda s1, s2 : var_sn_L40_90(s1) + var_sv_L40_90(s1, s2) 
+var_total_L80_90 = lambda s1, s2 : var_sn_L80_90(s1) + var_sv_L80_90(s1, s2) 
 
 
 qty = 'mvir'
 dir = join(os.environ['MVIR_DIR'])
 # loads summary file
-dataMF = fits.open( join(dir, "MD_"+qty+"_summary.fits"))[1].data
-zzero = (dataMF['redshift']==0) & (dataMF['log_mvir']>3+dataMF['logMpart'])
+dataMF = fits.open( join(dir, qty+"_summary.fits"))[1].data
+zzero = (dataMF['redshift']==0) & (dataMF['log_mvir']>3+dataMF['logMpart']) & (dataMF['dN_counts_cen'] > 10 )
+dlnSigM = abs(n.log(dataMF['log_mvir_max']-dataMF['log_mvir_min'])*dataMF['dlnsigmaMdlnM'])
 
 p.figure(0, (6,6))
 p.axes([0.17, 0.17, 0.78, 0.78])
@@ -82,32 +334,35 @@ x = n.logspace(-0.51, 0.51, 25)
 
 zSel = (zzero) & (dataMF['boxName'] =='MD_0.4Gpc')
 p.plot(-n.log10(dataMF['sigmaM'][zSel]), dataMF["std90_pc_cen"][zSel], 'b+')
-p.plot(-n.log10(x), dn_n_L04(x), 'b--')
-p.plot(-n.log10(x), dn_n_sn_L04(x), 'b', ls='dotted')
-p.plot(-n.log10(x), dn_L04(x), 'b')
+p.plot(-n.log10(x), var_sv_L04_90(x,x)**0.5, 'b--')
+p.plot(-n.log10(x), var_sn_L04_90(x)**0.5, 'b', ls='dotted')
+p.plot(-n.log10(x), var_total_L04_90(x,x)**0.5, 'b')
 
 zSel = (zzero) & (dataMF['boxName'] =='MD_1Gpc')
 p.plot(-n.log10(dataMF['sigmaM'][zSel]), dataMF["std90_pc_cen"][zSel], 'g+')
-p.plot(-n.log10(x), dn_n_L10(x), 'g--')
-p.plot(-n.log10(x), dn_n_sn_L10(x), 'g', ls='dotted')
-p.plot(-n.log10(x), dn_L10(x), 'g')
+p.plot(-n.log10(x), var_sv_L10_90(x,x)**0.5, 'g--')
+p.plot(-n.log10(x), var_sn_L10_90(x)**0.5, 'g', ls='dotted')
+p.plot(-n.log10(x), var_total_L10_90(x,x)**0.5, 'g')
+
 
 zSel = (zzero) & (dataMF['boxName'] =='MD_2.5Gpc')
 p.plot(-n.log10(dataMF['sigmaM'][zSel]), dataMF["std90_pc_cen"][zSel], 'r+')
-p.plot(-n.log10(x), dn_n_L25(x), 'r--')
-p.plot(-n.log10(x), dn_n_sn_L25(x), 'r', ls='dotted')
-p.plot(-n.log10(x), dn_L25(x), 'r')
+p.plot(-n.log10(x), var_sv_L25_90(x,x)**0.5, 'r--')
+p.plot(-n.log10(x), var_sn_L25_90(x)**0.5, 'r', ls='dotted')
+p.plot(-n.log10(x), var_total_L25_90(x,x)**0.5, 'r')
 
 zSel = (zzero) & (dataMF['boxName'] =='MD_4Gpc')
 p.plot(-n.log10(dataMF['sigmaM'][zSel]), dataMF["std90_pc_cen"][zSel], 'k+')
-p.plot(-n.log10(x), dn_n_L40(x), 'k--')
-p.plot(-n.log10(x), dn_n_sn_L40(x), 'k', ls='dotted')
-p.plot(-n.log10(x), dn_L40(x), 'k')
+p.plot(-n.log10(x), var_sv_L40_90(x,x)**0.5, 'k--')
+p.plot(-n.log10(x), var_sn_L40_90(x)**0.5, 'k', ls='dotted')
+p.plot(-n.log10(x), var_total_L40_90(x,x)**0.5, 'k')
 
-#p.plot(x, lib.shot_noise(x, 400.**3.)**0.5, label='04sn')
-#p.plot(x, lib.shot_noise(x, 1000.**3.)**0.5, label='10sn')
-#p.plot(x, lib.shot_noise(x, 2500.**3.)**0.5, label='25sn')
-#p.plot(x, lib.shot_noise(x, 4000.**3.)**0.5, label='40sn')
+zSel = (zzero) & (dataMF['boxName'] =='DS_8Gpc')
+p.plot(-n.log10(dataMF['sigmaM'][zSel]), dataMF["std90_pc_cen"][zSel], 'm+')
+p.plot(-n.log10(x), var_sv_L80_90(x,x)**0.5, 'm--')
+p.plot(-n.log10(x), var_sn_L80_90(x)**0.5, 'm', ls='dotted')
+p.plot(-n.log10(x), var_total_L80_90(x,x)**0.5, 'm')
+
 p.plot(0.,0., 'k', label='sample variance', ls='dashed')
 p.plot(0.,0., 'k', label='shot noise', ls='dotted')
 p.plot(0.,0., 'k', label='sum', ls='solid')
@@ -117,11 +372,11 @@ p.ylim((2e-4, 10))
 p.xlim((-0.5, 0.7))
 p.grid()
 p.xlabel(r'$log_{10}(\sigma^{-1})$')
-p.ylabel(r'$\Delta n / n$')
+p.ylabel(r'fractional error $\sqrt{C_{model}(\sigma,\sigma)}$')
 gl=p.legend(loc=0, frameon=False)
 p.title('jackknife')
 #gl.set_frame_on(False)
-p.savefig(join(os.environ['MVIR_DIR'],"covariance","dn-sigma-jackknife.png"))
+p.savefig(join(os.environ['MVIR_DIR'],plotDir,"dn-sigma-jackknife.png"))
 p.clf()
 
 
@@ -130,46 +385,44 @@ p.axes([0.17, 0.17, 0.78, 0.78])
 x = n.logspace(-0.51, 0.51, 25)
 
 zSel = (zzero) & (dataMF['boxName'] =='MD_0.4Gpc')
-p.plot(-n.log10(dataMF['sigmaM'][zSel]), dataMF["dN_counts_cen"][zSel]**(-0.5), 'bx', label='0.4')
-p.plot(-n.log10(x), dn_n_L04(x), 'b--')
-p.plot(-n.log10(x), dn_n_sn_L04(x), 'b', ls='dotted')
-p.plot(-n.log10(x), dn_L04(x), 'b')
+p.plot(-n.log10(dataMF['sigmaM'][zSel]), dataMF["dN_counts_cen"][zSel]**(-0.5), 'bx', label='M04')
+p.plot(-n.log10(x), var_sv_L04_90(x,x)**0.5, 'b--')
+p.plot(-n.log10(x), var_sn_L04_90(x)**0.5, 'b', ls='dotted')
+p.plot(-n.log10(x), var_total_L04_90(x,x)**0.5, 'b')
 
 zSel = (zzero) & (dataMF['boxName'] =='MD_1Gpc')
-p.plot(-n.log10(dataMF['sigmaM'][zSel]), dataMF["dN_counts_cen"][zSel]**(-0.5), 'gx', label='1.0')
-p.plot(-n.log10(x), dn_n_L10(x), 'g--')
-p.plot(-n.log10(x), dn_n_sn_L10(x), 'g', ls='dotted')
-p.plot(-n.log10(x), dn_L10(x), 'g')
+p.plot(-n.log10(dataMF['sigmaM'][zSel]), dataMF["dN_counts_cen"][zSel]**(-0.5), 'gx', label='M10')
+p.plot(-n.log10(x), var_sv_L10_90(x,x)**0.5, 'g--')
+p.plot(-n.log10(x), var_sn_L10_90(x)**0.5, 'g', ls='dotted')
+p.plot(-n.log10(x), var_total_L10_90(x,x)**0.5, 'g')
 
 zSel = (zzero) & (dataMF['boxName'] =='MD_2.5Gpc')
-p.plot(-n.log10(dataMF['sigmaM'][zSel]), dataMF["dN_counts_cen"][zSel]**(-0.5), 'rx', label='2.5')
-p.plot(-n.log10(x), dn_n_L25(x), 'r--')
-p.plot(-n.log10(x), dn_n_sn_L25(x), 'r', ls='dotted')
-p.plot(-n.log10(x), dn_L25(x), 'r')
+p.plot(-n.log10(dataMF['sigmaM'][zSel]), dataMF["dN_counts_cen"][zSel]**(-0.5), 'rx', label='M25')
+p.plot(-n.log10(x), var_sv_L25_90(x,x)**0.5, 'r--')
+p.plot(-n.log10(x), var_sn_L25_90(x)**0.5, 'r', ls='dotted')
+p.plot(-n.log10(x), var_total_L25_90(x,x)**0.5, 'r')
 
 zSel = (zzero) & (dataMF['boxName'] =='MD_4Gpc')
-p.plot(-n.log10(dataMF['sigmaM'][zSel]), dataMF["dN_counts_cen"][zSel]**(-0.5), 'kx', label='4.0')
-p.plot(-n.log10(x), dn_n_L40(x), 'k--')
-p.plot(-n.log10(x), dn_n_sn_L40(x), 'k', ls='dotted')
-p.plot(-n.log10(x), dn_L40(x), 'k')
+p.plot(-n.log10(dataMF['sigmaM'][zSel]), dataMF["dN_counts_cen"][zSel]**(-0.5), 'kx', label='M40')
+p.plot(-n.log10(x), var_sv_L40_90(x,x)**0.5, 'k--')
+p.plot(-n.log10(x), var_sn_L40_90(x)**0.5, 'k', ls='dotted')
+p.plot(-n.log10(x), var_total_L40_90(x,x)**0.5, 'k')
 
-#p.plot(x, lib.shot_noise(x, 400.**3.)**0.5, label='04sn')
-#p.plot(x, lib.shot_noise(x, 1000.**3.)**0.5, label='10sn')
-#p.plot(x, lib.shot_noise(x, 2500.**3.)**0.5, label='25sn')
-#p.plot(x, lib.shot_noise(x, 4000.**3.)**0.5, label='40sn')
-p.plot(0.,0., 'k', label='sample variance', ls='dashed')
-p.plot(0.,0., 'k', label='shot noise', ls='dotted')
-p.plot(0.,0., 'k', label='sum', ls='solid')
-# p.xscale('log')
+zSel = (zzero) & (dataMF['boxName'] =='DS_8Gpc')
+p.plot(-n.log10(dataMF['sigmaM'][zSel]), dataMF["dN_counts_cen"][zSel]**(-0.5), 'mx', label='D80')
+p.plot(-n.log10(x), var_sv_L80_90(x,x)**0.5, 'm--')
+p.plot(-n.log10(x), var_sn_L80_90(x)**0.5, 'm', ls='dotted')
+p.plot(-n.log10(x), var_total_L80_90(x,x)**0.5, 'm')
+
 p.yscale('log')
 p.ylim((2e-4, 10))
 p.xlim((-0.5, 0.7))
 p.grid()
 p.xlabel(r'$log_{10}(\sigma^{-1})$')
-p.ylabel(r'$\Delta n / n$')
+p.ylabel(r'fractional error $\sqrt{C_{model}(\sigma,\sigma)}$')
 gl=p.legend(loc=0, frameon=False)
-#gl.set_frame_on(False)
-p.savefig(join(os.environ['MVIR_DIR'],"covariance","dn-sigma-poisson.png"))
+p.title('poisson')
+p.savefig(join(os.environ['MVIR_DIR'],plotDir,"dn-sigma-poisson.png"))
 p.clf()
 
 p.figure(0, (6,6))
@@ -177,147 +430,51 @@ p.axes([0.17, 0.17, 0.78, 0.78])
 x = n.logspace(-0.51, 0.51, 25)
 
 zSel = (zzero) & (dataMF['boxName'] =='MD_0.4Gpc')
-p.plot(-n.log10(dataMF['sigmaM'][zSel]), (dataMF["std90_pc_cen"][zSel]**2. + dataMF["dN_counts_cen"][zSel]**(-1.))**(0.5), 'bx', label='0.4')
-p.plot(-n.log10(x), dn_n_L04(x), 'b--')
-p.plot(-n.log10(x), dn_n_sn_L04(x), 'b', ls='dotted')
-p.plot(-n.log10(x), dn_L04(x), 'b')
+p.plot(-n.log10(dataMF['sigmaM'][zSel]), (dataMF["std90_pc_cen"][zSel]**2. + dataMF["dN_counts_cen"][zSel]**(-1.))**(0.5), 'bx', label='MD04')
+p.plot(-n.log10(x), var_sv_L04_90(x,x)**0.5, 'b--')
+p.plot(-n.log10(x), var_sn_L04_90(x)**0.5, 'b', ls='dotted')
+p.plot(-n.log10(x), var_total_L04_90(x,x)**0.5, 'b')
 
 zSel = (zzero) & (dataMF['boxName'] =='MD_1Gpc')
-p.plot(-n.log10(dataMF['sigmaM'][zSel]), (dataMF["std90_pc_cen"][zSel]**2. + dataMF["dN_counts_cen"][zSel]**(-1.))**(0.5), 'gx', label='1.0')
-p.plot(-n.log10(x), dn_n_L10(x), 'g--')
-p.plot(-n.log10(x), dn_n_sn_L10(x), 'g', ls='dotted')
-p.plot(-n.log10(x), dn_L10(x), 'g')
+p.plot(-n.log10(dataMF['sigmaM'][zSel]), (dataMF["std90_pc_cen"][zSel]**2. + dataMF["dN_counts_cen"][zSel]**(-1.))**(0.5), 'gx', label='MD10')
+p.plot(-n.log10(x), var_sv_L10_90(x,x)**0.5, 'g--')
+p.plot(-n.log10(x), var_sn_L10_90(x)**0.5, 'g', ls='dotted')
+p.plot(-n.log10(x), var_total_L10_90(x,x)**0.5, 'g')
 
 zSel = (zzero) & (dataMF['boxName'] =='MD_2.5Gpc')
-p.plot(-n.log10(dataMF['sigmaM'][zSel]), (dataMF["std90_pc_cen"][zSel]**2. + dataMF["dN_counts_cen"][zSel]**(-1.))**(0.5), 'rx', label='2.5')
-p.plot(-n.log10(x), dn_n_L25(x), 'r--')
-p.plot(-n.log10(x), dn_n_sn_L25(x), 'r', ls='dotted')
-p.plot(-n.log10(x), dn_L25(x), 'r')
+p.plot(-n.log10(dataMF['sigmaM'][zSel]), (dataMF["std90_pc_cen"][zSel]**2. + dataMF["dN_counts_cen"][zSel]**(-1.))**(0.5), 'rx', label='MD25')
+p.plot(-n.log10(x), var_sv_L25_90(x,x)**0.5, 'r--')
+p.plot(-n.log10(x), var_sn_L25_90(x)**0.5, 'r', ls='dotted')
+p.plot(-n.log10(x), var_total_L25_90(x,x)**0.5, 'r')
 
 zSel = (zzero) & (dataMF['boxName'] =='MD_4Gpc')
-p.plot(-n.log10(dataMF['sigmaM'][zSel]), (dataMF["std90_pc_cen"][zSel]**2. + dataMF["dN_counts_cen"][zSel]**(-1.))**(0.5), 'kx', label='4.0')
-p.plot(-n.log10(x), dn_n_L40(x), 'k--')
-p.plot(-n.log10(x), dn_n_sn_L40(x), 'k', ls='dotted')
-p.plot(-n.log10(x), dn_L40(x), 'k')
+p.plot(-n.log10(dataMF['sigmaM'][zSel]), (dataMF["std90_pc_cen"][zSel]**2. + dataMF["dN_counts_cen"][zSel]**(-1.))**(0.5), 'kx', label='MD40')
+p.plot(-n.log10(x), var_sv_L40_90(x,x)**0.5, 'k--')
+p.plot(-n.log10(x), var_sn_L40_90(x)**0.5, 'k', ls='dotted')
+p.plot(-n.log10(x), var_total_L40_90(x,x)**0.5, 'k')
+
+zSel = (zzero) & (dataMF['boxName'] =='DS_8Gpc')
+p.plot(-n.log10(dataMF['sigmaM'][zSel]), (dataMF["std90_pc_cen"][zSel]**2. + dataMF["dN_counts_cen"][zSel]**(-1.))**(0.5), 'mx', label='DS80')
+p.plot(-n.log10(x), var_sv_L80_90(x,x)**0.5, 'm--')
+p.plot(-n.log10(x), var_sn_L80_90(x)**0.5, 'm', ls='dotted')
+p.plot(-n.log10(x), var_total_L80_90(x,x)**0.5, 'm')
 
 #p.plot(x, lib.shot_noise(x, 400.**3.)**0.5, label='04sn')
 #p.plot(x, lib.shot_noise(x, 1000.**3.)**0.5, label='10sn')
 #p.plot(x, lib.shot_noise(x, 2500.**3.)**0.5, label='25sn')
 #p.plot(x, lib.shot_noise(x, 4000.**3.)**0.5, label='40sn')
-p.plot(0.,0., 'k', label='sample variance', ls='dashed')
-p.plot(0.,0., 'k', label='shot noise', ls='dotted')
-p.plot(0.,0., 'k', label='sum', ls='solid')
 # p.xscale('log')
 p.yscale('log')
 p.ylim((2e-4, 10))
 p.xlim((-0.5, 0.7))
 p.grid()
 p.xlabel(r'$log_{10}(\sigma^{-1})$')
-p.ylabel(r'$\Delta n / n$')
+p.ylabel(r'$\Delta n / n / dln(\sigma)$')
+p.ylabel(r'fractional error $\sqrt{C_{model}(\sigma,\sigma)}$')
 gl=p.legend(loc=0, frameon=False)
-#gl.set_frame_on(False)
-p.savefig(join(os.environ['MVIR_DIR'],"covariance","dn-sigma-both.png"))
+p.savefig(join(os.environ['MVIR_DIR'],plotDir,"dn-sigma-both.png"))
 p.clf()
 
-
-"""
-bh_all = lambda nu, a, b, c : 1+(a**1.5 *nu**2 + a**0.5*b*(a*nu**2)**(1-c) - (a*nu**2)**c/( (a*nu**2)**c+b*(1-c)*(1-c/2)) )/(a**0.5*delta_c)
-
-a=2**(-0.5)
-b=0.35
-c=0.8
-
-bh = lambda nu : bh_all(nu, a, b, c)
-bias = lambda sigma : bh(delta_c/sigma)
-"""
-
-
-
-"""
-xi_mod= lambda R,R0,delta : (R/R0)**(-delta)
-xi = lambda R : xi_mod(R, 4, 1.8)
-
-xi(40)
-
-xi(40.)*bh(0.64)*bh(0.749)
-
-xi(400.)*bh(2.85)*bh(3.91)
-
-# nu = delta_c / sigma_M
-#ss
-"""
-#Quantity studied
-qty = "mvir"
-
-# General information
-zList_all =  join(os.environ['PYSU_MD_DIR'], "data", "z-list-all-boxes.txt") 
-z0 = n.loadtxt(zList_all,unpack=True)
-zList_all2 =  join(os.environ['PYSU_MD_DIR'], "data", "z-list-2LINEAR-COSMO.txt") 
-z0short = n.loadtxt(zList_all2,unpack=True,dtype='S')
-
-# redshift lists
-dir_boxes =  n.array([os.environ['MD04_DIR'], os.environ['MD10_DIR'], os.environ['MD25_DIR'], os.environ['MD40_DIR'], os.environ['MD25NW_DIR'], os.environ['MD40NW_DIR']])
-zList_files = n.array([ join(dir_box,"redshift-list.txt") for dir_box in dir_boxes])
-
-# one point function lists
-
-fileC = n.array(glob.glob( join(os.environ['MD_DIR'],"MD_*Gpc*", "properties", qty,"out_*_Central_JKresampling.pkl")))
-fileB = n.array(glob.glob( join( os.environ['MD_DIR'],"MD_*Gpc*","properties", qty,"out_*_"+qty+"_JKresampling.bins")))
-fileS = n.array(glob.glob( join( os.environ['MD_DIR'],"MD_*Gpc*","properties", qty,"out_*_Satellite_JKresampling.pkl")))
-
-# redshift 0 data
-iis = [8, 13, 29, 31, 60, -10]#[-1, -2, -4, -9, -22, 3]
-print fileC[iis]
-
-def plot_COV(fileCov, binFile):
-	boxZN = float(os.path.basename(fileCov).split('_')[1])
-	print boxZN
-	hf, boxLength, boxName, boxRedshift, logmp, boxLengthComoving, massCorrection = lib.get_basic_info(fileCov, boxZN, delta_wrt='mean')
-	bins = n.log10( 10**n.loadtxt(binFile) * massCorrection )
-	logmass = ( bins[1:]  + bins[:-1] )/2.
-	mass = 10**logmass
-	dX = ( 10**bins[1:]  - 10**bins[:-1] )
-	dlnbin = (bins[1:]  - bins[:-1])*n.log(10)
-	m2sigma = interp1d(hf.M, hf.sigma )
-	sigma_i = m2sigma( mass )
-	data_i=cPickle.load(open(fileCov,'r'))
-	counts_i = n.sum(data_i, axis=0)
-	ok = (counts_i>10)
-	data = data_i.T[ok].T
-	counts = n.sum(data, axis=0)
-	sigma = sigma_i[ok]
-	count_matrix = n.outer(counts, counts)/1000.
-	cv = (n.cov(data.T, ddof=0)/count_matrix)**0.5
-	ctotal = cv + count_matrix**(-0.5)
-
-	xcv, ycv = n.meshgrid(sigma, sigma)
-
-	model = {"MD_0.4Gpc": dn_cov_L04, "MD_1Gpc": dn_cov_L10, "MD_2.5Gpc": dn_cov_L25, "MD_4Gpc": dn_cov_L40,"MD_2.5GpcNW": dn_cov_L25, "MD_4GpcNW": dn_cov_L40 }
-
-	fig, (ax1, ax2) = p.subplots(1,2, sharex=True, sharey=True)
-	ax1.set_title(boxName)
-	sca = ax1.scatter(-n.log10(xcv), -n.log10(ycv), c=n.log10(ctotal), s=10, edgecolors='none',vmin=-4,vmax=0)
-	#cb = sca.colorbar(shrink=0.8)
-	#cb.set_label("C($\sigma_1, \sigma_2$)")
-	ax1.set_xlabel(r'$log_{10}(\sigma_1^{-1})$')
-	ax1.set_ylabel(r'$log_{10}(\sigma_2^{-1})$')
-	ax1.set_xlim((-0.7, 0.6))
-	ax1.set_ylim((-0.7, 0.6))
-	ax1.grid()
-	#ax2=fig.add_subplot(122, sharex=ax1, sharey=ax1)
-	ax2.set_title("model")
-	ax2.scatter(-n.log10(xcv), -n.log10(ycv), c=n.log10(model[boxName](xcv, ycv)), s=10, edgecolors='none',vmin=-4,vmax=0)
-	ax2.set_xlim((-0.7, 0.6))
-	ax2.grid()
-	ax2.set_ylim((-0.7, 0.6))
-	ax2.set_xlabel(r'$log_{10}(\sigma_1^{-1})$')
-	fig.savefig(join(os.environ['MVIR_DIR'],"covariance","covariance_matrix_"+boxName+".png"))
-	fig.clf()
-
-for ii in iis:
-	plot_COV(fileC[ii], fileB[ii])
-	
-	
 sys.exit()
 
 def plot_CRCoef_mvir(fileC, fileS, binFile):
@@ -361,7 +518,7 @@ def plot_CRCoef_mvir(fileC, fileS, binFile):
 	p.xlabel(r'log$_{10}[M_{vir}/(h^{-1}M_\odot)]$')
 	p.ylabel(r'log$_{10}[M_{vir}/(h^{-1}M_\odot)]$')
 	p.grid()
-	p.savefig(join(os.environ['MVIR_DIR'],"covariance","mvir-cr-"+boxName+".png"))
+	p.savefig(join(os.environ['MVIR_DIR'],plotDir,"mvir-cr-"+boxName+".png"))
 	p.clf()
 	
 	fig = p.figure(0,(6,6))
@@ -373,7 +530,7 @@ def plot_CRCoef_mvir(fileC, fileS, binFile):
 	p.xlabel(r'$\sigma$')
 	p.ylabel(r'$\sigma$')
 	p.grid()
-	p.savefig(join(os.environ['MVIR_DIR'],"covariance","sigma-cr-"+boxName+".png"))
+	p.savefig(join(os.environ['MVIR_DIR'],plotDir,"sigma-cr-"+boxName+".png"))
 	p.clf()
 	id = int(mass2X(logmp+2.5))
 	print id, len(logmass)
@@ -443,20 +600,20 @@ yi = n.logspace(-0.51, 0.51, 25) #n.arange(0.25, 3.2, 0.02)
 cci = griddata((xcr, ycr), zcr, (xi[None,:], yi[:,None]), method='linear')
 cvi = griddata((xcv, ycv), zcv, (xi[None,:], yi[:,None]), method='linear')
 
-dn_cr_array = n.array([ dn_cr_L40(xcr[ii], ycr[ii]) for ii in range(len(xcr))])
-cci_m = griddata((xcr, ycr), dn_cr_array, (xi[None,:], yi[:,None]), method='linear')
+var_cr_array = n.array([ var_cr_L40(xcr[ii], ycr[ii]) for ii in range(len(xcr))])
+cci_m = griddata((xcr, ycr), var_cr_array, (xi[None,:], yi[:,None]), method='linear')
 
-dn_cov_array = n.array([ dn_cov_L40(xcv[ii], ycv[ii]) for ii in range(len(xcv))])
-cvi_m = griddata((xcv, ycv), dn_cov_array, (xi[None,:], yi[:,None]), method='linear')
+var_total_array = n.array([ var_total_L40(xcv[ii], ycv[ii]) for ii in range(len(xcv))])
+cvi_m = griddata((xcv, ycv), var_total_array, (xi[None,:], yi[:,None]), method='linear')
 
-p.scatter(-n.log10(xcv), -n.log10(ycv), c=n.log10(dn_cov_array), s=10, edgecolors='none',vmin=-4,vmax=0)
+p.scatter(-n.log10(xcv), -n.log10(ycv), c=n.log10(var_total_array), s=10, edgecolors='none',vmin=-4,vmax=0)
 #CS = p.contour(-n.log10(xi), -n.log10(yi), n.log10(cvi_m),15,linewidths=0.5,colors='k', vmin=-4, vmax=0)
 #CS = p.contourf(-n.log10(xi), -n.log10(yi), n.log10(cvi_m),15,cmap=p.cm.jet, vmin=-4, vmax=0)
 cb = p.colorbar(shrink=0.8)
 cb.set_label("R($\sigma_1, \sigma_2$)")
 p.xlabel(r'$log_{10}(\sigma_1^{-1})$')
 p.ylabel(r'$log_{10}(\sigma_2^{-1})$')
-p.savefig(join(os.environ['MVIR_DIR'],"covariance","covariance_matrix_model.png"))
+p.savefig(join(os.environ['MVIR_DIR'],plotDir,"covariance_matrix_model.png"))
 p.clf()
 
 p.scatter(-n.log10(xct), -n.log10(yct), c=n.log10(zct), s=10, edgecolors='none',vmin=-4,vmax=0)
@@ -467,18 +624,18 @@ cb = p.colorbar(shrink=0.8)
 cb.set_label("R($\sigma_1, \sigma_2$)")
 p.xlabel(r'$log_{10}(\sigma_1^{-1})$')
 p.ylabel(r'$log_{10}(\sigma_2^{-1})$')
-p.savefig(join(os.environ['MVIR_DIR'],"covariance","covariance_matrix_data.png"))
+p.savefig(join(os.environ['MVIR_DIR'],plotDir,"covariance_matrix_data.png"))
 p.clf()
 
 
-p.scatter(-n.log10(xcr), -n.log10(ycr), c=n.log10(dn_cr_array), s=10, edgecolors='none',vmin=-5,vmax=0)
+p.scatter(-n.log10(xcr), -n.log10(ycr), c=n.log10(var_cr_array), s=10, edgecolors='none',vmin=-5,vmax=0)
 #CS = p.contour(-n.log10(xi), -n.log10(yi), cci_m,15,linewidths=0.5,colors='k', vmin=0, vmax=1)
 #CS = p.contourf(-n.log10(xi), -n.log10(yi), cci_m,15,cmap=p.cm.jet, vmin=0, vmax=1)
 cb = p.colorbar(shrink=0.8)
 cb.set_label("R($\sigma_1, \sigma_2$)")
 p.xlabel(r'$log_{10}(\sigma_1^{-1})$')
 p.ylabel(r'$log_{10}(\sigma_2^{-1})$')
-p.savefig(join(os.environ['MVIR_DIR'],"covariance","ccr_matrix_model.png"))
+p.savefig(join(os.environ['MVIR_DIR'],plotDir,"ccr_matrix_model.png"))
 p.clf()
 
 CS = p.contour(-n.log10(xi), -n.log10(yi), cci, 15, linewidths=0.5,colors='k', vmin=0, vmax=1)
@@ -487,7 +644,7 @@ cb = p.colorbar(shrink=0.8)
 cb.set_label("R($\sigma_1, \sigma_2$)")
 p.xlabel(r'$log_{10}(\sigma_1^{-1})$')
 p.ylabel(r'$log_{10}(\sigma_2^{-1})$')
-p.savefig(join(os.environ['MVIR_DIR'],"covariance","ccr_matrix_data.png"))
+p.savefig(join(os.environ['MVIR_DIR'],plotDir,"ccr_matrix_data.png"))
 p.clf()
 
 sys.exit()
@@ -501,7 +658,7 @@ cb.set_label("R($\sigma_1, \sigma_2$)")
 p.xlabel(r'$\sigma_1$')
 p.ylabel(r'$\sigma_2$')
 p.plot(x,y,'k,')
-p.savefig(join(os.environ['MVIR_DIR'],"covariance","griddata.png"))
+p.savefig(join(os.environ['MVIR_DIR'],plotDir,"griddata.png"))
 p.clf()
 
 
@@ -533,7 +690,7 @@ p.ylabel(r'log$_{10}[M_{vir}/(h^{-1}M_\odot)]$')
 p.xlim((n.min(ids)-1, 75))
 p.ylim((75, n.min(ids)-1))
 p.grid()
-p.savefig(join(os.environ['MVIR_DIR'],"covariance","mvir-cr-all.png"))
+p.savefig(join(os.environ['MVIR_DIR'],plotDir,"mvir-cr-all.png"))
 p.clf()
 
 #### antidiagonal projection
@@ -568,7 +725,7 @@ p.ylim((-0.05, 1.05))
 gl = p.legend(loc=0,fontsize=10)
 gl.set_frame_on(False)
 p.grid()
-p.savefig(join(os.environ['MVIR_DIR'],"covariance","mvir-antiD.png"))
+p.savefig(join(os.environ['MVIR_DIR'],plotDir,"mvir-antiD.png"))
 p.clf()
 
 
@@ -602,7 +759,7 @@ p.ylim((-0.05, 1.05))
 gl = p.legend(loc=0,fontsize=10)
 gl.set_frame_on(False)
 p.grid()
-p.savefig(join(os.environ['MVIR_DIR'],"covariance","mvir-corrHoriZ.png"))
+p.savefig(join(os.environ['MVIR_DIR'],plotDir,"mvir-corrHoriZ.png"))
 p.clf()
 
 sss=n.logspace(-1,1,1000)
@@ -622,7 +779,7 @@ cb.set_label(r"$1/(\sqrt{b(\sigma_1)b(\sigma_2)})$")
 p.xlabel(r'$\sigma$')
 p.ylabel(r'$\sigma$')
 p.plot(x,y,'k,')
-p.savefig(join(os.environ['MVIR_DIR'],"covariance","griddata_model.png"))
+p.savefig(join(os.environ['MVIR_DIR'],plotDir,"griddata_model.png"))
 p.clf()
 
 
@@ -633,7 +790,7 @@ cb.set_label("residual CC - bias model")
 p.xlabel(r'$\sigma$')
 p.ylabel(r'$\sigma$')
 p.plot(x,y,'k,')
-p.savefig(join(os.environ['MVIR_DIR'],"covariance","griddata_resid.png"))
+p.savefig(join(os.environ['MVIR_DIR'],plotDir,"griddata_resid.png"))
 p.clf()
 
 tr_val = griddata((x, y), z, (2.6, 2.6), method='linear')-bfun(2.6) * bfun(2.6)
@@ -654,7 +811,7 @@ cb = p.colorbar(shrink=0.8)
 cb.set_label("residual")
 p.xlabel(r'$\sigma$')
 p.ylabel(r'$\sigma$')
-p.savefig(join(os.environ['MVIR_DIR'],"covariance","griddata_resid_model.png"))
+p.savefig(join(os.environ['MVIR_DIR'],plotDir,"griddata_resid_model.png"))
 p.clf()
 
 
@@ -672,7 +829,7 @@ p.ylim((0.001, 1.05))
 gl = p.legend(loc=0,fontsize=14)
 gl.set_frame_on(False)
 p.grid()
-p.savefig(join(os.environ['MVIR_DIR'],"covariance","sigma-corrHoriZ-log.png"))
+p.savefig(join(os.environ['MVIR_DIR'],plotDir,"sigma-corrHoriZ-log.png"))
 p.clf()
 
 
@@ -687,7 +844,7 @@ p.ylim((-0.05, 1.05))
 gl = p.legend(loc=0,fontsize=14)
 gl.set_frame_on(False)
 p.grid()
-p.savefig(join(os.environ['MVIR_DIR'],"covariance","sigma-corrHoriZ.png"))
+p.savefig(join(os.environ['MVIR_DIR'],plotDir,"sigma-corrHoriZ.png"))
 p.clf()
 
 """
@@ -695,7 +852,7 @@ sss=n.logspace(-1,1,1000)
 yyy = bias(sss)**(-0.5)
 bmax = n.max(yyy)
 p.plot(sss, )
-p.savefig(join(os.environ['MVIR_DIR'],"covariance","bias-relation.png"))
+p.savefig(join(os.environ['MVIR_DIR'],plotDir,"bias-relation.png"))
 p.clf()
 
 
@@ -727,7 +884,7 @@ p.ylabel(r'$\sigma$')
 p.xlim((130, 275))
 p.ylim((130, 275))
 p.grid()
-p.savefig(join(os.environ['MVIR_DIR'],"covariance","sigma-cr-all.png"))
+p.savefig(join(os.environ['MVIR_DIR'],plotDir,"sigma-cr-all.png"))
 p.clf()
 
 sys.exit()
@@ -785,7 +942,7 @@ cb.set_label("corrCoef Mvir Hist Counts")
 p.xlabel(r'log$_{10}[M_{vir}/(h^{-1}M_\odot)]$')
 p.ylabel(r'log$_{10}[M_{vir}/(h^{-1}M_\odot)]$')
 p.grid()
-p.savefig(join(os.environ['MVIR_DIR'],"covariance","mvir-cr-2_"+figName+".png"))
+p.savefig(join(os.environ['MVIR_DIR'],plotDir,"mvir-cr-2_"+figName+".png"))
 p.clf()
 
 
@@ -824,7 +981,7 @@ cb.set_label("corrCoef Mvir Counts "+figName)
 p.xlabel(r'log$_{10}[M_{vir}/(h^{-1}M_\odot)]$')
 p.ylabel(r'log$_{10}[M_{vir}/(h^{-1}M_\odot)]$')
 p.grid()
-p.savefig(join(os.environ['MVIR_DIR'],"covariance","mvir-cr-0_"+figName+".png"))
+p.savefig(join(os.environ['MVIR_DIR'],plotDir,"mvir-cr-0_"+figName+".png"))
 p.clf()
 
 fig = p.figure(0,(6,6))

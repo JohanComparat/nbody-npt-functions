@@ -27,7 +27,7 @@ from scipy.interpolate import griddata
 # plotting modules
 import matplotlib
 #matplotlib.use('pdf')
-matplotlib.rcParams['font.size']=12
+matplotlib.rcParams['font.size']=14
 import matplotlib.pyplot as p
 
 # mass function theory
@@ -64,7 +64,7 @@ qty = "mvir"
 # working directory
 dir = join(os.environ['MVIR_DIR'])
 # loads summary file
-data = fits.open( join(dir, "MD_"+qty+"_summary.fits"))[1].data
+data = fits.open( join(dir, qty+"_summary.fits"))[1].data
 
 NminCount = 1000
 logNpmin = 3
@@ -101,7 +101,7 @@ mSel2 = (mSel2_inter==False)
 # minimum number counts selection
 nSelCen = lib.nSelection(data, NminCount, cos )
 # altogether
-ok = (zSel) & (mSel) & (mSel2) & (nSelCen)
+ok1 = (zSel) & (mSel) & (mSel2) & (nSelCen)
 # selection per box :
 MD04=(data["boxName"]=='MD_0.4Gpc')
 MD10=(data["boxName"]=='MD_1Gpc')
@@ -109,6 +109,10 @@ MD25=(data["boxName"]=='MD_2.5Gpc')
 MD40=(data["boxName"]=='MD_4Gpc')
 MD25NW=(data["boxName"]=='MD_2.5GpcNW')
 MD40NW=(data["boxName"]=='MD_4GpcNW')
+DS80=(data["boxName"]=='DS_8Gpc')
+
+ok = (ok1) & (DS80==False)
+
 
 x_data = logsig[ok]
 y_data = log_MF[ok]

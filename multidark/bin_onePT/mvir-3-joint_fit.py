@@ -27,7 +27,7 @@ from scipy.interpolate import griddata
 # plotting modules
 import matplotlib
 #matplotlib.use('pdf')
-matplotlib.rcParams['font.size']=12
+matplotlib.rcParams['font.size']=14
 import matplotlib.pyplot as p
 
 # mass function theory
@@ -46,25 +46,28 @@ bias = lambda sigma, a0, p0, q0 : lib.b_BH(sigma, a0, p0, q0)
 fsigma = lambda sigma : lib.f_BH(sigma, A0, a0, p0, q0)
 
 # diagonal error
-dn_L04 = lambda sigma, a, p, q :  (((bias(sigma, a, p, q) * lib.hmf.growth_factor)**2. * (lib.covariance_factor[0]))**2. + lib.shot_noise(sigma, 400.**3.)  )**0.5
-dn_L10 = lambda sigma, a, p, q :  (((bias(sigma, a, p, q) * lib.hmf.growth_factor)**2. * (lib.covariance_factor[1]) )**2. + lib.shot_noise(sigma, 1000.**3.) )**0.5  
-dn_L25 = lambda sigma, a, p, q : (((bias(sigma, a, p, q) * lib.hmf.growth_factor)**2. * (lib.covariance_factor[2]) )**2. + lib.shot_noise(sigma, 2500.**3.) )**0.5  
-dn_L40 = lambda sigma, a, p, q :  (((bias(sigma, a, p, q) * lib.hmf.growth_factor)**2. * (lib.covariance_factor[3]) )**2. + lib.shot_noise(sigma, 4000.**3.) )**0.5  
+dn_L04 = lambda sigma, a, p, q :  (((bias(sigma, a, p, q) * lib.hmf.growth_factor)**2. * (lib.covariance_factor[0]))**2. + lib.shot_simple(sigma, 400.**3.)  )**0.5
+dn_L10 = lambda sigma, a, p, q :  (((bias(sigma, a, p, q) * lib.hmf.growth_factor)**2. * (lib.covariance_factor[1]) )**2. + lib.shot_simple(sigma, 1000.**3.) )**0.5  
+dn_L25 = lambda sigma, a, p, q : (((bias(sigma, a, p, q) * lib.hmf.growth_factor)**2. * (lib.covariance_factor[2]) )**2. + lib.shot_simple(sigma, 2500.**3.) )**0.5  
+dn_L40 = lambda sigma, a, p, q :  (((bias(sigma, a, p, q) * lib.hmf.growth_factor)**2. * (lib.covariance_factor[3]) )**2. + lib.shot_simple(sigma, 4000.**3.) )**0.5  
+dn_L80 = lambda sigma, a, p, q :  (((bias(sigma, a, p, q) * lib.hmf.growth_factor)**2. * (lib.covariance_factor[3]) )**2. + lib.shot_simple(sigma, 8000.**3.) )**0.5  
 
 # off diagonal error 
 dn_cov_L04 = lambda s1, s2, a, p, q : (dn_L04(s1, a, p, q)*dn_L04(s2, a, p, q))**0.5 
 dn_cov_L10 = lambda s1, s2, a, p, q : (dn_L10(s1, a, p, q)*dn_L10(s2, a, p, q) )**0.5
 dn_cov_L25 = lambda s1, s2, a, p, q : (dn_L25(s1, a, p, q)*dn_L25(s2, a, p, q) )**0.5
 dn_cov_L40 = lambda s1, s2, a, p, q : (dn_L40(s1, a, p, q)*dn_L40(s2, a, p, q) )**0.5
+dn_cov_L80 = lambda s1, s2, a, p, q : (dn_L80(s1, a, p, q)*dn_L80(s2, a, p, q) )**0.5
 
 # opens the data 
 
 #Quantity studied
 qty = "mvir"
+version = 'v3'
 # working directory
 dir = join(os.environ['MVIR_DIR'])
 # loads summary file
-data = fits.open( join(dir, "MD_"+qty+"_summary.fits"))[1].data
+data = fits.open( join(dir, qty+"_summary.fits"))[1].data
 
 NminCount = 1000
 logNpmin = 3
@@ -79,6 +82,16 @@ lognu = n.log10(data['nu2']**0.5)
 #log_mvir = data["log_"+qty]
 log_mvir = data["log_"+qty] - n.log10(cosmo.h)
 mvir = 10**data["log_"+qty] / cosmo.h
+
+
+
+print "------------------------------------------"
+print "------------------------------------------"
+print "------------------------------------------"
+print "------            1d central              -----"
+print "------------------------------------------"
+print "------------------------------------------"
+print "------------------------------------------"
 
 #=======================
 #=======================
@@ -100,7 +113,7 @@ mSel2 = (mSel2_inter==False)
 # minimum number counts selection
 nSelCen = lib.nSelection(data, NminCount, cos )
 # altogether
-ok = (zSel) & (mSel) & (mSel2) & (nSelCen)
+ok1 = (zSel) & (mSel) & (mSel2) & (nSelCen)
 # selection per box :
 MD04=(data["boxName"]=='MD_0.4Gpc')
 MD10=(data["boxName"]=='MD_1Gpc')
@@ -108,6 +121,9 @@ MD25=(data["boxName"]=='MD_2.5Gpc')
 MD40=(data["boxName"]=='MD_4Gpc')
 MD25NW=(data["boxName"]=='MD_2.5GpcNW')
 MD40NW=(data["boxName"]=='MD_4GpcNW')
+DS80=(data["boxName"]=='DS_8Gpc')
+
+ok = (ok1) & (DS80==False)
 
 x_data = logsig[ok]
 y_data = log_MF[ok]
@@ -153,14 +169,15 @@ def plotSel(MDsel, label):
 		p.errorbar(x_data, 10**(y_data-y_model), yerr = y_data_err , rasterized=True, fmt='none', label=label)
 
 
-p.figure(0,(6,3))
-p.axes([0.17,0.17,0.75,0.6])
-plotSel(MD04, "MD04")
-plotSel(MD10, "MD10")
-plotSel(MD25, "MD25")
-plotSel(MD40, "MD40")
-plotSel(MD25NW, "MD25NW")
-plotSel(MD40NW, "MD40NW")
+p.figure(0,(6,6))
+p.axes([0.17,0.17,0.75,0.75])
+plotSel(MD04, "M04")
+plotSel(MD10, "M10")
+plotSel(MD25, "M25")
+plotSel(MD40, "M40")
+plotSel(MD25NW, "M25n")
+plotSel(MD40NW, "M40n")
+plotSel(DS80, "D80")
 p.axhline(1.025,c='k',ls='--',label=r'$\pm2.5\%$')
 p.axhline(0.975,c='k',ls='--')
 p.xlabel(r'$log_{10}(\sigma^{-1})$')
@@ -185,14 +202,15 @@ def plotAll(MDsel, label):
 		p.errorbar(x_plot, 10**(y_data-y_model), yerr = y_data_err , rasterized=True, label=label)
 
 		
-p.figure(0,(6,3))
-p.axes([0.17,0.17,0.75,0.6])
-plotAll(MD04, "MD04")
-plotAll(MD10, "MD10")
-plotAll(MD25, "MD25")
-plotAll(MD25NW, "MD25NW")
-plotAll(MD40, "MD40")
-plotAll(MD40NW, "MD40NW")
+p.figure(0,(6,6))
+p.axes([0.17,0.17,0.75,0.75])
+plotAll(MD04, "M04")
+plotAll(MD10, "M10")
+plotAll(MD25, "M25")
+plotAll(MD25NW, "M25n")
+plotAll(MD40, "M40")
+plotAll(MD40NW, "M40n")
+plotAll(DS80, "D80")
 
 p.axhline(0.8,c='k',ls='--')
 p.axhline(0.9,c='k',ls='--')
@@ -209,9 +227,9 @@ p.grid()
 p.savefig(join(os.environ['MVIR_DIR'],"fit-BA11-"+cos+"-differential-function-residual-incompleteness.png"))
 p.clf()
 
-fileC = n.array(glob.glob( join(os.environ['MD_DIR'],"MD_*Gpc*", "properties", qty,"out_*_Central_JKresampling.pkl")))
-fileB = n.array(glob.glob( join( os.environ['MD_DIR'],"MD_*Gpc*","properties", qty,"out_*_"+qty+"_JKresampling.bins")))
-fileS = n.array(glob.glob( join( os.environ['MD_DIR'],"MD_*Gpc*","properties", qty,"out_*_Satellite_JKresampling.pkl")))
+fileC = n.array(glob.glob( join(os.environ['MD_DIR'],"MD_*Gpc*", "v3", qty,"out_*_Central_JKresampling.pkl")))
+fileB = n.array(glob.glob( join( os.environ['MD_DIR'],"MD_*Gpc*","v3", qty,"out_*_"+qty+"_JKresampling.bins")))
+fileS = n.array(glob.glob( join( os.environ['MD_DIR'],"MD_*Gpc*","v3", qty,"out_*_Satellite_JKresampling.pkl")))
 
 # redshift 0 data
 iis = [8, 13, 29, 31, 60, -10]#[-1, -2, -4, -9, -22, 3]
@@ -240,7 +258,7 @@ def get_COV(fileCov, binFile):
 	s1_i = n.hstack((n.log10(xcv)))
 	s2_i = n.hstack((n.log10(ycv)))
 	val_i = n.hstack((n.log10(ctotal)))
-	ok = (val_i != n.inf) & (n.isnan(val_i) == False )
+	ok = (val_i != n.inf) & (n.isnan(val_i) == False ) & (s1_i != s2_i)
 	return s1_i[ok], s2_i[ok], val_i[ok]
 
 
@@ -254,6 +272,7 @@ log_cov_04_ps = lambda logs1, logs2, ps : n.log10( dn_cov_L04( 10**logs1, 10**lo
 log_cov_10_ps = lambda logs1, logs2, ps : n.log10( dn_cov_L10( 10**logs1, 10**logs2, a1, ps[0], q1 ) )
 log_cov_25_ps = lambda logs1, logs2, ps : n.log10( dn_cov_L25( 10**logs1, 10**logs2, a1, ps[0], q1 ) )
 log_cov_40_ps = lambda logs1, logs2, ps : n.log10( dn_cov_L40( 10**logs1, 10**logs2, a1, ps[0], q1 ) )
+log_cov_80_ps = lambda logs1, logs2, ps : n.log10( dn_cov_L80( 10**logs1, 10**logs2, a1, ps[0], q1 ) )
 
 # MD 04
 index=0
@@ -325,7 +344,7 @@ print "err=", res.direc.diagonal()**0.5
 print "====================="
 chi2s_qs_40 = n.array([chi2fun([qq]) for qq in qs ])
 
-# MD 40
+# MD 40NW
 index=5
 log_s1_data, log_s2_data, cov_data = get_COV(fileC[iis[index]], fileB[iis[index]])
 chi2fun = lambda ps : n.sum( (log_cov_40_ps(log_s1_data, log_s2_data, ps) - cov_data)**2./( error ) )/(len(cov_data) - len(ps0))
@@ -336,27 +355,43 @@ print "40NW, init chi2=", chi2fun(ps0)
 print "best params=", res.x
 print "err=", res.direc.diagonal()**0.5
 print "====================="
-
 chi2s_qs_40NW = n.array([chi2fun([qq]) for qq in qs ])
 
-pOpts = n.array([pOpt_04, pOpt_10, pOpt_25, pOpt_25NW, pOpt_40, pOpt_40NW ])
-pErrs = n.array([pCov_04.diagonal()**0.5, pCov_10.diagonal()**0.5, pCov_25.diagonal()**0.5, pCov_25NW.diagonal()**0.5, pCov_40.diagonal()**0.5, pCov_40NW.diagonal()**0.5 ])
+
+fileCDS = n.array(glob.glob( join(os.environ['DS_DIR'], version, qty,"ds*_Central_JKresampling.pkl")))
+fileBDS = n.array(glob.glob( join( os.environ['DS_DIR'], version, qty,"ds*_"+qty+"_JKresampling.bins")))
+fileSDS = n.array(glob.glob( join( os.environ['DS_DIR'], version, qty,"ds*_Satellite_JKresampling.pkl")))
+
+log_s1_data, log_s2_data, cov_data = get_COV(fileCDS[0], fileBDS[0])
+chi2fun = lambda ps : n.sum( (log_cov_80_ps(log_s1_data, log_s2_data, ps) - cov_data)**2./( error ) )/(len(cov_data) - len(ps0))
+res = minimize(chi2fun, ps0, method='Powell',options={'xtol': 1e-8, 'disp': True, 'maxiter' : 5000000000000})
+pOpt_80 = res.x
+pCov_80 = res.direc
+print "80, init chi2=", chi2fun(ps0)
+print "best params=", res.x
+print "err=", res.direc.diagonal()**0.5
+print "====================="
+chi2s_qs_80 = n.array([chi2fun([qq]) for qq in qs ])
+
+pOpts = n.array([pOpt_04, pOpt_10, pOpt_25, pOpt_25NW, pOpt_40, pOpt_40NW, pOpt_80])
+pErrs = n.array([pCov_04.diagonal()**0.5, pCov_10.diagonal()**0.5, pCov_25.diagonal()**0.5, pCov_25NW.diagonal()**0.5, pCov_40.diagonal()**0.5, pCov_40NW.diagonal()**0.5, pCov_80.diagonal()**0.5 ])
 print "best params=", pOpts.T
 print "err=", pErrs.T
 
-p.figure(8)
-p.plot(qs, chi2s_qs_04, label='04')
-p.plot(qs, chi2s_qs_10, label='10')
-p.plot(qs, chi2s_qs_25, label='25')
-p.plot(qs, chi2s_qs_25NW, label='25')
-p.plot(qs, chi2s_qs_40, label='40')
-p.plot(qs, chi2s_qs_40NW, label='40NW')
+p.figure(4, (6,6))
+p.plot(qs, chi2s_qs_04, label='M04')
+p.plot(qs, chi2s_qs_10, label='M10')
+p.plot(qs, chi2s_qs_25, label='M25')
+p.plot(qs, chi2s_qs_25NW, label='M25n')
+p.plot(qs, chi2s_qs_40, label='M40')
+p.plot(qs, chi2s_qs_40NW, label='M40n')
+p.plot(qs, chi2s_qs_80, label='D80')
 p.axvline(p1+p1_err, c='k', ls='dashed', label='MF fit')
 p.axvline(p1-p1_err, c='k', ls='dashed')
 p.legend(loc=0, frameon=False)
 p.xlim((0,3))
-p.ylim((0,5))
-p.xlabel('p')
+p.ylim((0.9,6))
+p.xlabel(r'$\bar{p}$')
 p.ylabel(r'$\chi^2/ndof$')
 p.grid()
 p.savefig(join(os.environ['MVIR_DIR'],"covariance","p_parameter_constrain.png"))
@@ -371,6 +406,7 @@ log_cov_04_ps = lambda logs1, logs2, ps : n.log10( dn_cov_L04( 10**logs1, 10**lo
 log_cov_10_ps = lambda logs1, logs2, ps : n.log10( dn_cov_L10( 10**logs1, 10**logs2, a1, p1, ps[0] ) )
 log_cov_25_ps = lambda logs1, logs2, ps : n.log10( dn_cov_L25( 10**logs1, 10**logs2, a1, p1, ps[0] ) )
 log_cov_40_ps = lambda logs1, logs2, ps : n.log10( dn_cov_L40( 10**logs1, 10**logs2, a1, p1, ps[0] ) )
+log_cov_80_ps = lambda logs1, logs2, ps : n.log10( dn_cov_L80( 10**logs1, 10**logs2, a1, p1, ps[0] ) )
 
 # MD 04
 index=0
@@ -450,27 +486,39 @@ print "40NW, init chi2=", chi2fun(ps0)
 print "best params=", res.x
 print "err=", res.direc.diagonal()**0.5
 print "====================="
-
 chi2s_qs_40NW = n.array([chi2fun([qq]) for qq in qs ])
 
-pOpts = n.array([pOpt_04, pOpt_10, pOpt_25, pOpt_25NW, pOpt_40, pOpt_40NW ])
-pErrs = n.array([pCov_04.diagonal()**0.5, pCov_10.diagonal()**0.5, pCov_25.diagonal()**0.5, pCov_25NW.diagonal()**0.5, pCov_40.diagonal()**0.5, pCov_40NW.diagonal()**0.5 ])
+
+log_s1_data, log_s2_data, cov_data = get_COV(fileCDS[0], fileBDS[0])
+chi2fun = lambda ps : n.sum( (log_cov_80_ps(log_s1_data, log_s2_data, ps) - cov_data)**2./( error ) )/(len(cov_data) - len(ps0))
+res = minimize(chi2fun, ps0, method='Powell',options={'xtol': 1e-8, 'disp': True, 'maxiter' : 5000000000000})
+pOpt_80 = res.x
+pCov_80 = res.direc
+print "80, init chi2=", chi2fun(ps0)
+print "best params=", res.x
+print "err=", res.direc.diagonal()**0.5
+print "====================="
+chi2s_qs_80 = n.array([chi2fun([qq]) for qq in qs ])
+
+pOpts = n.array([pOpt_04, pOpt_10, pOpt_25, pOpt_25NW, pOpt_40, pOpt_40NW, pOpt_80 ])
+pErrs = n.array([pCov_04.diagonal()**0.5, pCov_10.diagonal()**0.5, pCov_25.diagonal()**0.5, pCov_25NW.diagonal()**0.5, pCov_40.diagonal()**0.5, pCov_40NW.diagonal()**0.5, pCov_80.diagonal()**0.5 ])
 print "best params=", pOpts.T
 print "err=", pErrs.T
 
-p.figure(8)
-p.plot(qs, chi2s_qs_04, label='04')
-p.plot(qs, chi2s_qs_10, label='10')
-p.plot(qs, chi2s_qs_25, label='25')
-p.plot(qs, chi2s_qs_25NW, label='25')
-p.plot(qs, chi2s_qs_40, label='40')
-p.plot(qs, chi2s_qs_40NW, label='40NW')
+p.figure(5, (6,6))
+p.plot(qs, chi2s_qs_04, label='M04')
+p.plot(qs, chi2s_qs_10, label='M10')
+p.plot(qs, chi2s_qs_25, label='M25')
+p.plot(qs, chi2s_qs_25NW, label='M25n')
+p.plot(qs, chi2s_qs_40, label='M40')
+p.plot(qs, chi2s_qs_40NW, label='N40n')
+p.plot(qs, chi2s_qs_80, label='D80')
 p.axvline(q1+q1_err, c='k', ls='dashed', label='MF fit')
 p.axvline(q1-q1_err, c='k', ls='dashed')
 p.legend(loc=0, frameon=False)
 p.xlim((0,3))
-p.ylim((0,5))
-p.xlabel('q')
+p.ylim((0.9,6))
+p.xlabel(r'$\bar{q}$')
 p.ylabel(r'$\chi^2/ndof$')
 p.grid()
 p.savefig(join(os.environ['MVIR_DIR'],"covariance","q_parameter_constrain.png"))
@@ -496,6 +544,7 @@ log_cov_04_ps = lambda logs1, logs2, ps : n.log10( dn_cov_L04( 10**logs1, 10**lo
 log_cov_10_ps = lambda logs1, logs2, ps : n.log10( dn_cov_L10( 10**logs1, 10**logs2, a1, ps[0], ps[1] ) )
 log_cov_25_ps = lambda logs1, logs2, ps : n.log10( dn_cov_L25( 10**logs1, 10**logs2, a1, ps[0], ps[1] ) )
 log_cov_40_ps = lambda logs1, logs2, ps : n.log10( dn_cov_L40( 10**logs1, 10**logs2, a1, ps[0], ps[1] ) )
+log_cov_80_ps = lambda logs1, logs2, ps : n.log10( dn_cov_L80( 10**logs1, 10**logs2, a1, ps[0], ps[1] ) )
 
 # MD 04
 index=0
@@ -584,9 +633,21 @@ print "chi2 ", chi2fun(res.x)*(len(cov_data) - len(ps0)), len(cov_data) - len(ps
 
 print "====================="
 
+
+log_s1_data, log_s2_data, cov_data = get_COV(fileCDS[0], fileBDS[0])
+chi2fun = lambda ps : n.sum( (log_cov_80_ps(log_s1_data, log_s2_data, ps) - cov_data)**2./( error ) )/(len(cov_data) - len(ps0))
+res = minimize(chi2fun, ps0, method='Powell',options={'xtol': 1e-8, 'disp': True, 'maxiter' : 5000000000000})
+pOpt_80 = res.x
+pCov_80 = res.direc
+print "80, init chi2=", chi2fun(ps0)
+print "best params=", res.x
+print "err=", res.direc.diagonal()**0.5
+print "====================="
+
+
 #chi2s_qs_40NW = n.array([n.array([chi2fun([pp, qq]) for qq in qs ]) for pp in ps ])
 
-pOpts = n.array([pOpt_04, pOpt_10, pOpt_25, pOpt_25NW, pOpt_40, pOpt_40NW ])
-pErrs = n.array([pCov_04.diagonal()**0.5, pCov_10.diagonal()**0.5, pCov_25.diagonal()**0.5, pCov_25NW.diagonal()**0.5, pCov_40.diagonal()**0.5, pCov_40NW.diagonal()**0.5 ])
+pOpts = n.array([pOpt_04, pOpt_10, pOpt_25, pOpt_25NW, pOpt_40, pOpt_40NW, pOpt_80 ])
+pErrs = n.array([pCov_04.diagonal()**0.5, pCov_10.diagonal()**0.5, pCov_25.diagonal()**0.5, pCov_25NW.diagonal()**0.5, pCov_40.diagonal()**0.5, pCov_40NW.diagonal()**0.5, pCov_80.diagonal()**0.5 ])
 print "best params=", pOpts.T
 print "err=", pErrs.T

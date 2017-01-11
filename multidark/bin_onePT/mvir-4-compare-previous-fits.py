@@ -15,7 +15,7 @@ from scipy.optimize import curve_fit
 # plotting modules
 import matplotlib
 #matplotlib.use('pdf')
-matplotlib.rcParams['font.size']=12
+matplotlib.rcParams['font.size']=14
 import matplotlib.pyplot as p
 
 # mass function theory
@@ -86,6 +86,8 @@ ftC16 = f_T08(sigma, 0.12, 1.19, 3.98, 1.35)
 ftC16st = f_dsp(sigma, 0.2906, 0.8962, 0.1935 )
 """
 ftC16 = f_BH(sigma, 0.279, 0.908, 0.671, 1.737)
+ftC16 = f_BH(sigma, 0.29, 0.8915, 0.552, 1.578)
+
 ftC16st = f_dsp(sigma, 0.317, 0.819, 0.113)
 
 ftD16 = f_dsp(sigma, 0.333, 0.794, 0.247 )
@@ -97,8 +99,8 @@ ftBH11 = f_BH(sigma, 0.333, 0.788, 0.807, 1.795)
 
 p.figure(0,(6,6))
 p.axes([0.17,0.17,0.75,0.75])
-p.plot(X, ftC16/ftD16, label='this work (14)', lw=1.5)
-p.plot(X, ftC16st/ftD16, label='this work (15)', lw=1.5)
+p.plot(X, ftC16/ftD16, label='this work (13)', lw=1.5)
+p.plot(X, ftC16st/ftD16, label='this work (12)', lw=1.5)
 #p.plot(X, ftSk14/ftT08, label='Skillman 14', lw=1.5)
 p.plot(X, ftRP16/ftD16, label='Rodriguez-Puebla 16', lw=1.5)
 #p.plot(X, ftK16/ftD16, label='Klypin 16', lw=1.5)

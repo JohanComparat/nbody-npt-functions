@@ -16,15 +16,15 @@ from scipy.optimize import curve_fit
 # plotting modules
 import matplotlib
 #matplotlib.use('pdf')
-matplotlib.rcParams['font.size']=12
+matplotlib.rcParams['font.size']=14
 import matplotlib.pyplot as p
 
 # mass function theory
 from hmf import MassFunction
 from astropy.cosmology import FlatLambdaCDM
 import astropy.units as u
-cosmo = FlatLambdaCDM(H0=67.77*u.km/u.s/u.Mpc, Om0=0.307115, Ob0=0.048206)
-
+cosmoMD = FlatLambdaCDM(H0=67.77*u.km/u.s/u.Mpc, Om0=0.307115, Ob0=0.048206)
+cosmoDS = FlatLambdaCDM(H0=68.46*u.km/u.s/u.Mpc, Om0=0.298734, Ob0=0.046961)
 from scipy.interpolate import interp1d
 from scipy.integrate import quad
 
@@ -83,9 +83,11 @@ ftST01 = f_ST(sigma, 0.3222, 0.707, 0.3)
 ftC16 = f_T08(sigma, 0.12, 1.19, 3.98, 1.35)
 ftC16st = f_dsp(sigma, 0.2906, 0.8962, 0.1935 )
 """
-ftC16 = f_BH(sigma, 0.279, 0.908, 0.669, 1.736)
-ftC16st = f_ST(sigma, 0.317, 0.820, 0.106)
-ftC16st_sat = f_ST(sigma, 0.042, 1.67, 0.90)
+#ftC16 = f_BH(sigma, 0.279, 0.908, 0.669, 1.736)
+ftC16 = f_BH(sigma, 0.29, 0.8915, 0.552, 1.578)
+
+ftC16st = f_ST(sigma, 0.323, 0.832, 0.095)
+ftC16st_sat = f_ST(sigma, 0.0435, 1.705, 0.8379)
 
 ftD16 = f_ST(sigma, 0.333, 0.794, 0.247 )
 ftRP16 = f_T08 (sigma, 0.144, 1.351, 3.113, 1.187)
@@ -130,7 +132,7 @@ def plot_mvir_function_data(log_mvir, logsigM1, logNu, log_MF, log_MF_c, redshif
 	p.plot(X, n.log10(ftC16), 'k--', label='fit', lw=2)
 	#p.plot(X, n.log10(ftBH11), 'g--', label='B11', lw=2)
 	#p.plot(X, n.log10(ftC16), 'r--', label='this work', lw=2)
-	p.xlabel(r'$ln(\sigma^{-1})$')
+	p.xlabel(r'$log_{10}(\sigma^{-1})$')
 	p.ylabel(r'$\log_{10}\left[ \frac{M}{\rho_m} \frac{dn}{d\ln M} \left|\frac{d\ln M }{d\ln \sigma}\right|\right] $') 
 	 # log$_{10}[ n(>M)]')
 	gl = p.legend(loc=0,fontsize=10)
@@ -330,7 +332,7 @@ def fit_mvir_function_z0(data, x_data, y_data , y_err, p0, 	tolerance = 0.03, co
 	f_diff =  y_data - log_fnu_ST(x_data, pOpt[0], pOpt[1], pOpt[2])
 
 	MD_sel_fun=lambda name : (data["boxName"]==name)
-	MDnames= n.array(['MD_0.4Gpc', 'MD_1Gpc', 'MD_2.5Gpc','MD_4Gpc','MD_2.5GpcNW','MD_4GpcNW'])
+	MDnames= n.array(['M04', 'M10', 'M25','M40','M25n','M40n'])
 	MDsels=n.array([MD_sel_fun(name) for name in MDnames])
 
 	f_diff_fun = lambda MDs:  y_data[MDs] - log_fnu_ST(x_data[MDs], pOpt[0], pOpt[1], pOpt[2])
@@ -363,7 +365,7 @@ def fit_mvir_function_z0(data, x_data, y_data , y_err, p0, 	tolerance = 0.03, co
 	return pOpt, pCov
 
 # VMAX 1point FUNCTION 
-def plot_jackknife_poisson_error(x, y, MD04, MD10, MD25, MD25NW, MD40, MD40NW, cos = "cen", dir=join(os.environ['VMAX_DIR'])):
+def plot_jackknife_poisson_error(x, y, MD04, MD10, MD25, MD25NW, MD40, MD40NW, DS80, cos = "cen", dir=join(os.environ['MVIR_DIR'])):
 	"""
 	:param x: x coordinates
 	:param y: y coordinates
@@ -372,13 +374,14 @@ def plot_jackknife_poisson_error(x, y, MD04, MD10, MD25, MD25NW, MD40, MD40NW, c
 	"""
 	p.figure(0,(6,6))
 	p.axes([0.17,0.17,0.75,0.75])
-	p.plot(x, y, 'ko', label='all', alpha=0.01)
+	p.plot(x, y, 'k,', label='all', alpha=0.5)
 	p.plot(x[MD04], y[MD04],marker='x',label="MD04",ls='')
 	p.plot(x[MD10], y[MD10],marker='+',label="MD10",ls='')
 	p.plot(x[MD25], y[MD25],marker='^',label="MD25",ls='')
 	p.plot(x[MD40], y[MD40],marker='v',label="MD40",ls='')
-	p.plot(x[MD25NW], y[MD25NW],marker='^',label="MD25NW",ls='')
-	p.plot(x[MD40NW], y[MD40NW],marker='v',label="MD40NW",ls='')
+	p.plot(x[MD25NW], y[MD25NW],marker='1',label="MD25NW",ls='')
+	p.plot(x[MD40NW], y[MD40NW],marker='2',label="MD40NW",ls='')
+	p.plot(x[DS80], y[DS80],marker='3',label="DS80",ls='')
 	xx = n.logspace(-4,0,20)
 	p.plot(xx, xx*3., ls='--', label='y=3x')
 	#p.axhline(Npmin**-0.5, c='r', ls='--', label='min counts cut')#r'$1/\sqrt{10^3}$')
@@ -449,7 +452,7 @@ def fit_mvir_function_zTrend(data, x_data, y_data, z_data , y_err, ps0=[0., 0., 
 	f_diff =  y_data - log_f_ST01_zt_ps(x_data, z_data, pOpt)
 	
 	MD_sel_fun=lambda name : (data["boxName"]==name)
-	MDnames= n.array(['MD_0.4Gpc', 'MD_1Gpc', 'MD_2.5Gpc','MD_4Gpc','MD_2.5GpcNW','MD_4GpcNW'])
+	MDnames= n.array(['M04', 'M10', 'M25','M40','M25n','M40n'])
 	MDsels=n.array([MD_sel_fun(name) for name in MDnames])
 	
 	f_diff_fun = lambda MDs:  y_data[MDs] - log_f_ST01_zt_ps(x_data[MDs], z_data[MDs], pOpt)
@@ -640,7 +643,7 @@ def fit_vmax_function_z0(data, x_data, y_data , y_err, p0, 	tolerance = 0.03, co
 	f_diff =  y_data - vf(x_data, pOpt[0], pOpt[1], pOpt[2], pOpt[3])
 	
 	MD_sel_fun=lambda name : (data["boxName"]==name)
-	MDnames= n.array(['MD_0.4Gpc', 'MD_1Gpc', 'MD_2.5Gpc', 'MD_4Gpc', 'MD_2.5GpcNW', 'MD_4GpcNW'])
+	MDnames= n.array(['M04', 'M10', 'M25','M40','M25n','M40n'])
 	MDsels=n.array([MD_sel_fun(name) for name in MDnames])
 	
 	f_diff_fun = lambda MDs:  y_data[MDs] - vf(x_data[MDs], pOpt[0], pOpt[1], pOpt[2], pOpt[3])
@@ -710,11 +713,11 @@ def getStat(file,volume,unitVolume):
 
 	mean90, std90, mean90_c, std90_c = get_mean_std(0.1)
 	#mean99, std99, mean99_c, std99_c = getMS(0.01)
-	sel = Nall>1/volume
-	# print std99[sel]/std90[sel]
-	# print mean90[sel]/mean99[sel]
-	# print Nall[sel]/mean99[sel]
-	# print Nall[sel]/mean90[sel]
+	#sel = Nall>1/volume
+	#print std99[sel]/std90[sel]
+	#print mean90[sel]/mean99[sel]
+	#print Nall[sel]/mean99[sel]
+	#print Nall[sel]/mean90[sel]
 	return Ncounts, Ncounts_c, Nall, Nall_c, mean90, std90, mean90_c, std90_c
 	
 def get_hf(sigma_val=0.8228, boxRedshift=0., delta_wrt='mean'):
@@ -722,21 +725,21 @@ def get_hf(sigma_val=0.8228, boxRedshift=0., delta_wrt='mean'):
 	Halo mass function model for the MultiDark simulation.
 	"""
 	#hf0 = MassFunction(cosmo_model=cosmo, sigma_8=sigma_val, z=boxRedshift)
-	omega = lambda zz: cosmo.Om0*(1+zz)**3. / cosmo.efunc(zz)**2
+	omega = lambda zz: cosmoMD.Om0*(1+zz)**3. / cosmoMD.efunc(zz)**2
 	DeltaVir_bn98 = lambda zz : (18.*n.pi**2. + 82.*(omega(zz)-1)- 39.*(omega(zz)-1)**2.)/omega(zz)
 	print "DeltaVir", DeltaVir_bn98(boxRedshift), " at z",boxRedshift
-	hf1 = MassFunction(cosmo_model=cosmo, sigma_8=sigma_val, z=boxRedshift, delta_h=DeltaVir_bn98(boxRedshift), delta_wrt=delta_wrt, Mmin=7, Mmax=16.5)
+	hf1 = MassFunction(cosmo_model=cosmoMD, sigma_8=sigma_val, z=boxRedshift, delta_h=DeltaVir_bn98(boxRedshift), delta_wrt=delta_wrt, Mmin=7, Mmax=16.5)
 	return hf1
 
-def get_hf_ds(sigma_val=0.8228, boxRedshift=0., delta_wrt='mean'):
+def get_hf_ds(sigma_val=0.8355, boxRedshift=0., delta_wrt='mean'):
 	"""
 	Halo mass function model for the Darkskies simulation.
 	"""
 	#hf0 = MassFunction(cosmo_model=cosmo, sigma_8=sigma_val, z=boxRedshift)
-	omega = lambda zz: cosmo.Om0*(1+zz)**3. / cosmo.efunc(zz)**2
+	omega = lambda zz: cosmoDS.Om0*(1+zz)**3. / cosmoDS.efunc(zz)**2
 	DeltaVir_bn98 = lambda zz : (18.*n.pi**2. + 82.*(omega(zz)-1)- 39.*(omega(zz)-1)**2.)/omega(zz)
 	print "DeltaVir", DeltaVir_bn98(boxRedshift), " at z",boxRedshift
-	hf1 = MassFunction(cosmo_model=cosmo, sigma_8=sigma_val, z=boxRedshift, delta_h=DeltaVir_bn98(boxRedshift), delta_wrt=delta_wrt, Mmin=7, Mmax=16.5)
+	hf1 = MassFunction(cosmo_model=cosmoDS, sigma_8=sigma_val, z=boxRedshift, delta_h=DeltaVir_bn98(boxRedshift), delta_wrt=delta_wrt, Mmin=7, Mmax=16.5)
 	return hf1
 
 def get_basic_info(fileC, boxZN, delta_wrt='mean'):
@@ -756,8 +759,8 @@ def get_basic_info(fileC, boxZN, delta_wrt='mean'):
 		boxRedshift =  conversion[boxZN] 
 		hf = get_hf(0.8228*0.953**0.5, boxRedshift, delta_wrt=delta_wrt)
 		# hf_ref = get_hf(0.8228, boxRedshift, delta_wrt=delta_wrt)
-		logmp = n.log10(9.63 * 10**7/cosmo.h)
-		boxLength = 400./cosmo.h/cosmo.efunc(boxRedshift)
+		logmp = n.log10(9.63 * 10**7/cosmoMD.h)
+		boxLength = 400./cosmoMD.h/cosmoMD.efunc(boxRedshift)
 		massCorrection = 1. - 0.0002
 		boxLengthComoving = 400.
 		
@@ -769,8 +772,8 @@ def get_basic_info(fileC, boxZN, delta_wrt='mean'):
 		#boxRedshift = 1./boxZN - 1.
 		hf = get_hf(0.8228*1.004**0.5, boxRedshift, delta_wrt=delta_wrt)
 		# hf_ref = get_hf(0.8228, boxRedshift, delta_wrt=delta_wrt)
-		logmp = n.log10(1.51 * 10**9/cosmo.h)
-		boxLength = 1000./cosmo.h/cosmo.efunc(boxRedshift)
+		logmp = n.log10(1.51 * 10**9/cosmoMD.h)
+		boxLength = 1000./cosmoMD.h/cosmoMD.efunc(boxRedshift)
 		massCorrection = 1. - 0.0005
 		boxLengthComoving = 1000.
 
@@ -781,9 +784,9 @@ def get_basic_info(fileC, boxZN, delta_wrt='mean'):
 		boxRedshift =  conversion[boxZN] 
 		hf = get_hf(0.8228*1.01**0.5, boxRedshift, delta_wrt=delta_wrt)
 		# hf_ref = get_hf(0.8228, boxRedshift, delta_wrt=delta_wrt)
-		hz = 1.# hf.cosmo.H( boxRedshift ).value / 100.
-		logmp = n.log10(2.359 * 10**10/cosmo.h )
-		boxLength = 2500./cosmo.h/cosmo.efunc(boxRedshift)
+		hz = 1.# hf.cosmoMD.H( boxRedshift ).value / 100.
+		logmp = n.log10(2.359 * 10**10/cosmoMD.h )
+		boxLength = 2500./cosmoMD.h/cosmoMD.efunc(boxRedshift)
 		massCorrection = 1. - 0.001
 		boxLengthComoving = 2500.
 
@@ -794,9 +797,9 @@ def get_basic_info(fileC, boxZN, delta_wrt='mean'):
 		boxRedshift =  conversion[boxZN] 
 		hf = get_hf(0.8228*1.008**0.5, boxRedshift, delta_wrt=delta_wrt)
 		# hf_ref = get_hf(0.8228, boxRedshift, delta_wrt=delta_wrt)
-		hz = 1.# hf.cosmo.H( boxRedshift ).value / 100. 
-		logmp = n.log10(9.6 * 10**10/cosmo.h )
-		boxLength = 4000./cosmo.h/cosmo.efunc(boxRedshift)
+		hz = 1.# hf.cosmoMD.H( boxRedshift ).value / 100. 
+		logmp = n.log10(9.6 * 10**10/cosmoMD.h )
+		boxLength = 4000./cosmoMD.h/cosmoMD.efunc(boxRedshift)
 		boxLengthComoving = 4000.
 		massCorrection = 1. - 0.003
 	
@@ -807,9 +810,9 @@ def get_basic_info(fileC, boxZN, delta_wrt='mean'):
 		boxRedshift =  conversion[boxZN] 
 		hf = get_hf(0.8228*1.01**0.5, boxRedshift, delta_wrt=delta_wrt)
 		# hf_ref = get_hf(0.8228, boxRedshift, delta_wrt=delta_wrt)
-		hz = 1.# hf.cosmo.H( boxRedshift ).value / 100.
-		logmp = n.log10(2.359 * 10**10/cosmo.h)
-		boxLength = 2500./cosmo.h/cosmo.efunc(boxRedshift)
+		hz = 1.# hf.cosmoMD.H( boxRedshift ).value / 100.
+		logmp = n.log10(2.359 * 10**10/cosmoMD.h)
+		boxLength = 2500./cosmoMD.h/cosmoMD.efunc(boxRedshift)
 		boxLengthComoving = 2500.
 		massCorrection = 1. - 0.001
 
@@ -820,20 +823,20 @@ def get_basic_info(fileC, boxZN, delta_wrt='mean'):
 		boxRedshift =  conversion[boxZN] 
 		hf = get_hf(0.8228*1.008**0.5, boxRedshift, delta_wrt=delta_wrt)
 		# hf_ref = get_hf(0.8228, boxRedshift, delta_wrt=delta_wrt)
-		hz = 1.# hf.cosmo.H( boxRedshift ).value / 100.
-		logmp = n.log10(9.6 * 10**10 /cosmo.h )
-		boxLength = 4000./cosmo.h/cosmo.efunc(boxRedshift)
+		hz = 1.# hf.cosmoMD.H( boxRedshift ).value / 100.
+		logmp = n.log10(9.6 * 10**10 /cosmoMD.h )
+		boxLength = 4000./cosmoMD.h/cosmoMD.efunc(boxRedshift)
 		boxLengthComoving = 4000.
 		massCorrection = 1. - 0.003
 	
-	elif fileC.find('ds14_catalog')>0 :
+	elif fileC.find('ds14_0')>0 :
 		boxName='DS_8Gpc'
 		boxRedshift = 0.
-		hf = get_hf(0.8228, boxRedshift, delta_wrt=delta_wrt)
+		hf = get_hf_ds(0.8355, boxRedshift, delta_wrt=delta_wrt)
 		# hf_ref = get_hf(0.8228, boxRedshift, delta_wrt=delta_wrt)
-		hz = 1.# hf.cosmo.H( boxRedshift ).value / 100.
-		logmp = n.log10(9.6 * 10**10 /cosmo.h )
-		boxLength = 8000./cosmo.h/cosmo.efunc(boxRedshift)
+		hz = 1.# hf.cosmoMD.H( boxRedshift ).value / 100.
+		logmp = n.log10(9.6 * 10**10 /cosmoDS.h )
+		boxLength = 8000./cosmoMD.h/cosmoDS.efunc(boxRedshift)
 		boxLengthComoving = 8000.
 		massCorrection = 1. #- 0.003
 	
@@ -848,13 +851,13 @@ def convert_pkl_mass(fileC, fileS, binFile, qty='mvir', delta_wrt='mean'):
 	:param binFile: file with the bins
 	:return: a fits table containing the one point function histograms
 	"""
-	print "qty", qty
+	#print "qty", qty
 	boxZN = float(os.path.basename(fileC).split('_')[1])
-	print boxZN
+	#print boxZN
 	extraName =  os.path.basename(fileS)[:-27]
 	hf, boxLength, boxName, boxRedshift, logmp, boxLengthComoving, massCorrection = get_basic_info(fileC, boxZN, delta_wrt='mean')
 	
-	print boxName
+	#print boxName
 	bins = n.log10( 10**n.loadtxt(binFile) * massCorrection )
 	#bins = n.log10( 10**bins_in / hz )
 	#bins = n.loadtxt(binFile)
@@ -866,9 +869,9 @@ def convert_pkl_mass(fileC, fileS, binFile, qty='mvir', delta_wrt='mean'):
 	#print dX / mass, dlnbin
 	#selects meaningful masses 10 times particle mass
 	ok = (logmass > logmp+1.0)&(logmass<16.1)
-	print "bins", len(bins), bins
-	print "bins[ok]", len(bins[:-1][ok]), bins[:-1][ok]
-	hz = cosmo.H( boxRedshift ).value / 100.
+	#print "bins", len(bins), bins
+	#print "bins[ok]", len(bins[:-1][ok]), bins[:-1][ok]
+	hz = cosmoMD.H( boxRedshift ).value / 100.
 	# m sigma relation using the sigma8 corrected power spectrum
 	m2sigma = interp1d(hf.M, hf.sigma )
 	sig = m2sigma( mass )
@@ -879,10 +882,10 @@ def convert_pkl_mass(fileC, fileS, binFile, qty='mvir', delta_wrt='mean'):
 	toderive = interp1d(n.log(hf.M), n.log(hf.sigma))
 	dlnsigmadlnm = derivative(toderive, n.log(mass) )
 	#normalization by average universedensity at this redshift in the right cosmo
-	rhom_units = cosmo.Om(boxRedshift)*cosmo.critical_density(boxRedshift).to(u.solMass/(u.Mpc)**3.)#/(cosmo.h)**2.
+	rhom_units = cosmoMD.Om(boxRedshift)*cosmoMD.critical_density(boxRedshift).to(u.solMass/(u.Mpc)**3.)#/(cosmoMD.h)**2.
 	# in units (Msun/h) / (Mpc/h)**3
 	rhom = rhom_units.value # hf.mean_density#/(hz)**2. 
-	print hf.mean_density, rhom / (hf.mean_density*(cosmo.h)**2.)
+	#print hf.mean_density, rhom / (hf.mean_density*(cosmoMD.h)**2.)
 	
 	col0 = fits.Column( name="boxName",format="14A", array= n.array([boxName for i in range(len(bins[:-1][ok]))]))
 	col1 = fits.Column( name="redshift",format="D", array= boxRedshift * n.ones( len(bins[:-1][ok]) ) )
@@ -891,18 +894,18 @@ def convert_pkl_mass(fileC, fileS, binFile, qty='mvir', delta_wrt='mean'):
 	col2b = fits.Column( name="boxLengthComoving",format="D", array= boxLengthComoving * n.ones( len(bins[:-1][ok]) ) )
 	col3 = fits.Column( name="logMpart",format="D", array=  logmp* n.ones( len(bins[:-1][ok]) ) )
 	col4 = fits.Column( name="rhom",format="D", array= rhom* n.ones( len(bins[:-1][ok]) ) )
-	print "bin test", bins[:-1][ok]
+	#print "bin test", bins[:-1][ok]
 	col5_0 = fits.Column( name="log_"+qty+"_min",format="D", array= bins[:-1][ok] )
 	col5_1 = fits.Column( name="log_"+qty+"_max",format="D", array= bins[1:][ok] )
 	col5_2 = fits.Column( name="log_"+qty,format="D", array= logmass[ok])
-	print "test2", len( logmass[ok]), logmass[ok]
-	print "columns", col5_0, col5_1, col5_2
-	print "array", col5_0.array, col5_1.array, col5_2.array
+	#print "test2", len( logmass[ok]), logmass[ok]
+	#print "columns", col5_0, col5_1, col5_2
+	#print "array", col5_0.array, col5_1.array, col5_2.array
 	col5_3 = fits.Column( name="sigmaM",format="D", array= sig[ok] )
 	col5_4 = fits.Column( name="nu2",format="D", array= nnu[ok])#hf.delta_c/sig ) # hf.growth_factor/
 	col5_5 = fits.Column( name="dlnsigmaMdlnM",format="D", array= dlnsigmadlnm[ok] )
 	
-	unitVolume =  (boxLength *0.10)**3. # /cosmo.H(boxRedshift)
+	unitVolume =  (boxLength *0.10)**3. # /cosmoMD.H(boxRedshift)
 	volume = (boxLength)**3.
 
 	Ncounts, Ncounts_c, Nall, Nall_c, mean90, std90, mean90_c, std90_c = getStat(fileC,volume,unitVolume)
@@ -936,11 +939,76 @@ def convert_pkl_mass(fileC, fileS, binFile, qty='mvir', delta_wrt='mean'):
 	thdulist = fits.HDUList([prihdu, tbhdu])
 	
 	writeName = join(os.environ['MVIR_DIR'], "data", boxName+"_"+str(boxRedshift)+"_"+qty+".fits")
+	print writeName
 	if os.path.isfile(writeName):
 		os.remove(writeName)
 	
 	thdulist.writeto(writeName)
 	#return hf
+
+
+def convert_pkl_massFunction_covarianceMatrix(fileC, binFile, qty='mvir', delta_wrt='mean', gt14=True):
+	"""
+	Return a mass function covariance matrix
+	:param qty: one point function variable.Default: mvir.
+	:param file: file with the central halo statistics
+	:param binFile: file with the bins
+	:return: a fits table containing the one point function histograms
+	"""
+	print fileC
+	boxZN = float(os.path.basename(fileC).split('_')[1])
+	hf, boxLength, boxName, boxRedshift, logmp, boxLengthComoving, massCorrection = get_basic_info(fileC, boxZN, delta_wrt='mean')
+	bins = n.log10( 10**n.loadtxt(binFile) * massCorrection )
+	logmass = ( bins[1:]  + bins[:-1] )/2.
+	mass = 10**logmass 
+	dX = ( 10**bins[1:]  - 10**bins[:-1] )
+	dlnbin = abs((bins[1:]  - bins[:-1])*n.log(10))
+	#selects meaningful masses 10 times particle mass
+	hz = cosmoMD.H( boxRedshift ).value / 100.
+	# m sigma relation using the sigma8 corrected power spectrum
+	m2sigma = interp1d(hf.M, hf.sigma )
+	sig = m2sigma( mass )
+	# m nu relation: nu = (delta_c / sigma_m)**2
+	m2nu = interp1d(hf.M, hf.nu )
+	nnu = m2nu( mass )
+	# jacobian
+	toderive = interp1d(n.log(hf.M), n.log(hf.sigma))
+	dlnsigmadlnm = abs(derivative(toderive, n.log(mass) ))
+	#normalization by average universedensity at this redshift in the right cosmo
+	rhom_units = cosmoMD.Om(boxRedshift)*cosmoMD.critical_density(boxRedshift).to(u.solMass/(u.Mpc)**3.)
+	rhom = rhom_units.value # hf.mean_density#/(hz)**2. 
+
+	unitVolume =  (boxLength *0.10)**3.
+	volume = (boxLength)**3.
+
+	data_i=cPickle.load(open(fileC,'r'))
+	Ncounts_i = data_i.sum(axis=0) 
+	if gt14:
+		ok = (logmass > 13.9)&(logmass<16.1)&(Ncounts_i>10)
+	else:
+		ok = (logmass > logmp+3.0)&(logmass<13.9)&(Ncounts_i>10)
+	
+	data = data_i.T[ok].T
+	#print data.shape
+	Ncounts = data.sum(axis=0) 
+	#print Ncounts.shape
+	Nall = Ncounts / volume
+	#print Nall.shape
+	dNdlnM = Nall/dlnbin[ok]
+	#print dNdlnM.shape
+
+	count_matrix = n.outer(Ncounts, Ncounts)/float(data.shape[0])
+	#print count_matrix.shape
+	
+	dNdlnM_mat = data/unitVolume/dlnbin[ok]
+	#print dNdlnM_mat.shape
+	
+	f_mean = mass[ok] * dNdlnM / rhom / dlnsigmadlnm[ok]
+	#print f_mean.shape
+	f_matrix = mass[ok] * dNdlnM_mat / rhom / dlnsigmadlnm[ok]
+	#print f_matrix.shape
+	#print boxName	
+	return [f_mean, f_matrix, count_matrix, sig[ok], mass[ok]], boxName
 
 
 def convert_pkl_velocity(fileC, fileS, binFile, qty='vmax'):
@@ -963,8 +1031,8 @@ def convert_pkl_velocity(fileC, fileS, binFile, qty='vmax'):
 	dX = ( bins[1:]  - bins[:-1] ) 
 	dlnbin = dX / vmax
 	
-	hz = cosmo.H( boxRedshift ).value / 100.
-	rhom_units = cosmo.Om(boxRedshift)*cosmo.critical_density(boxRedshift).to(u.solMass/(u.Mpc)**3.)#/(cosmo.h)**2.
+	hz = cosmoMD.H( boxRedshift ).value / 100.
+	rhom_units = cosmoMD.Om(boxRedshift)*cosmoMD.critical_density(boxRedshift).to(u.solMass/(u.Mpc)**3.)#/(cosmoMD.h)**2.
 	# in units (Msun/h) / (Mpc/h)**3
 	rhom = rhom_units.value 
 	
@@ -1024,9 +1092,35 @@ redshift = 0.
 hmf = get_hf(sigma_val=0.8228, boxRedshift=0., delta_wrt='mean')
 ks = hmf.k
 pks = hmf.power
-hmf.rho_gtm
-nbar = interp1d(hmf.sigma, hmf.rho_gtm/hmf.m) # dndlog10m*hmf.dlog10m)
-shot_noise = lambda sigma, volume : (nbar(sigma) * volume)**(-1.)
+nbar = interp1d(hmf.sigma, hmf.rho_gtm/hmf.m)
+sigma_to_m = interp1d(hmf.sigma, hmf.M)
+m_to_sigma = interp1d(hmf.M, hmf.sigma)
+shot_simple = lambda sigma, volume: (nbar(sigma) * volume)**(-1.)
+#shot_double_raw = lambda s1, s2, volume: ((nbar(s1)+nbar(s2))/2. * volume)**(-1.)
+shot_double_raw = lambda s1, s2, volume: ((nbar(s1)*nbar(s2))**0.5 * 2*volume)**(-1.)
+
+def shot_double(s1, s2, volume, binW):
+	s1_max = m_to_sigma(10**(n.log10(sigma_to_m(s1))+binW))
+	s2_max = m_to_sigma(10**(n.log10(sigma_to_m(s2))+binW))
+	return shot_double_raw(s1_max, s2_max, volume)
+	
+def shot_noise_it(sigma, volume): 
+	print "sigma", sigma
+	if n.log10(sigma_to_m(sigma))>=14:
+		s_min = m_to_sigma(10**(n.log10(sigma_to_m(sigma))-0.025))
+		s_max = m_to_sigma(10**(n.log10(sigma_to_m(sigma))+0.025))
+		sns = n.array([ shot_simple(sigma, volume), shot_simple(s_min, volume), shot_simple(s_max, volume)])
+		print sns
+		return n.max(sns)
+	else: 
+		s_min = m_to_sigma(10**(n.log10(sigma_to_m(sigma))-0.125))
+		s_max = m_to_sigma(10**(n.log10(sigma_to_m(sigma))+0.125))
+		sns = n.array([ shot_simple(sigma, volume), shot_simple(s_min, volume), shot_simple(s_max, volume)])
+		print sns
+		return n.max(sns)
+		
+shot_noise = lambda sigma, volume: n.array([shot_noise_it(sig, volume) for sig in sigma])
+
 meanDensity = (3840.**3.)*1.51 # (Msun/h) / (Mpc/h)**3
 
 def integral(fun):
@@ -1046,16 +1140,62 @@ def integral(fun):
 # tophat
 w_th = lambda k, r : 3*(n.sin(k*r) - (k*r) * n.cos(k*r) )/(k*r)**3.
 
-# computes the moments of the linear pk
+# computes the moments of the linear pk for the whole volume
 # ---------------------------------------------
-Lboxes = n.array([400., 1000., 2500., 4000.]) # Mpc/h
+Lboxes = n.array([400., 1000., 2500., 4000., 8000.]) # Mpc/h
 volumes = Lboxes**3.
 rboxes = (3. * volumes/(4.*n.pi))**(1./3.)
+print "all",rboxes
+sigs = []
+for rbox in rboxes:
+	ws_th = w_th(ks, rbox)**2.
+	fun = interp1d(ks, ws_th * pks/(2*n.pi)**3./n.sum(ws_th))
+	sigs.append(integral(fun))
+
+covariance_factor = n.transpose(sigs)[0]
+print "cf", covariance_factor
+
+# computes the moments of the linear pk for 90% of the volume 
+# ---------------------------------------------
+Lboxes = n.array([400., 1000., 2500., 4000., 8000.])
+volumes = Lboxes**3. *0.9
+rboxes = (3. * volumes/(4.*n.pi))**(1./3.)
+print "90%",rboxes
 
 sigs = []
 for rbox in rboxes:
 	ws_th = w_th(ks, rbox)**2.
-	fun = interp1d(ks, ws_th * pks/(2*n.pi**2.)**3.)
+	fun = interp1d(ks, ws_th * pks/(2*n.pi)**3./n.sum(ws_th))
 	sigs.append(integral(fun))
 
-covariance_factor = n.transpose(sigs)[0]
+covariance_factor_90 = n.transpose(sigs)[0]
+print "cf", covariance_factor_90
+
+Lboxes = n.array([400., 1000., 2500., 4000., 8000.])/10. # Mpc/h
+volumes = Lboxes**3.
+rboxes = (3. * volumes/(4.*n.pi))**(1./3.)
+print "1/1000:",rboxes
+
+sigs = []
+for rbox in rboxes:
+	ws_th = w_th(ks, rbox)**2.
+	fun = interp1d(ks, ws_th * pks/(2*n.pi)**3./n.sum(ws_th))
+	sigs.append(integral(fun))
+
+covariance_factor_jk = n.transpose(sigs)[0]
+print "cf", covariance_factor_jk 
+
+
+Lboxes = n.array([400., 1000., 2500., 4000., 8000.])/10. # Mpc/h
+volumes = Lboxes**3.*27.
+rboxes = (3. * volumes/(4.*n.pi))**(1./3.)
+print "1/1000:",rboxes
+
+sigs = []
+for rbox in rboxes:
+	ws_th = w_th(ks, rbox)**2.
+	fun = interp1d(ks, ws_th * pks/(2*n.pi)**3./n.sum(ws_th))
+	sigs.append(integral(fun))
+
+covariance_factor_jk2 = n.transpose(sigs)[0]
+print "cf", covariance_factor_jk2 
