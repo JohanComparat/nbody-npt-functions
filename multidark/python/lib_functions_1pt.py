@@ -947,7 +947,7 @@ def convert_pkl_mass(fileC, fileS, binFile, qty='mvir', delta_wrt='mean'):
 	#return hf
 
 
-def convert_pkl_massFunction_covarianceMatrix(fileC, binFile, qty='mvir', delta_wrt='mean', gt14=True):
+def convert_pkl_massFunction_covarianceMatrix(fileC, binFile, qty='mvir', delta_wrt='mean'):#, gt14=True):
 	"""
 	Return a mass function covariance matrix
 	:param qty: one point function variable.Default: mvir.
@@ -983,11 +983,13 @@ def convert_pkl_massFunction_covarianceMatrix(fileC, binFile, qty='mvir', delta_
 
 	data_i=cPickle.load(open(fileC,'r'))
 	Ncounts_i = data_i.sum(axis=0) 
+	ok = (logmass > logmp+3.0)&(logmass<16.1)&(Ncounts_i>10)
+	"""
 	if gt14:
 		ok = (logmass > 13.9)&(logmass<16.1)&(Ncounts_i>10)
 	else:
 		ok = (logmass > logmp+3.0)&(logmass<13.9)&(Ncounts_i>10)
-	
+	"""
 	data = data_i.T[ok].T
 	#print data.shape
 	Ncounts = data.sum(axis=0) 

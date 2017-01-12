@@ -7,7 +7,7 @@ import os
 import sys
 
 #Quantity studied
-version = 'v3'
+version = 'v4'
 qty = "mvir"
 
 
