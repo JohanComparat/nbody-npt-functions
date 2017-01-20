@@ -129,11 +129,10 @@
 <span class="sd">ftC16 = f_T08(sigma, 0.12, 1.19, 3.98, 1.35)</span>
 <span class="sd">ftC16st = f_dsp(sigma, 0.2906, 0.8962, 0.1935 )</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="c1">#ftC16 = f_BH(sigma, 0.279, 0.908, 0.669, 1.736)</span>
-<span class="n">ftC16</span> <span class="o">=</span> <span class="n">f_BH</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="mf">0.29</span><span class="p">,</span> <span class="mf">0.8915</span><span class="p">,</span> <span class="mf">0.552</span><span class="p">,</span> <span class="mf">1.578</span><span class="p">)</span>
+<span class="n">ftC16</span> <span class="o">=</span> <span class="n">f_BH</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="mf">0.28074</span><span class="p">,</span> <span class="mf">0.90343</span><span class="p">,</span> <span class="mf">0.64031</span><span class="p">,</span> <span class="mf">1.69561</span><span class="p">)</span>
 
-<span class="n">ftC16st</span> <span class="o">=</span> <span class="n">f_ST</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="mf">0.323</span><span class="p">,</span> <span class="mf">0.832</span><span class="p">,</span> <span class="mf">0.095</span><span class="p">)</span>
-<span class="n">ftC16st_sat</span> <span class="o">=</span> <span class="n">f_ST</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="mf">0.0435</span><span class="p">,</span> <span class="mf">1.705</span><span class="p">,</span> <span class="mf">0.8379</span><span class="p">)</span>
+<span class="n">ftC16st</span> <span class="o">=</span> <span class="n">f_ST</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="mf">0.31704</span><span class="p">,</span> <span class="mf">0.81869</span><span class="p">,</span> <span class="mf">0.11821</span><span class="p">)</span>
+<span class="n">ftC16st_sat</span> <span class="o">=</span> <span class="n">f_ST</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="mf">0.04235</span><span class="p">,</span> <span class="mf">1.70219</span><span class="p">,</span> <span class="mf">0.83118</span><span class="p">)</span>
 
 <span class="n">ftD16</span> <span class="o">=</span> <span class="n">f_ST</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="mf">0.333</span><span class="p">,</span> <span class="mf">0.794</span><span class="p">,</span> <span class="mf">0.247</span> <span class="p">)</span>
 <span class="n">ftRP16</span> <span class="o">=</span> <span class="n">f_T08</span> <span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="mf">0.144</span><span class="p">,</span> <span class="mf">1.351</span><span class="p">,</span> <span class="mf">3.113</span><span class="p">,</span> <span class="mf">1.187</span><span class="p">)</span>
@@ -993,7 +992,7 @@
 	<span class="c1">#return hf</span>
 
 
-<div class="viewcode-block" id="convert_pkl_massFunction_covarianceMatrix"><a class="viewcode-back" href="../lib_functions_1pt.html#lib_functions_1pt.convert_pkl_massFunction_covarianceMatrix">[docs]</a><span class="k">def</span> <span class="nf">convert_pkl_massFunction_covarianceMatrix</span><span class="p">(</span><span class="n">fileC</span><span class="p">,</span> <span class="n">binFile</span><span class="p">,</span> <span class="n">qty</span><span class="o">=</span><span class="s1">&#39;mvir&#39;</span><span class="p">,</span> <span class="n">delta_wrt</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="n">gt14</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="convert_pkl_massFunction_covarianceMatrix"><a class="viewcode-back" href="../lib_functions_1pt.html#lib_functions_1pt.convert_pkl_massFunction_covarianceMatrix">[docs]</a><span class="k">def</span> <span class="nf">convert_pkl_massFunction_covarianceMatrix</span><span class="p">(</span><span class="n">fileC</span><span class="p">,</span> <span class="n">binFile</span><span class="p">,</span> <span class="n">qty</span><span class="o">=</span><span class="s1">&#39;mvir&#39;</span><span class="p">,</span> <span class="n">delta_wrt</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="p">):</span><span class="c1">#, gt14=True):</span>
 	<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">	Return a mass function covariance matrix</span>
 <span class="sd">	:param qty: one point function variable.Default: mvir.</span>
@@ -1029,11 +1028,13 @@
 
 	<span class="n">data_i</span><span class="o">=</span><span class="n">cPickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">fileC</span><span class="p">,</span><span class="s1">&#39;r&#39;</span><span class="p">))</span>
 	<span class="n">Ncounts_i</span> <span class="o">=</span> <span class="n">data_i</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> 
-	<span class="k">if</span> <span class="n">gt14</span><span class="p">:</span>
-		<span class="n">ok</span> <span class="o">=</span> <span class="p">(</span><span class="n">logmass</span> <span class="o">&gt;</span> <span class="mf">13.9</span><span class="p">)</span><span class="o">&amp;</span><span class="p">(</span><span class="n">logmass</span><span class="o">&lt;</span><span class="mf">16.1</span><span class="p">)</span><span class="o">&amp;</span><span class="p">(</span><span class="n">Ncounts_i</span><span class="o">&gt;</span><span class="mi">10</span><span class="p">)</span>
-	<span class="k">else</span><span class="p">:</span>
-		<span class="n">ok</span> <span class="o">=</span> <span class="p">(</span><span class="n">logmass</span> <span class="o">&gt;</span> <span class="n">logmp</span><span class="o">+</span><span class="mf">3.0</span><span class="p">)</span><span class="o">&amp;</span><span class="p">(</span><span class="n">logmass</span><span class="o">&lt;</span><span class="mf">13.9</span><span class="p">)</span><span class="o">&amp;</span><span class="p">(</span><span class="n">Ncounts_i</span><span class="o">&gt;</span><span class="mi">10</span><span class="p">)</span>
-	
+	<span class="n">ok</span> <span class="o">=</span> <span class="p">(</span><span class="n">logmass</span> <span class="o">&gt;</span> <span class="n">logmp</span><span class="o">+</span><span class="mf">3.0</span><span class="p">)</span><span class="o">&amp;</span><span class="p">(</span><span class="n">logmass</span><span class="o">&lt;</span><span class="mf">16.1</span><span class="p">)</span><span class="o">&amp;</span><span class="p">(</span><span class="n">Ncounts_i</span><span class="o">&gt;</span><span class="mi">10</span><span class="p">)</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	if gt14:</span>
+<span class="sd">		ok = (logmass &gt; 13.9)&amp;(logmass&lt;16.1)&amp;(Ncounts_i&gt;10)</span>
+<span class="sd">	else:</span>
+<span class="sd">		ok = (logmass &gt; logmp+3.0)&amp;(logmass&lt;13.9)&amp;(Ncounts_i&gt;10)</span>
+<span class="sd">	&quot;&quot;&quot;</span>
 	<span class="n">data</span> <span class="o">=</span> <span class="n">data_i</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="n">ok</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
 	<span class="c1">#print data.shape</span>
 	<span class="n">Ncounts</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> 
