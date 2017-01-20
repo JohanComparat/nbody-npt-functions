@@ -73,15 +73,15 @@ print '--------------------------------------------------'
 
 #Quantity studied
 qty = "mvir"
-version = 'v3'
+version = 'v4'
 # measurement files
 fileC = n.array(glob.glob( join(os.environ['MD_DIR'], "MD_*Gpc*",  version, qty,"out_*_Central_JKresampling.pkl")))
 fileB = n.array(glob.glob( join( os.environ['MD_DIR'], "MD_*Gpc*", version, qty,"out_*_"+qty+"_JKresampling.bins")))
 fileS = n.array(glob.glob( join( os.environ['MD_DIR'], "MD_*Gpc*", version, qty,"out_*_Satellite_JKresampling.pkl")))
-
 # redshift 0 data
-iis = [8, 13, 29, 31, 60, -10]#[-1, -2, -4, -9, -22, 3]
+#iis = [8, 13, 29, 31, 60, -10]#[-1, -2, -4, -9, -22, 3]
 print fileC[iis]
+sys.exit()
 
 def plot_COV(fileC, binFile, gt14):
 	"""

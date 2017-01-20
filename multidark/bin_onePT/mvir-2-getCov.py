@@ -48,8 +48,10 @@ dlnSigM = abs(n.log(dataMF['log_mvir_max']-dataMF['log_mvir_min'])*dataMF['dlnsi
 
 #lib.covariance_factor
 #lib.f_BH(sigma, 0.333, 0.788, 0.807, 1.795)
-bias = lambda sigma : lib.b_BH(sigma, a=0.8915, p=0.5524, q=1.578)
+biasHMF = lambda sigma : lib.b_BH(sigma, a=0.90343, p=0.64031, q=1.69561)
+biasB = lambda sigma : lib.b_BH(sigma, 0.76966, 0.49524, 1.34957)
 
+bias = biasB
 # sample variance equation 16
 var_sv_L04 = lambda sa, sb, fc=lib.covariance_factor_jk : bias(sa) * bias(sb) * (lib.hmf.growth_factor)**2. * fc[0]
 var_sv_L10 = lambda sa, sb, fc=lib.covariance_factor_jk : bias(sa) * bias(sb) * (lib.hmf.growth_factor)**2. * fc[1]
@@ -79,27 +81,32 @@ version = 'v4'
 fileC = n.array(glob.glob( join(os.environ['MD_DIR'], "MD_*Gpc*",  version, qty,"out_*_Central_JKresampling.pkl")))
 fileB = n.array(glob.glob( join( os.environ['MD_DIR'], "MD_*Gpc*", version, qty,"out_*_"+qty+"_JKresampling.bins")))
 fileS = n.array(glob.glob( join( os.environ['MD_DIR'], "MD_*Gpc*", version, qty,"out_*_Satellite_JKresampling.pkl")))
+fileC.sort()
+fileB.sort()
+fileS.sort()
 
 # redshift 0 data
-iis = n.arange(6) # [8, 13, 29, 31, 60, -10]
+iis = [8, 13, 27, 21, -1, 30]#[-1, -2, -4, -9, -22, 3]
+#n.arange(6) # [8, 13, 29, 31, 60, -10]
 print fileC
-"""
+
 lbox = n.array([40., 100., 250., 400. ])
 vols = lbox**3.
-snFactor = n.array([4.7, 5.5, 8.0, 7.0 ])
-svFactor = n.array([2.0, 2.0, 1.5, 3.8 ])
-
+snFactor = n.array([4.7, 5.4, 8.0, 10.0*0.95 ])
+svFactor = 1.5*n.ones(4) #n.array([1.56, 1.61, 1.65, 1.414 ])
+binW = 0.025 
+	
 p.figure(1,(6,6))
 p.axes([0.17, 0.17, 0.75, 0.78])
 xx = n.arange(1.,3., 0.1)
 coefs=n.polyfit(n.log10(lbox), snFactor,1,w=10*n.ones_like(lbox))
-p.plot(n.log10(lbox), snFactor, 'bo', label='sn')
-p.plot(xx,n.polyval(coefs,xx),'b--', label=str(n.round(coefs,2)))
-coefs=n.polyfit(n.log10(lbox), svFactor,1,w=10*n.ones_like(lbox))
-p.plot(n.log10(lbox), svFactor, 'ro', label='sv')
-p.plot(xx,n.polyval(coefs,xx),'r--', label=str(n.round(coefs,2)))
-p.xlabel(r'$L_{box}$')
-p.ylabel(r'$f_{sn},\; f_{sv}$')
+p.plot(n.log10(lbox), snFactor, 'bo', label='MD covariance')
+p.plot(xx,n.polyval(coefs,xx),'b--', label=r"$"+str(n.round(coefs[1],2))+"+"+str(n.round(coefs[0],2))+r'\, \log_{10}(L_{box})$')
+#coefs=n.polyfit(n.log10(lbox), svFactor,1,w=10*n.ones_like(lbox))
+#p.plot(n.log10(lbox), svFactor, 'ro', label='sv')
+#p.plot(xx,n.polyval(coefs,xx),'r--', label=str(n.round(coefs,2)))
+p.xlabel(r'$\log_{10}(L_{box})$')
+p.ylabel(r'$f_{sn}$')#,\; f_{sv}
 p.grid()
 gl=p.legend(loc=0, frameon=False)
 p.savefig(join(os.environ['MVIR_DIR'],plotDir,"covariance_matrix_sn_sv_lbox.png"))
@@ -108,16 +115,16 @@ p.clf()
 p.figure(1,(6,6))
 p.axes([0.17, 0.17, 0.75, 0.78])
 p.plot(n.log10(vols), snFactor, 'bo', label='sn')
-p.plot(n.log10(vols), svFactor, 'ro', label='sv')
-p.xlabel(r'$L_{box}$')
-p.ylabel(r'$f_{sn},\; f_{sv}$')
+#p.plot(n.log10(vols), svFactor, 'ro', label='sv')
+p.xlabel(r'$\log_{10}(V_{box})$')
+p.ylabel(r'$f_{sn}$') # ,\; f_{sv}
 p.grid()
 gl=p.legend(loc=0, frameon=False)
 p.savefig(join(os.environ['MVIR_DIR'],plotDir,"covariance_matrix_sn_sv_vol.png"))
 p.clf()
 
-sys.exit()
-"""
+#sys.exit()
+
 def plot_COV(fileC, binFile):
 	"""
 	Reads the data and extract mass function covariance matrix
@@ -128,9 +135,6 @@ def plot_COV(fileC, binFile):
 	
 	"""
 	# hig mass end M25 and M40
-	snFactor = n.array([4.7, 5.5, 8.0, 12.0 ])
-	svFactor = n.array([2.0, 2.0, 1.5, 1.2 ])
-	binW = 0.025 
 	#low mass end M04 and M10
 	#snFactor = n.array([4.8/1.1,    4.2/0.95,  6.6, 9.1, 12])
 	#svFactor = n.array([2./1.1, 3.5/0.95 , 3.1,  5,    4.5])
@@ -279,10 +283,23 @@ def plot_COV(fileC, binFile):
 	p.axes([0.17, 0.17, 0.78, 0.78])
 	p.title(nickname[boxName])
 	y=model[boxName](xcv, ycv).diagonal() / ctotal.diagonal()
-	p.plot(-n.log10(xcv.diagonal()), y, 'k')
+	p.plot(-n.log10(xcv.diagonal()), y, 'k', label='C')
+	interpData = interp1d(-n.log10(dataMF['sigmaM'][zSel]), dataMF["std90_pc_cen"][zSel])
+	y2= model[boxName](xcv, ycv).diagonal()/ interpData(-n.log10(xcv.diagonal()))
+	p.plot(-n.log10(xcv.diagonal()), y2, 'b', label='CJK')
+	
+	if boxName=="MD_0.4Gpc" or boxName=="MD_1Gpc" :
+		sel = (-n.log10(xcv.diagonal())<-0.2)
+	if boxName=="MD_2.5Gpc" or boxName=="MD_2.5GpcNW" :
+		sel = (-n.log10(xcv.diagonal())<0.1)
+	if boxName=="MD_4Gpc" or boxName=="MD_4GpcNW" :
+		sel = (-n.log10(xcv.diagonal())<0.13)
+		
+	y3= model[boxName](xcv, ycv).diagonal()[sel]/ interpData(-n.log10(xcv.diagonal()))[sel]
+	p.axhline(n.median(y3), label=str(n.round(n.median(y3),2)))
 	#p.xlim((-0.7, 0.6))
 	p.grid()
-	#p.ylim((-0.7, 0.6))
+	p.ylim((0.1, 2.5))
 	p.xlabel(r'$log_{10}(\sigma^{-1})$')
 	p.ylabel(r'diagonal $C_{model}/C_{data}$')
 	gl=p.legend(loc=0, frameon=False)
@@ -296,7 +313,7 @@ def compCov():
 	dout = []
 	plotDir = "covariance"
 	MDnames= n.array(['M04', 'M10', 'M25','M25n','M40','M40n'])# , 'D80'])
-	for ii in iis[:-1]:
+	for ii in iis:
 		dout.append( plot_COV(fileC[ii], fileB[ii] ))
 
 	"""

@@ -119,17 +119,7 @@ print n.dot(C, C_inv_a).diagonal()
 print n.dot(C, C_inv_b).diagonal()
 print n.dot(C, C_inv_c).diagonal()
 
-C_inv = C_inv_c
-def comp_chi2(C,C_inv):
-	chi2fun = lambda A, a, p, q : n.dot((f_data-lib.f_BH(sigma_data, A, a, p, q)), n.dot(C_inv, (f_data-lib.f_BH(sigma_data, A, a, p, q)))) / (len(f_data)*1.-4.)
-	chi2simp = lambda A, a, p, q : n.sum(((f_data-lib.f_BH(sigma_data, A, a, p, q))*C.diagonal()**(-0.5))**2.)/(len(f_data)*1.-4.)
-	chi2simpD = lambda A, a, p, q : n.sum(((f_data-lib.f_BH(sigma_data, A, a, p, q))/f_data_err)**2.)/(len(f_data)*1.-4.)
-	print chi2fun(A0, a0, p0, q0), chi2simp(A0, a0, p0, q0),chi2simpD(A0, a0, p0, q0)
-
-comp_chi2(C*1e-5, C_inv_a*1e5)
-comp_chi2(C*1e-5, C_inv_b*1e5)
-comp_chi2(C*1e-5, C_inv_c*1e5)
-
+C_inv = C_inv_cqey
 sys.exit()
 p.figure(0,(6,6))
 p.axes([0.17,0.17,0.75,0.75])

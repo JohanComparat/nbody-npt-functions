@@ -5,6 +5,7 @@ import astropy.io.fits as fits
 import lib_functions_1pt as lib
 import os
 import sys
+fw = open(join(os.environ['MVIR_DIR'],"HMF_fit_subhalo.txt"), 'w')
 
 # data modules
 import glob
@@ -23,6 +24,7 @@ from scipy.optimize import curve_fit
 from scipy.interpolate import interp2d
 from scipy.stats import norm
 from scipy.interpolate import griddata
+from scipy.stats import chi2 as stc2
 
 # plotting modules
 import matplotlib
@@ -61,6 +63,9 @@ dn_cov_L40 = lambda s1, s2, a, p, q : (dn_L40(s1, a, p, q)*dn_L40(s2, a, p, q) )
 
 #Quantity studied
 qty = "mvir"
+version = 'v4'
+fw.write(version + '\n')
+
 # working directory
 dir = join(os.environ['MVIR_DIR'])
 # loads summary file
@@ -68,9 +73,13 @@ data = fits.open( join(dir, qty+"_summary.fits"))[1].data
 
 NminCount = 1000
 logNpmin = 3
+fw.write("NminCount="+str(NminCount) + '\n')
+fw.write("logNpmin="+str(logNpmin) + '\n')
 
 zmin = -0.01
 zmax = 0.001
+fw.write("zmin="+str(zmin) + '\n')
+fw.write("zmax="+str(zmax) + '\n')
 
 
 # x coordinates definition
@@ -83,6 +92,8 @@ mvir = 10**data["log_"+qty] / cosmo.h
 #=======================
 #=======================
 cos = 'sat'
+fw.write("c o s="+cos+ '\n')
+
 systErr = 0.025
 #=======================
 #=======================
@@ -111,8 +122,11 @@ MD25NW=(data["boxName"]=='MD_2.5GpcNW')
 MD40NW=(data["boxName"]=='MD_4GpcNW')
 DS80=(data["boxName"]=='DS_8Gpc')
 
-ok = (ok1) & (DS80==False)
+print "ST01 fit MULTIDARK ----------------------"
+fw.write('\n')
+fw.write('ST01 fit MULTIDARK \n')
 
+ok = (ok1) & (DS80==False)
 
 x_data = logsig[ok]
 y_data = log_MF[ok]
@@ -122,7 +136,7 @@ y_data_err = (data["std90_pc_cen"][ok]**2. + data["dN_counts_cen"][ok]**(-1.))**
 ps = n.array([0.04, 1.6, 0.9])
 
 log_fsigma = lambda logsigma, A, a, p : n.log10(lib.f_BH(10**-logsigma, A, a, p, 1.))
-print "ST01 fit ----------------------"
+
 pOpt, pCov=curve_fit(log_fsigma, x_data, y_data, ps, sigma = y_data_err, maxfev=50000000)#, bounds=boundaries)
 chi2 = n.sum(((log_fsigma(x_data, pOpt[0], pOpt[1], pOpt[2])-y_data)/y_data_err)**2. ) 
 ndof = (len(x_data) - len(ps)) 
@@ -130,14 +144,60 @@ print "best params=", pOpt
 print "err=", pCov.diagonal()**0.5
 print "chi2 ", chi2, ndof, chi2/ndof
 print "---------------------------------------------------"
+fw.write("best params = "+ str(n.round(pOpt,5)) + '\n')
+fw.write("err params = "+ str(n.round(pCov.diagonal()**0.5,5)) + '\n')
+fw.write("chi2 params = "+ str(n.round(chi2,2))+", "+str( ndof)+", "+str(n.round(chi2/ndof,2)) + '\n')
+fw.write("P chi2 1-cdf = "+ str(n.round(1-stc2.cdf(int(chi2),ndof),5)) + '\n')
 pOpt_ST01 = pOpt
 pErr_ST01 = pCov.diagonal()**0.5
 
-n.savetxt(join(os.environ['MVIR_DIR'],"mvirFunction_sat_parameters_ST01_MFonly_fit.txt"), n.transpose([pOpt_ST01, pErr_ST01]), header="A a p")
+n.savetxt(join(os.environ['MVIR_DIR'],"mvirFunction_sat_parameters_ST01_MD_SMFonly_fit.txt"), n.transpose([pOpt_ST01, pErr_ST01]), header="A a p", fmt='%s')
 
-print "BATT 2011"
+
+print "ST01 fit DARKSKIES ----------------------"
+fw.write('\n')
+fw.write('ST01 fit DARKSKIES \n')
+
+ok = (ok1) & (DS80)
+
+x_data = logsig[ok]
+y_data = log_MF[ok]
+y_data_err = (data["std90_pc_cen"][ok]**2. + data["dN_counts_cen"][ok]**(-1.))**(0.5) + systErr
+
+#ps = n.array([0.333, 0.794, 0.247])
+ps = n.array([0.04, 1.6, 0.9])
+
+log_fsigma = lambda logsigma, A, a, p : n.log10(lib.f_BH(10**-logsigma, A, a, p, 1.))
+
+pOpt, pCov=curve_fit(log_fsigma, x_data, y_data, ps, sigma = y_data_err, maxfev=50000000)#, bounds=boundaries)
+chi2 = n.sum(((log_fsigma(x_data, pOpt[0], pOpt[1], pOpt[2])-y_data)/y_data_err)**2. ) 
+ndof = (len(x_data) - len(ps)) 
+print "best params=", pOpt
+print "err=", pCov.diagonal()**0.5
+print "chi2 ", chi2, ndof, chi2/ndof
+print "---------------------------------------------------"
+fw.write("best params = "+ str(n.round(pOpt,5)) + '\n')
+fw.write("err params = "+ str(n.round(pCov.diagonal()**0.5,5)) + '\n')
+fw.write("chi2 params = "+ str(n.round(chi2,2))+", "+str( ndof)+", "+str(n.round(chi2/ndof,2)) + '\n')
+fw.write("P chi2 1-cdf = "+ str(n.round(1-stc2.cdf(int(chi2),ndof),5)) + '\n')
+pOpt_ST01 = pOpt
+pErr_ST01 = pCov.diagonal()**0.5
+
+n.savetxt(join(os.environ['MVIR_DIR'],"mvirFunction_sat_parameters_ST01_DS_SMFonly_fit.txt"), n.transpose([pOpt_ST01, pErr_ST01]), header="A a p", fmt='%s')
+
+
+print "BATT 2011 MULTIDARK"
+fw.write('\n')
+fw.write('BATT fit MULTIDARK \n')
+
+ok = (ok1) & (DS80==False)
+
+x_data = logsig[ok]
+y_data = log_MF[ok]
+y_data_err = (data["std90_pc_cen"][ok]**2. + data["dN_counts_cen"][ok]**(-1.))**(0.5)
+
 #ps = n.array([A0, a0, p0, q0])
-ps = n.array([0.04, 1.6, 0.9, 1.])
+ps = n.array([0.04, 1.6, 0.4, 1.6])
 log_fsigma = lambda logsigma, A, a, p, q : n.log10(lib.f_BH(10**-logsigma, A, a, p, q))
 
 pOpt, pCov=curve_fit(log_fsigma, x_data, y_data, ps, sigma = y_data_err, maxfev=50000000)#, bounds=boundaries)
@@ -147,10 +207,50 @@ print "best params=", pOpt
 print "err=", pCov.diagonal()**0.5
 print "chi2 ", chi2, ndof, chi2/ndof
 print "---------------------------------------------------"
+fw.write("best params = "+ str(n.round(pOpt,5)) + '\n')
+fw.write("err params = "+ str(n.round(pCov.diagonal()**0.5,5)) + '\n')
+fw.write("chi2 params = "+ str(n.round(chi2,2))+", "+str( ndof)+", "+str(n.round(chi2/ndof,2)) + '\n')
+fw.write("P chi2 1-cdf = "+ str(n.round(1-stc2.cdf(int(chi2),ndof),5)) + '\n')
+
 A1, a1, p1, q1 = pOpt
 A1_err, a1_err, p1_err, q1_err = pCov.diagonal()**0.5
 
-n.savetxt(join(os.environ['MVIR_DIR'],"mvirFunction_sat_parameters_BA11_MFonly_fit.txt"), n.transpose([pOpt, pCov.diagonal()**0.5]), header="A a p q")
+n.savetxt(join(os.environ['MVIR_DIR'],"mvirFunction_sat_parameters_BA11_MD_SMFonly_fit.txt"), n.transpose([pOpt, pCov.diagonal()**0.5]), header="A a p q")
+
+
+print "BATT 2011 DARKSIES"
+fw.write('\n')
+fw.write('BATT fit DARKSKIES \n')
+
+ok = (ok1) & (DS80)
+
+x_data = logsig[ok]
+y_data = log_MF[ok]
+y_data_err = (data["std90_pc_cen"][ok]**2. + data["dN_counts_cen"][ok]**(-1.))**(0.5)
+
+#ps = n.array([A0, a0, p0, q0])
+ps = n.array([0.04, 1.6, 0.4, 1.6])
+log_fsigma = lambda logsigma, A, a, p, q : n.log10(lib.f_BH(10**-logsigma, A, a, p, q))
+
+pOpt, pCov=curve_fit(log_fsigma, x_data, y_data, ps, sigma = y_data_err, maxfev=50000000)#, bounds=boundaries)
+chi2 = n.sum(((log_fsigma(x_data, pOpt[0], pOpt[1], pOpt[2], pOpt[3])-y_data)/y_data_err)**2. ) 
+ndof = (len(x_data) - len(ps)) 
+print "best params=", pOpt
+print "err=", pCov.diagonal()**0.5
+print "chi2 ", chi2, ndof, chi2/ndof
+print "---------------------------------------------------"
+fw.write("best params = "+ str(n.round(pOpt,5)) + '\n')
+fw.write("err params = "+ str(n.round(pCov.diagonal()**0.5,5)) + '\n')
+fw.write("chi2 params = "+ str(n.round(chi2,2))+", "+str( ndof)+", "+str(n.round(chi2/ndof,2)) + '\n')
+fw.write("P chi2 1-cdf = "+ str(n.round(1-stc2.cdf(int(chi2),ndof),5)) + '\n')
+
+A1, a1, p1, q1 = pOpt
+A1_err, a1_err, p1_err, q1_err = pCov.diagonal()**0.5
+
+n.savetxt(join(os.environ['MVIR_DIR'],"mvirFunction_sat_parameters_BA11_DS_SMFonly_fit.txt"), n.transpose([pOpt, pCov.diagonal()**0.5]), header="A a p q")
+
+
+ok = (ok1) & (DS80==False)
 
 def plotSel(MDsel, label):
 	x_data = logsig[ok & MDsel]

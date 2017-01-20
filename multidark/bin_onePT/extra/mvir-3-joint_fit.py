@@ -23,6 +23,7 @@ from scipy.optimize import curve_fit
 from scipy.interpolate import interp2d
 from scipy.stats import norm
 from scipy.interpolate import griddata
+from scipy.stats import chi2 as stc2
 
 # plotting modules
 import matplotlib
@@ -129,6 +130,9 @@ x_data = logsig[ok]
 y_data = log_MF[ok]
 y_data_err = (data["std90_pc_cen"][ok]**2. + data["dN_counts_cen"][ok]**(-1.))**(0.5)
 
+#p.hist(n.log10(y_data_err), bins=10)
+#p.show()
+
 ps = n.array([0.333, 0.794, 0.247])
 log_fsigma = lambda logsigma, A, a, p : n.log10(lib.f_BH(10**-logsigma, A, a, p, 1.))
 print "ST01 fit ----------------------"
@@ -138,6 +142,7 @@ ndof = (len(x_data) - len(ps))
 print "best params=", pOpt
 print "err=", pCov.diagonal()**0.5
 print "chi2 ", chi2, ndof, chi2/ndof
+print "P chi2 1-cdf", 1-stc2.cdf(int(chi2),ndof)
 print "---------------------------------------------------"
 pOpt_ST01 = pOpt
 pErr_ST01 = pCov.diagonal()**0.5
@@ -154,6 +159,7 @@ ndof = (len(x_data) - len(ps))
 print "best params=", pOpt
 print "err=", pCov.diagonal()**0.5
 print "chi2 ", chi2, ndof, chi2/ndof
+print "P chi2 1-cdf", 1-stc2.cdf(int(chi2),ndof)
 print "---------------------------------------------------"
 A1, a1, p1, q1 = pOpt
 A1_err, a1_err, p1_err, q1_err = pCov.diagonal()**0.5
@@ -231,6 +237,7 @@ fileC = n.array(glob.glob( join(os.environ['MD_DIR'],"MD_*Gpc*", "v3", qty,"out_
 fileB = n.array(glob.glob( join( os.environ['MD_DIR'],"MD_*Gpc*","v3", qty,"out_*_"+qty+"_JKresampling.bins")))
 fileS = n.array(glob.glob( join( os.environ['MD_DIR'],"MD_*Gpc*","v3", qty,"out_*_Satellite_JKresampling.pkl")))
 
+sys.exit()
 # redshift 0 data
 iis = [8, 13, 29, 31, 60, -10]#[-1, -2, -4, -9, -22, 3]
 

@@ -480,6 +480,85 @@ class MultiDarkSimulation :
 				#print "total time in s, min",t4 - t0, (t4 - t0)/60.
 				#return DR, volume, dV, pairCount, pairs, nD, nR
 
+	def compute2PCF_MASS(self, catalogList, rmax=200, dr = 0.1, vmin=9, dlogBin=0.05, Nmax=2000000.,  name = ""):
+		"""
+		Extracts the 2PCF out of a catalog of halos        
+		:param catalog: where the catalog is
+		:param vmin: minimum circular velocity.
+		:param dlogBin: bin width.
+		:param rmax: maximum distance
+		"""
+		hdus = []
+		for ii in n.arange(len(catalogList)):
+			hdus.append( fits.open(catalogList[ii])[1].data )
+
+		vbins = n.arange(vmin, 16. ,dlogBin)
+		#n.arange(8,16,0.05)
+		for jj in range(len(vbins)-1):
+			outfile = catalogList[0][:-13] + "_mvir_" +str(n.round(vbins[jj],2))+ "_" +str(n.round(vbins[jj+1],2)) + "_" + name + "_xiR.pkl"
+			t0 = time.time()
+			sel = n.array([ (hdu['mvir']>vbins[jj])&(hdu['mvir']<vbins[jj+1]) for hdu in hdus])
+			xR = n.hstack(( n.array([ hdus[ii]['x'][sel[ii]] for ii in range(len(hdus)) ]) ))
+			yR = n.hstack(( n.array([ hdus[ii]['y'][sel[ii]] for ii in range(len(hdus)) ]) ))
+			zR = n.hstack(( n.array([ hdus[ii]['z'][sel[ii]] for ii in range(len(hdus)) ]) ))
+			Ntotal = len(xR)
+			if len(xR)>10000 and len(xR)<=Nmax:
+				#print vbins[jj], vbins[jj+1]
+				insideSel=(xR>rmax)&(xR<self.Lbox.value-rmax)&(yR>rmax)&(yR<self.Lbox.value-rmax)&(zR>rmax)&(zR<self.Lbox.value-rmax)
+				volume=(self.Lbox.value)**3
+				# defines the trees
+				#print "creates trees"
+				treeRandoms=t.cKDTree(n.transpose([xR,yR,zR]),1000.0)
+				treeData=t.cKDTree(n.transpose([xR[insideSel],yR[insideSel],zR[insideSel]]),1000.0)
+				nD=len(treeData.data)
+				nR=len(treeRandoms.data)
+				#print nD, nR
+				bin_xi3D=n.arange(0, rmax, dr)
+				# now does the pair counts :
+				pairs=treeData.count_neighbors(treeRandoms, bin_xi3D)
+				t3 = time.time()
+				DR=pairs[1:]-pairs[:-1]
+				dV= (bin_xi3D[1:]**3 - bin_xi3D[:-1]**3 )*4*n.pi/3.
+				pairCount=nD*nR#-nD*(nD-1)/2.
+				xis = DR*volume/(dV * pairCount) -1.
+				f=open(outfile,'w')
+				cPickle.dump([bin_xi3D,xis, DR, volume, dV, pairCount, pairs, Ntotal, nD, nR, vbins[jj], vbins[jj+1]],f)
+				f.close()
+				t4 = time.time()
+				#print "total time in s, min",t4 - t0, (t4 - t0)/60.
+				#return DR, volume, dV, pairCount, pairs, nD, nR
+
+			if  len(xR)>Nmax:
+				#print vbins[jj], vbins[jj+1], "downsampling ..."
+				downSamp = (n.random.random(len(xR))<Nmax / float(len(xR)) )
+				xR = xR[downSamp]
+				yR = yR[downSamp]
+				zR = zR[downSamp]
+				
+				insideSel=(xR>rmax)&(xR<self.Lbox.value-rmax)&(yR>rmax)&(yR<self.Lbox.value-rmax)&(zR>rmax)&(zR<self.Lbox.value-rmax)
+				volume=(self.Lbox.value-rmax*2)**3
+				# defines the trees
+				#print "creates trees"
+				treeRandoms=t.cKDTree(n.transpose([xR,yR,zR]),1000.0)
+				treeData=t.cKDTree(n.transpose([xR[insideSel],yR[insideSel],zR[insideSel]]),1000.0)
+				nD=len(treeData.data)
+				nR=len(treeRandoms.data)
+				#print nD, nR
+				bin_xi3D=n.arange(0, rmax, dr)
+				# now does the pair counts :
+				pairs=treeData.count_neighbors(treeRandoms, bin_xi3D)
+				t3 = time.time()
+				DR=pairs[1:]-pairs[:-1]
+				dV=4*n.pi*(bin_xi3D[1:]**3 - bin_xi3D[:-1]**3 )/3.
+				pairCount=nD*nR#-nD*(nD-1)/2.
+				xis = DR*volume/(dV * pairCount) -1.
+				f=open(outfile,'w')
+				cPickle.dump([bin_xi3D,xis, DR, volume, dV, pairCount, pairs, Ntotal, nD, nR, vbins[jj], vbins[jj+1]],f)
+				f.close()
+				t4 = time.time()
+				#print "total time in s, min",t4 - t0, (t4 - t0)/60.
+				#return DR, volume, dV, pairCount, pairs, nD, nR
+
 	def computeSingleDistributionFunctionJKresampling(self, fileList, rootname, name, bins, Ljk = 100., overlap = 1. ) :
 		"""
 		Extracts the distribution of quantity 'name' out of all snapshots of the Multidark simulation.
