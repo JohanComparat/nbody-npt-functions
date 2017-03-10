@@ -136,7 +136,7 @@ p.errorbar(-n.log10(s_mean[sel]), b[sel], xerr=abs(n.log10(s_high[sel]) -n.log10
 sel = (sel0) & (volume==4000.**3.)
 p.errorbar(-n.log10(s_mean[sel]), b[sel], xerr=abs(n.log10(s_high[sel]) -n.log10(s_low[sel]) )/2., yerr = bErr[sel], rasterized=True, fmt='none', label='M40')
 
-p.xlabel(r'$\sigma$')
+p.xlabel(r'$\log_{10}(\sigma^{-1})$')
 p.ylabel(r'bias')
 p.ylim((0.5,5))
 p.xlim((-0.5,0.3))

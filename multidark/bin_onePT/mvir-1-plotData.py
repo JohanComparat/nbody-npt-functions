@@ -119,6 +119,9 @@ p.axes([0.17,0.17,0.75,0.75])
 # log_mvir, logsigM1, logNu, log_MF, log_MF_c, redshift  = log_mvir[ok], logsig[ok], lognu[ok], log_MF[ok], log_MF_c[ok], data['redshift'][ok]
 
 ok = (zSel) & (mSel) & (mSel2) & (nSelCen)&(data["boxName"]!='DS_8Gpc')
+print "distinct"
+print "N distinct z=0 ",  n.sum(data['dN_counts_cen'][ok])
+print "M range ",  n.min(data['log_mvir_min'][ok]),  n.max(data['log_mvir_max'][ok])
 x_data = logsig[ok]
 y_data = log_MF[ok]
 y_data_err = (data["std90_pc_cen"][ok]**2. + data["dN_counts_cen"][ok]**(-1.))**(0.5)
@@ -133,7 +136,9 @@ log_MF = n.log10( ff )
 log_MF_c = n.log10(  ff_c )
 nSelSat = lib.nSelection(data, NminCount, cos )
 ok = (zSel) & (mSel)& (mSel2)  & (nSelSat)&(data["boxName"]!='DS_8Gpc')
-
+print "sat"
+print "N distinct z=0 ",  n.sum(data['dN_counts_sat'][ok])
+print "M range ",  n.min(data['log_mvir_min'][ok]),  n.max(data['log_mvir_max'][ok])
 x_data = logsig[ok]
 y_data = log_MF[ok]
 y_data_err = (data["std90_pc_"+cos][ok]**2. + data["dN_counts_"+cos][ok]**(-1.))**(0.5)
@@ -142,7 +147,7 @@ sigs = n.arange(-0.5,.6, 0.01)
 #p.plot(lib.X, n.log10(lib.ftC16st_sat), 'k--', lw=2)
 p.fill_between(-n.log10(lib.hmf.sigma), y1=bi2_min, y2=bi2_max, color='k',alpha=0.3, label='model')
 
-p.xlabel(r'$log_{10}(\sigma^{-1})$')
+p.xlabel(r'$\log_{10}(\sigma^{-1})$')
 p.ylabel(r'$\log_{10}\left[ \frac{M}{\rho_m} \frac{dn}{d\ln M} \left|\frac{d\ln M }{d\ln \sigma}\right|\right] $') 
  # log$_{10}[ n(>M)]')
 gl = p.legend(loc=0, fontsize=12)
@@ -220,7 +225,7 @@ for index, fd in enumerate(f_diffs):
 p.fill_between(x_model, y1=y_model_min/y_model, y2=y_model_max/y_model, color='k',alpha=0.2, label='model')
 #p.axhline(1.01,c='k',ls='--',label=r'syst $\pm1\%$')
 #p.axhline(0.99,c='k',ls='--')
-p.xlabel(r'$log_{10}(\nu)$')
+p.xlabel(r'$\log_{10}(\sigma^{-1})$')
 p.ylabel(r'data/model') 
 gl = p.legend(loc=0,fontsize=10)
 gl.set_frame_on(False)
@@ -290,7 +295,7 @@ for index, fd in enumerate(f_diffs):
 p.fill_between(x_model, y1=y_model_min/y_model, y2=y_model_max/y_model, color='k',alpha=0.2, label='model')
 #p.axhline(1.01,c='k',ls='--',label=r'syst $\pm1\%$')
 #p.axhline(0.99,c='k',ls='--')
-p.xlabel(r'$log_{10}(\nu)$')
+p.xlabel(r'$\log_{10}(\sigma^{-1})$')
 p.ylabel(r'data/model') 
 gl = p.legend(loc=0,fontsize=10)
 gl.set_frame_on(False)
@@ -315,7 +320,7 @@ sigs = n.arange(-0.5,.6, 0.01)
 #p.plot(lib.X, n.log10(lib.ftC16st_sat), 'k--', lw=2)
 p.fill_between(-n.log10(lib.hmf.sigma), y1=bi2_min, y2=bi2_max, color='k',alpha=0.3, label='model')
 
-p.xlabel(r'$log_{10}(\sigma^{-1})$')
+p.xlabel(r'$\log_{10}(\sigma^{-1})$')
 p.ylabel(r'$\log_{10}\left[ \frac{M}{\rho_m} \frac{dn}{d\ln M} \left|\frac{d\ln M }{d\ln \sigma}\right|\right] $') 
  # log$_{10}[ n(>M)]')
 gl = p.legend(loc=0, fontsize=12)

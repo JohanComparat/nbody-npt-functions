@@ -3,7 +3,7 @@ import astropy.cosmology as co
 aa = co.Planck13
 import math as m
 from scipy.integrate import quad
-
+import os 
 aah = co.FlatLambdaCDM(H0=100.0 *uu.km / (uu.Mpc *uu.s), Om0=0.307, Tcmb0=2.725 *uu.K, Neff=3.05, m_nu=[ 0.  ,  0. ,   0.06]*uu.eV, Ob0=0.0483)
 rhom0 = aah.critical_density0.to(uu.solMass*uu.Mpc**-3).value
 """
@@ -50,7 +50,7 @@ zl_04 = join(dir,"MD_0.4Gpc","output_SMD.list")
 zl_10 = join(dir,"MD_1Gpc","output_MDPL.list")
 zl_25 = join(dir,"MD_2.5Gpc","output_BigMD.list")
 zl_40 = join(dir,"MD_4Gpc","output_HMD.list")
-
+"""
 n0_04, a0_04, z0_04 = n.loadtxt(zl_04,unpack=True)
 n0_10, z0_10, a0_10 = n.loadtxt(zl_10,unpack=True)
 n0_25, a0_25, z0_25 = n.loadtxt(zl_25,unpack=True)
@@ -91,31 +91,30 @@ ax2.set_xlabel('age (Gyr)')
 #ax1.set_ylim((0,10))
 p.savefig(join("..","presentationPlots","Nsnapshots.png"))
 p.clf()
+"""
+name, Lbox, Npart, Mp = n.loadtxt( join("..", "data","existing-boxes.txt"), unpack=True, dtype=[('name', '<S20'), ('Lbox', '<i4'), ('Npart', '<i4'), ('Mpart', '<f4')])
 
-name, Lbox, Npart, Mp = n.loadtxt(join("..","existing-boxes.txt"), unpack=True, dtype=[('name', '<S8'), ('Lbox', '<i4'), ('Npart', '<i4'), ('Mpart', '<f4')])
+nameS, volumeS_i, MhaloS = n.loadtxt(join("..", "data","surveys.txt"), unpack=True, dtype=[('name', '<S12'),  ('volumeS', '<f4'), ('MhaloS', '<f4')])
+h=0.7
+volumeS = volumeS_i - n.log10( h**3.)
 
-nameS, volumeS, MhaloS = n.loadtxt(join("..","surveys.txt"), unpack=True, dtype=[('name', '<S12'),  ('volumeS', '<f4'), ('MhaloS', '<f4')])
-
-
-logVol, massN100, massN10k, massN1M = n.loadtxt(join("..","M200c","volume-number.txt"), unpack=True)
+logVol, massN100, massN10k, massN1M = n.loadtxt(join("..", "data", "M200c-volume-number.txt"), unpack=True)
 
 NpH = 300
 
-funPP = lambda volume, npart: 100*aa.h*rhom0* volume / npart 
+funPP = lambda volume, npart: 100*aa.h**2*rhom0* volume / npart 
 vols = n.logspace(5,13,100)
 
 fig = p.figure(1,(6,6))
 #fig.axes([0.15,0.3,0.8, 0.5])
 ax1 = fig.add_subplot(111)
-ax1.plot(vols, funPP(vols, 4000**3.), 'm--', label=r'4000$^3$')
-ax1.plot(vols, funPP(vols, 10000**3.), 'y--', label=r'10000$^3$')
-ax1.plot(vols, funPP(vols, 40000**3.), 'c--', label=r'40000$^3$')
-sel = (massN100>0)
-ax1.plot(10**logVol[sel], 10**massN100[sel], label = 'HMF 100 halos') 
-sel = (massN10k>0)
-ax1.plot(10**logVol[sel], 10**massN10k[sel], label = 'HMF 10k halos') 
+
+#sel = (massN100>0)
+#ax1.plot(10**logVol[sel]/h**3., 1.5*10**massN100[sel], label = r'HMF $10^2$ halos') 
+#sel = (massN10k>0)
+#ax1.plot(10**logVol[sel]/h**3., 1.5*10**massN10k[sel], label = r'HMF $10^4$ halos') 
 sel = (massN1M>0)
-ax1.plot(10**logVol[sel], 10**massN1M[sel], label = 'HMF 1M halos') 
+ax1.plot(10**logVol[sel]/h**3., 1.5*10**massN1M[sel], label = r'HMF $10^6$ halos') 
 
 for ii, el in enumerate(name):
 	#ax1.plot(Lbox[ii]**3., 300*10**Mp[ii], 'kx')
@@ -123,24 +122,32 @@ for ii, el in enumerate(name):
 	#ax1.plot(Lbox[ii]**3., 300*10**Mp[ii], 'k_')
 	#ax1.arrow(Lbox[ii]**3.,NpH*10**Mp[ii],0, NpH*10**Mp[ii]*2, fc='k', ec='k',head_width=Lbox[ii]**3.*0.9, head_length=NpH*10**Mp[ii]*1.1)
 	#ax1.arrow(Lbox[ii]**3.,NpH*10**Mp[ii],-(Lbox[ii])**3./2., 0, fc='k', ec='k')
-	ax1.annotate(el, xy=(Lbox[ii]**3., NpH*10**Mp[ii]),fontsize=10)#,rotation=45) #, xytext=(Lbox[ii]**3.*1.07, 1.07*NpH*10**Mp[ii])
+	ax1.annotate(el.replace('\\n','\n'), xy=(1.1*Lbox[ii]**3., NpH*10**Mp[ii]),fontsize=8)#,rotation=45) #, xytext=(Lbox[ii]**3.*1.07, 1.07*NpH*10**Mp[ii])
 
 for ii, el in enumerate(nameS):
 	#print el
 	p.plot(10**volumeS[ii], 10**MhaloS[ii], 'b^')
-	ax1.annotate(el.replace('\\n','\n'), xy=(10**volumeS[ii], 10**MhaloS[ii]),color='b',fontsize=10)#,rotation=45)#, xytext=(10**volumeS[ii]/10, 100*10**MhaloS[ii]),color='b',fontsize=11,rotation=45)
+	ax1.annotate(el.replace('\\n','\n'), xy=(1.1*10**volumeS[ii], 10**MhaloS[ii]),color='b',fontsize=8)#,rotation=45)#, xytext=(10**volumeS[ii]/10, 100*10**MhaloS[ii]),color='b',fontsize=11,rotation=45)
 
+ax1.plot(vols, funPP(vols, 1000**3.), 'r--', label=r'1000$^3$')
+ax1.plot(vols, funPP(vols, 4000**3.), 'm--', label=r'4000$^3$')
+ax1.plot(vols, funPP(vols, 10000**3.), 'y--', label=r'10000$^3$')
+ax1.plot(vols, funPP(vols, 40000**3.), 'c--', label=r'40000$^3$')
+totalVolume = aa.comoving_volume(3.5).value*2./3
+ax1.axvline(totalVolume, color='k', ls='dotted', label=r'$\frac{2}{3}V(z<3.5)$')
+p.plot(totalVolume, 3e10, 'k*')
+p.annotate('Ultimate\nCosmology\nSimulation', xy=(totalVolume*1.1, 3e10), color='k', fontsize=8)
 ax1.set_xscale('log')
 ax1.set_yscale('log')
 p.grid()
-ax1.set_xlabel(r'volume [Mpc$^{3}/h^{-3}$]')
-ax1.set_ylabel(r'Halo mass resolved [$h^{-1}M_\odot$]')
-ax1.set_ylim((3e8,1e15))
-ax1.set_xlim((1e5, 1e13))
-p.title(str(NpH)+' particles per halo')
-gl = p.legend(loc=4,fontsize=10)
+ax1.set_xlabel(r'volume [Mpc$^{3}$]')
+ax1.set_ylabel(r'Halo mass resolved [$M_\odot$]')
+ax1.set_ylim((7e9,1e15))
+ax1.set_xlim((1e6, 1e13))
+#p.title(str(NpH)+' particles per halo')
+gl = p.legend(loc=2,fontsize=10)
 gl.set_frame_on(False)
-p.savefig(join("..","presentationPlots","MassHalo-Volume.png"))
+p.savefig(join(os.environ['MVIR_DIR'],"MassHalo-Volume.png"))
 p.clf()
 
 sys.exit()
