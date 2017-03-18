@@ -27,7 +27,7 @@ NminCount = 1000
 logNpmin = 3
 
 zmin = -0.01
-zmax = 0.001
+zmax = 2.3
 
 tolerance = 0.03
 
@@ -137,12 +137,12 @@ log_MF_c = n.log10(  ff_c )
 nSelSat = lib.nSelection(data, NminCount, cos )
 ok = (zSel) & (mSel)& (mSel2)  & (nSelSat)&(data["boxName"]!='DS_8Gpc')
 print "sat"
-print "N distinct z=0 ",  n.sum(data['dN_counts_sat'][ok])
+print "N distinct z<2.3 ",  n.sum(data['dN_counts_sat'][ok])
 print "M range ",  n.min(data['log_mvir_min'][ok]),  n.max(data['log_mvir_max'][ok])
 x_data = logsig[ok]
 y_data = log_MF[ok]
 y_data_err = (data["std90_pc_"+cos][ok]**2. + data["dN_counts_"+cos][ok]**(-1.))**(0.5)
-p.errorbar(x_data, y_data, yerr = y_data_err, rasterized=True, fmt='none', label='satellite subhalos z=0', lw=1)
+p.errorbar(x_data, y_data, yerr = y_data_err, rasterized=True, fmt='none', label='satellite subhalos z<2.3', lw=1)
 sigs = n.arange(-0.5,.6, 0.01)
 #p.plot(lib.X, n.log10(lib.ftC16st_sat), 'k--', lw=2)
 p.fill_between(-n.log10(lib.hmf.sigma), y1=bi2_min, y2=bi2_max, color='k',alpha=0.3, label='model')
@@ -155,7 +155,7 @@ gl.set_frame_on(False)
 p.ylim((-3., -0.4))
 p.xlim((-0.5, 0.5))
 p.grid()
-p.savefig(join(os.environ['MVIR_DIR'],"mvir-AL-z0-differential-function-data-xSigma.png"))
+p.savefig(join(os.environ['MVIR_DIR'],"mvir-AL-z_lt_23-differential-function-data-xSigma.png"))
 p.clf()
 
 #=======================
@@ -214,13 +214,14 @@ print "================================"
 
 # now the plots
 p.figure(0,(6,6))
-p.axes([0.15,0.12,0.75,0.75])
+p.axes([0.17,0.17,0.75,0.75])
 for index, fd in enumerate(f_diffs):
 	inTol = (abs(10**fd-1)<tolerance)
 	print index
 	if len(fd)>0:
-		p.errorbar(x_data[MDsels[index]], fd, yerr = y_data_err[MDsels[index]] , rasterized=True, fmt='none', label=MDnames[index])
-		print len(inTol.nonzero()[0]), len(fd), 100.*len(inTol.nonzero()[0])/ len(fd)
+		p.scatter(x_data[MDsels[index]], fd, c= data["redshift"][MDsels[index]], s=20)
+		#p.errorbar(x_data[MDsels[index]], fd, yerr = y_data_err[MDsels[index]] , rasterized=True, fmt='none', label=MDnames[index])
+		#print len(inTol.nonzero()[0]), len(fd), 100.*len(inTol.nonzero()[0])/ len(fd)
 
 p.fill_between(x_model, y1=y_model_min/y_model, y2=y_model_max/y_model, color='k',alpha=0.2, label='model')
 #p.axhline(1.01,c='k',ls='--',label=r'syst $\pm1\%$')
@@ -228,18 +229,18 @@ p.fill_between(x_model, y1=y_model_min/y_model, y2=y_model_max/y_model, color='k
 p.xlabel(r'$\log_{10}(\sigma^{-1})$')
 p.ylabel(r'data/model') 
 gl = p.legend(loc=0,fontsize=10)
+p.colorbar()
 gl.set_frame_on(False)
 p.xlim((-0.5, 0.5))
-p.ylim((0.9,1.1))
+p.ylim((0.1,1.9))
 #p.yscale('log')
 p.grid()
-p.title('distinct')
-p.savefig(join(dir,"fit-"+cos+"-differential-function-residual-log.png"))
+p.savefig(join(dir,"fit-"+cos+"-differential-function-residual-log-zlt23.png"))
 p.clf()
 
 print "DISTINCT mean and std of the residuals", n.mean(n.hstack((f_diffs)) - 1.), n.std(n.hstack((f_diffs)) - 1.)
 
-
+sys.exit()
 #=======================
 #=======================
 cos = 'sat'
@@ -285,7 +286,7 @@ print "================================"
 
 # now the plots
 p.figure(0,(6,6))
-p.axes([0.15,0.12,0.75,0.75])
+p.axes([0.17,0.17,0.75,0.75])
 for index, fd in enumerate(f_diffs):
 	inTol = (abs(10**fd-1)<tolerance)
 	print index
@@ -304,7 +305,6 @@ p.xlim((-0.5, 0.5))
 p.ylim((0.9,1.1))
 #p.yscale('log')
 p.grid()
-p.title('satelitte')
 p.savefig(join(dir,"fit-"+cos+"-differential-function-residual-log.png"))
 p.clf()
 

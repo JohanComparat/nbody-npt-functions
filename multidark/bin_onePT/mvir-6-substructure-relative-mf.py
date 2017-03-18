@@ -111,7 +111,7 @@ fsat_unev = lambda xi, a, b, N0 :  N0 * xi**a * n.e**(-b*xi**3.)
 fsat = lambda xi, a, b, N0 :  N0 * xi**a * n.e**(-b*xi**4.)
 logfsat= lambda logxi, a, b, logN0 : n.log10( 10**logN0 * (10**logxi)**a * n.e**(-b*(10**logxi)**4.))
 
-def get_hist_MR(hd04_1, Msat = 'mvir_sat', mmin=14.5, mmax=15.5, Lbox=400.,dlogBins = 0.1, MP = 9, stat=False):
+def get_hist_MR(hd04_1, Msat = 'mvir_sat', mmin=14.5, mmax=15.5, Lbox=400.,dlogBins = 1., MP = 9, stat=False):
 	"""return  dNsat / volume / dln(Msub/Mdistinct)
 	"""
 	msel = (hd04_1['mvir_cen']>mmin) & (hd04_1['mvir_cen']<mmax) & (hd04_1[Msat]>MP)
@@ -119,31 +119,26 @@ def get_hist_MR(hd04_1, Msat = 'mvir_sat', mmin=14.5, mmax=15.5, Lbox=400.,dlogB
 	bins = n.arange(-6, 0.06, dlogBins)
 	xb = (bins[1:]+bins[:-1])/2.
 	NcenWS04 = n.histogram(massR, bins, weights=n.ones_like(massR)/Lbox**3./(dlogBins*n.log(10))*(10**(mmin/2.+mmax/2.)/rhom))[0]
-	NNN = n.histogram(massR, bins)[0]
+	NNN,bins0 = n.histogram(massR, bins)
+	#bins0 = n.histogram(massR, bins)[1]
 	ok = (xb>0.3+MP-mmin)
 	if stat :
-		print "Nhalo", mmin, mmax, Lbox, len(hd04_1['mvir_cen'][msel])
+		print "MD",Lbox,",Nhalo in distinct with", mmin, "<m<",mmax, "=", len(hd04_1['mvir_cen'][msel])
+		print "bins",bins0[NNN>10]+(mmin+mmax)/2.
+		print "Nsub",NNN[NNN>10] 
 	return xb, NcenWS04, NNN, ok
 
 def get_total(hd04_1, hd04_2, hd04_3, Lbox, mmin=14.5, mmax=15.5, MP=9):
 	"""return  dNsat / volume / d(Msub/Mdistinct)
 	print '------------------------------------------------------------------'
 	print '------------------------------------------------------------------'
-	print '------------------------------------------------------------------'
-	print hd04_1.dtype
-	print '------------------------------------------------------------------'
-	print hd04_2.dtype
-	print '------------------------------------------------------------------'
-	print hd04_3.dtype
-	print '------------------------------------------------------------------'
-	print '------------------------------------------------------------------'
-	print '------------------------------------------------------------------'
 	"""
+	print '----------------- mvir_sat'
 	xb, ratio_1, NN_1,ok_1 = get_hist_MR(hd04_1, 'mvir_sat', Lbox=Lbox, mmin=mmin, mmax=mmax, MP=MP, stat=True)
-	
-	xb, ratio_2, NN_2,ok_1 = get_hist_MR(hd04_2, 'mvir_sat_n_sat_n_1', Lbox= Lbox, mmin=mmin, mmax=mmax,MP=MP)
-	
-	xb, ratio_3, NN_3,ok_1 = get_hist_MR(hd04_3, 'mvir_sat_n_sat_n_1_sat_n_2', Lbox= Lbox, mmin=mmin, mmax=mmax,MP=MP)
+	print '----------------- mvir_sat_sat'
+	xb, ratio_2, NN_2,ok_1 = get_hist_MR(hd04_2, 'mvir_sat_n_sat_n_1', Lbox= Lbox, mmin=mmin, mmax=mmax,MP=MP, stat=True)
+	print '----------------- mvir_sat_sat_sat'
+	xb, ratio_3, NN_3,ok_1 = get_hist_MR(hd04_3, 'mvir_sat_n_sat_n_1_sat_n_2', Lbox= Lbox, mmin=mmin, mmax=mmax,MP=MP, stat=True)
 	
 	err = (NN_1+NN_2+NN_3)**(-0.5)
 	return xb, (ratio_1+ratio_2+ratio_3)*10**-xb, err, ok_1
@@ -151,6 +146,9 @@ def get_total(hd04_1, hd04_2, hd04_3, Lbox, mmin=14.5, mmax=15.5, MP=9):
 def plot_SHMFR(mmin, mmax):
 	p.figure(0, (5,5))
 	p.axes([0.17, 0.17, 0.75, 0.75])
+	print '------------------------------------------------------------------'
+	print 'MD04'
+	print '------------------------------------------------------------------'
 	xb, y, err, ok = get_total(hd04_1, hd04_2, hd04_3, 400., mmin, mmax, mp04)
 	#print ok
 	x_data = xb[ok]
@@ -160,6 +158,9 @@ def plot_SHMFR(mmin, mmax):
 		#print len(xb[ok])
 		p.errorbar(xb[ok], n.log10(y[ok])+xb[ok], yerr= err[ok], label='M04')
 	
+	print '------------------------------------------------------------------'
+	print 'MD10'
+	print '------------------------------------------------------------------'
 	xb, y, err, ok = get_total(hd10_1, hd10_2, hd10_3, 1000., mmin, mmax, mp10)
 	#print ok
 	if len(xb[ok])>2:
@@ -169,6 +170,9 @@ def plot_SHMFR(mmin, mmax):
 		y_data_err = n.hstack((y_data_err, err[ok]))
 
 		
+	print '------------------------------------------------------------------'
+	print 'MD25'
+	print '------------------------------------------------------------------'
 	xb, y, err, ok = get_total(hd25_1, hd25_2, hd25_3, 2500., mmin, mmax, mp25)
 	#print ok
 	if len(xb[ok])>2:
@@ -177,6 +181,9 @@ def plot_SHMFR(mmin, mmax):
 		y_data = n.hstack((y_data, y[ok]))
 		y_data_err = n.hstack((y_data_err, err[ok]))
 
+	print '------------------------------------------------------------------'
+	print 'MD25n'
+	print '------------------------------------------------------------------'
 	xb, y, err, ok = get_total(hd25nw_1, hd25nw_2, hd25nw_3, 2500., mmin, mmax, mp25nw)
 	#print ok
 	if len(xb[ok])>2:
@@ -185,6 +192,9 @@ def plot_SHMFR(mmin, mmax):
 		y_data = n.hstack((y_data, y[ok]))
 		y_data_err = n.hstack((y_data_err, err[ok]))
 
+	print '------------------------------------------------------------------'
+	print 'MD40'
+	print '------------------------------------------------------------------'
 	xb, y, err, ok = get_total(hd40_1, hd40_2, hd40_3, 4000., mmin, mmax, mp40)
 	#print ok
 	if len(xb[ok])>2:
@@ -193,6 +203,9 @@ def plot_SHMFR(mmin, mmax):
 		y_data = n.hstack((y_data, y[ok]))
 		y_data_err = n.hstack((y_data_err, err[ok]))
 
+	print '------------------------------------------------------------------'
+	print 'MD40n'
+	print '------------------------------------------------------------------'
 	xb, y, err, ok = get_total(hd40nw_1, hd40nw_2, hd40nw_3, 4000., mmin, mmax, mp40nw)
 	#print ok
 	if len(xb[ok])>2:
@@ -216,7 +229,7 @@ def plot_SHMFR(mmin, mmax):
 	p.ylim((-5, 1))
 	p.xlim(( -4, 0 )) 
 	p.grid()
-	p.savefig(join(os.environ['MVIR_DIR'], 'shmfr_'+str(mmin)+"_M_"+str(mmax)+".png"))
+	#p.savefig(join(os.environ['MVIR_DIR'], 'shmfr_'+str(mmin)+"_M_"+str(mmax)+".png"))
 	p.clf()
 	return out
 

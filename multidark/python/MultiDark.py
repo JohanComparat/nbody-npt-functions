@@ -423,7 +423,7 @@ class MultiDarkSimulation :
 			yR = n.hstack(( n.array([ hdus[ii]['y'][sel[ii]] for ii in range(len(hdus)) ]) ))
 			zR = n.hstack(( n.array([ hdus[ii]['z'][sel[ii]] for ii in range(len(hdus)) ]) ))
 			Ntotal = len(xR)
-			if len(xR)>20000 and len(xR)<=Nmax:
+			if len(xR)>5000 and len(xR)<=Nmax:
 				#print vbins[jj], vbins[jj+1]
 				insideSel=(xR>rmax)&(xR<self.Lbox.value-rmax)&(yR>rmax)&(yR<self.Lbox.value-rmax)&(zR>rmax)&(zR<self.Lbox.value-rmax)
 				volume=(self.Lbox.value)**3
