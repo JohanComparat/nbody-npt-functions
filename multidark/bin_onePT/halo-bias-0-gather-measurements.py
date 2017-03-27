@@ -20,11 +20,16 @@ version = 'v4'
 qty = "clustering"
 afactor=1.
 redshift = 0.
-Rs, xiR  = n.loadtxt(join(os.environ['MD_DIR'],"Pk_DM_CLASS","MD_z1_xi.dat"), unpack = True)
+Rs, xiR  = n.loadtxt(join(os.environ['MD_DIR'],"Pk_DM_CLASS","MD_z23_xi_2017.dat"), unpack = True)
 linXi = interp1d(Rs,xiR)
-			
-fileXi = n.array(glob.glob( join(os.environ['MD_DIR'], "MD_*Gpc*",  version, qty,"out_*_xiR.pkl")))
+#print Rs, xiR		
+fileXi = n.array(glob.glob( join(os.environ['MD_DIR'], "MD_*Gpc*",  version, qty,"out_*30_xiR.pkl")))
 fileXi.sort()
+
+NminParticles = 1000.
+rmin = 8.
+rmax=20.
+
 print fileXi
 
 def getBias(file):
@@ -34,30 +39,35 @@ def getBias(file):
 	f=open(file,'r')
 	bin_xi3D,xis, DR, volume, dV, pairCount, pairs, Ntotal, nD, nR, vbinsL, vbinsH = cPickle.load(f)
 	f.close()
+	
 	rr = (bin_xi3D[1:] + bin_xi3D[:-1])/2.
 	# print file
-	m_low= 10**(float(fileN.split('_')[3]))/lib.cosmoMD.h
-	m_high = 10**(float(fileN.split('_')[4]))/lib.cosmoMD.h
-	m_mean = (m_low * m_high)**0.5
+	m0=float(fileN.split('_')[3])
+	m1=float(fileN.split('_')[4])
+	
+	m_low= 10**(m0)/lib.cosmoMD.h
+	m_high = 10**(m1)/lib.cosmoMD.h
+	m_mean = 10**((m0 + m1)/2.)/lib.cosmoMD.h
 	
 	hf, boxLength, boxName, boxRedshift, logmp, boxLengthComoving, massCorrection = lib.get_basic_info(file, int(boxZN), delta_wrt='mean')
-	if m_mean>300*10**logmp :
+	print logmp
+	if m_mean>NminParticles*10**logmp :
 		m2sigma = interp1d(hf.M, hf.sigma )
 		sig_low = m2sigma( m_low)
 		sig_high = m2sigma( m_high)
 		sig_mean = m2sigma( m_mean)
 		
 		xi = DR*volume/(dV * pairCount) -1.
-		rmin = 8.
-		rmax=30.
 		ok = (rr>rmin)&(rr<rmax)
-		scale = (n.min(rr[rr>rmin])+n.max(rr[rr>rmin]))/2.
-		bias = n.mean(xi[(rr>rmin)]/linXi(rr[(rr>rmin)]))
-		biasErr = n.std(xi[(rr>rmin)]/linXi(rr[(rr>rmin)]))
-		print [sig_low, sig_high, sig_mean, scale, bias, biasErr, volume, afactor]
+		scale = (n.min(rr[ok])+n.max(rr[ok]))/2.
+		bias = n.mean(xi[ok]/linXi(rr[ok]))
+		biasErr = n.std(xi[ok]/linXi(rr[ok]))
+		#print [sig_low, sig_high, sig_mean, scale, bias, biasErr, volume, afactor]
+		print bias
 		return [sig_low, sig_high, sig_mean, scale, bias, biasErr, volume, afactor, logmp]
+		
 	else:
-		print [-99.99, -99.99, -99.99, -99.99, -99.99, -99.99, -99.99, -99.99, -99.99]
+		#print [-99.99, -99.99, -99.99, -99.99, -99.99, -99.99, -99.99, -99.99, -99.99]
 		return [-99.99, -99.99, -99.99, -99.99, -99.99, -99.99, -99.99, -99.99, -99.99]
 
 out=[]

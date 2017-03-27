@@ -76,8 +76,7 @@ b_BH = lambda sigma, a, p, q:  1 + (a*(delta_c/sigma)**2. - q) / delta_c + (2*p/
 """
 M200c
 ftT08 = f_T08(sigma, 0.186, 1.47, 2.57, 1.19) 
-ftSk14 = f_T08(sigma, 0.18587, 1.46690, 2.57110, 1.19396)
-ftK16 = f_T08(sigma, 0.224, 1.67, 1.80, 1.48) 
+
 ftA12 = f_T08 (sigma, 0.201, 1.7, 2.08, 1.172)
 ftW13 = f_T08 (sigma, 0.282, 2.163, 1.406, 1.21)
 ftST01 = f_ST(sigma, 0.3222, 0.707, 0.3)
@@ -85,6 +84,8 @@ ftST01 = f_ST(sigma, 0.3222, 0.707, 0.3)
 ftC16 = f_T08(sigma, 0.12, 1.19, 3.98, 1.35)
 ftC16st = f_dsp(sigma, 0.2906, 0.8962, 0.1935 )
 """
+ftSk14 = f_T08(sigma, 0.18587, 1.46690, 2.57110, 1.19396)
+ftK16 = f_T08(sigma, 0.224, 1.67, 1.80, 1.48) 
 
 ftC16 = f_BH(sigma, 0.28074,  0.90343,  0.64031,  1.69561)
 
@@ -101,14 +102,15 @@ p.figure(0,(6,6))
 p.axes([0.17,0.17,0.75,0.75])
 p.plot(X, ftC16/ftD16, label='this work Ba11', lw=2)
 p.plot(X, ftC16st/ftD16, label='this work ST02', lw=1.5)
-#p.plot(X, ftSk14/ftT08, label='Skillman 14', lw=1.5)
 p.plot(X, ftRP16/ftD16, label='Rodriguez-Puebla 16', lw=1.5)
 #p.plot(X, ftK16/ftD16, label='Klypin 16', lw=1.5)
+#p.plot(X, ftSk14/ftD16, label='Skillman 14', lw=1.5)
+
 #p.plot(X, ftA12/ftT08, label='Angulo 12', ls='--')
 #p.plot(X, ftW13/ftT08, label='Watson 13', ls='--')
-p.plot(X, ftST02/ftD16, label='Sheth Tormen 02', lw=1.5, ls='dashed')
-p.plot(X, ftT08/ftD16, label='Tinker 08', lw=1.5, ls='dashed')
-p.plot(X, ftBH11/ftD16, label='Bhattacharya 11', lw=1.5, ls='dashed')
+#p.plot(X, ftST02/ftD16, label='Sheth Tormen 02', lw=1.5, ls='dashed')
+#p.plot(X, ftT08/ftD16, label='Tinker 08', lw=1.5, ls='dashed')
+#p.plot(X, ftBH11/ftD16, label='Bhattacharya 11', lw=1.5, ls='dashed')
 p.ylabel('model / Despali 2016')
 p.xlabel(r'$log(1/\sigma)$')
 gl = p.legend(loc=0,fontsize=12)

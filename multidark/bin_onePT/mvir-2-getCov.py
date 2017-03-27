@@ -86,7 +86,7 @@ fileB.sort()
 fileS.sort()
 
 # redshift 0 data
-iis = [8, 13, 27, 21, -1, 30]#[-1, -2, -4, -9, -22, 3]
+iis = [8, 13, 27, 21, -30, 30]#[-1, -2, -4, -9, -22, 3]
 #n.arange(6) # [8, 13, 29, 31, 60, -10]
 print fileC
 
@@ -106,7 +106,7 @@ p.plot(xx,n.polyval(coefs,xx),'b--', label=r"$"+str(n.round(coefs[1],2))+"+"+str
 #p.plot(n.log10(lbox), svFactor, 'ro', label='sv')
 #p.plot(xx,n.polyval(coefs,xx),'r--', label=str(n.round(coefs,2)))
 p.xlabel(r'$\log_{10}(L_{box})$')
-p.ylabel(r'$f_{sn}$')#,\; f_{sv}
+p.ylabel(r'$Q$')#,\; f_{sv}
 p.grid()
 gl=p.legend(loc=0, frameon=False)
 p.savefig(join(os.environ['MVIR_DIR'],plotDir,"covariance_matrix_sn_sv_lbox.png"))
@@ -117,7 +117,7 @@ p.axes([0.17, 0.17, 0.75, 0.78])
 p.plot(n.log10(vols), snFactor, 'bo', label='sn')
 #p.plot(n.log10(vols), svFactor, 'ro', label='sv')
 p.xlabel(r'$\log_{10}(V_{box})$')
-p.ylabel(r'$f_{sn}$') # ,\; f_{sv}
+p.ylabel(r'$Q$') # ,\; f_{sv}
 p.grid()
 gl=p.legend(loc=0, frameon=False)
 p.savefig(join(os.environ['MVIR_DIR'],plotDir,"covariance_matrix_sn_sv_vol.png"))

@@ -62,6 +62,7 @@ ftC16 = f_BH(hf.sigma[100:-100], 0.279, 0.908, 0.671, 1.737)
 MF_MD = interp1d(mass, ftC16*rhom*abs(dlnsigmadlnm)/mass)
 
 NpartMin = 50.
+p_init = (-1.85, 7., -2.3, 4.)
 
 hd04_1 = fits.open(join(os.environ['MD04_DIR'],version, "subhalos", "out_88_subhalos_inDistinct.fits"))[1].data
 hd04_2 = fits.open(join(os.environ['MD04_DIR'],version, "subhalos", "out_88_subhalos_inDistinct2.fits"))[1].data
@@ -106,12 +107,12 @@ def get_ids(hd04_1, mmin=14.5, mmax=15.5):
 #hd04_1['GroupID'][msel]
 
 allidsat = set(hd04_1['id_sat'])
-
+exponent = 4.
 fsat_unev = lambda xi, a, b, N0 :  N0 * xi**a * n.e**(-b*xi**3.)
-fsat = lambda xi, a, b, N0 :  N0 * xi**a * n.e**(-b*xi**4.)
-logfsat= lambda logxi, a, b, logN0 : n.log10( 10**logN0 * (10**logxi)**a * n.e**(-b*(10**logxi)**4.))
+fsat = lambda xi, a, b, N0, exponent :  N0 * xi**a * n.e**(-b*xi**exponent)
+logfsat= lambda logxi, a, b, logN0, exponent : n.log10( 10**logN0 * (10**logxi)**a * n.e**(-b*(10**logxi)**exponent))
 
-def get_hist_MR(hd04_1, Msat = 'mvir_sat', mmin=14.5, mmax=15.5, Lbox=400.,dlogBins = 1., MP = 9, stat=False):
+def get_hist_MR(hd04_1, Msat = 'mvir_sat', mmin=14.5, mmax=15.5, Lbox=400.,dlogBins = 0.05, MP = 9, stat=False):
 	"""return  dNsat / volume / dln(Msub/Mdistinct)
 	"""
 	msel = (hd04_1['mvir_cen']>mmin) & (hd04_1['mvir_cen']<mmax) & (hd04_1[Msat]>MP)
@@ -150,7 +151,7 @@ def plot_SHMFR(mmin, mmax):
 	print 'MD04'
 	print '------------------------------------------------------------------'
 	xb, y, err, ok = get_total(hd04_1, hd04_2, hd04_3, 400., mmin, mmax, mp04)
-	#print ok
+	print ok
 	x_data = xb[ok]
 	y_data = y[ok]
 	y_data_err = err[ok]
@@ -162,7 +163,7 @@ def plot_SHMFR(mmin, mmax):
 	print 'MD10'
 	print '------------------------------------------------------------------'
 	xb, y, err, ok = get_total(hd10_1, hd10_2, hd10_3, 1000., mmin, mmax, mp10)
-	#print ok
+	print ok
 	if len(xb[ok])>2:
 		p.errorbar(xb[ok], n.log10(y[ok])+xb[ok], yerr= err[ok], label='M10')
 		x_data = n.hstack((x_data, xb[ok]))
@@ -174,7 +175,7 @@ def plot_SHMFR(mmin, mmax):
 	print 'MD25'
 	print '------------------------------------------------------------------'
 	xb, y, err, ok = get_total(hd25_1, hd25_2, hd25_3, 2500., mmin, mmax, mp25)
-	#print ok
+	print ok
 	if len(xb[ok])>2:
 		p.errorbar(xb[ok], n.log10(y[ok])+xb[ok], yerr= err[ok], label='M25')
 		x_data = n.hstack((x_data, xb[ok]))
@@ -185,7 +186,7 @@ def plot_SHMFR(mmin, mmax):
 	print 'MD25n'
 	print '------------------------------------------------------------------'
 	xb, y, err, ok = get_total(hd25nw_1, hd25nw_2, hd25nw_3, 2500., mmin, mmax, mp25nw)
-	#print ok
+	print ok
 	if len(xb[ok])>2:
 		p.errorbar(xb[ok], n.log10(y[ok])+xb[ok], yerr= err[ok], label='M25n')
 		x_data = n.hstack((x_data, xb[ok]))
@@ -196,7 +197,7 @@ def plot_SHMFR(mmin, mmax):
 	print 'MD40'
 	print '------------------------------------------------------------------'
 	xb, y, err, ok = get_total(hd40_1, hd40_2, hd40_3, 4000., mmin, mmax, mp40)
-	#print ok
+	print ok
 	if len(xb[ok])>2:
 		p.errorbar(xb[ok], n.log10(y[ok])+xb[ok], yerr= err[ok], label='M40')
 		x_data = n.hstack((x_data, xb[ok]))
@@ -207,31 +208,35 @@ def plot_SHMFR(mmin, mmax):
 	print 'MD40n'
 	print '------------------------------------------------------------------'
 	xb, y, err, ok = get_total(hd40nw_1, hd40nw_2, hd40nw_3, 4000., mmin, mmax, mp40nw)
-	#print ok
+	print ok
 	if len(xb[ok])>2:
 		p.errorbar(xb[ok], n.log10(y[ok])+xb[ok], yerr= err[ok], label='M40n')
 		x_data = n.hstack((x_data, xb[ok]))
 		y_data = n.hstack((y_data, y[ok]))
 		y_data_err = n.hstack((y_data_err, err[ok]))
-
-	
+		
 	pouet = (y_data>0)
-	out = curve_fit(logfsat, x_data[pouet], n.log10(y_data[pouet]), sigma = 0.05+y_data_err[pouet], p0 = (-1.85, 7., -2.3), maxfev = 500000000) 
-	print out[0], out[1].diagonal()**0.5
-	xx = n.arange(-6,0, 0.01)
-	#p.plot(xx, n.log10(fsat_unev(10**xx, -1.8, 6.283, 0.21)/(10**(mmin/2.+mmax/2.)/rhom))+xx, label='unevolved', ls='solid', color='k')
-	p.plot(xx, logfsat(xx, out[0][0], out[0][1], out[0][2])+xx, label='fit', ls='dashed', color='k')
-	p.ylabel(r'$\log_{10}\left[ \frac{M_d M_s}{\rho_m} \frac{dn}{dM_s} \right] $') 
-	p.xlabel(r'$\log_{10}(M_{s}/M_{d})$')
-	p.title(r"$"+str(mmin)+"<M_{s}<"+str(mmax)+"$")
-	p.legend(loc=0, frameon=False)
-	#p.yscale('log')
-	p.ylim((-5, 1))
-	p.xlim(( -4, 0 )) 
-	p.grid()
-	#p.savefig(join(os.environ['MVIR_DIR'], 'shmfr_'+str(mmin)+"_M_"+str(mmax)+".png"))
-	p.clf()
-	return out
+	print "fitting", len(x_data[pouet]), "points"
+	if len(x_data[pouet])>10:
+		out = curve_fit(logfsat, x_data[pouet], n.log10(y_data[pouet]), sigma = 0.05+y_data_err[pouet], p0 = p_init, maxfev = 500000000) 
+		print "fit:", out[0], out[1].diagonal()**0.5
+		xx = n.arange(-6,0, 0.01)
+		#p.plot(xx, n.log10(fsat_unev(10**xx, -1.8, 6.283, 0.21)/(10**(mmin/2.+mmax/2.)/rhom))+xx, label='unevolved', ls='solid', color='k')
+		p.plot(xx, logfsat(xx, out[0][0], out[0][1], out[0][2], out[0][3])+xx, label='fit', ls='solid', color='k')
+		p.ylabel(r'$\log_{10}\left[ \frac{M_d M_s}{\rho_m} \frac{dn}{dM_s} \right] $') 
+		p.xlabel(r'$\log_{10}(M_{s}/M_{d})$')
+		p.title(r"$"+str(mmin)+"<M_{d}<"+str(mmax)+"$")
+		p.legend(loc=0, frameon=False)
+		#p.yscale('log')
+		p.ylim((-5, 1))
+		p.xlim(( -4, 0 )) 
+		p.grid()
+		p.savefig(join(os.environ['MVIR_DIR'], 'shmfr_'+str(mmin)+"_M_"+str(mmax)+".png"))
+		n.savetxt(join(os.environ['MVIR_DIR'], 'shmfr_'+str(mmin)+"_M_"+str(mmax)+".txt"), n.transpose([x_data[pouet], n.log10(y_data[pouet]), 0.05+y_data_err[pouet]]))
+		p.clf()
+		return out
+	else:
+		return -99.99*n.ones_like(p_init)
 
 outs = []
 mms = n.hstack(( n.arange(12.5, 14.6, 0.5), 15.5 ))
@@ -247,3 +252,22 @@ for out in outs:
 
 for out in outs:
 	print n.round(out[0][2],4), n.round(out[1].diagonal()[2]**0.5,4)
+
+for out in outs:
+	print n.round(out[0][3],4), n.round(out[1].diagonal()[3]**0.5,4)
+
+import glob
+
+datalist=n.array(glob.glob(join(os.environ['MVIR_DIR'], "shmfr_*_M_*.txt")))
+x_fit=[]
+y_fit=[]
+yerr_fit=[]
+for file in datalist:
+	xx, yy, ye = n.loadtxt(file, unpack = True)
+	x_fit.append(xx)
+	y_fit.append(yy)
+	yerr_fit.append(ye)
+	
+out = curve_fit(logfsat, n.hstack((x_fit)), n.hstack((y_fit)), sigma = n.hstack((yerr_fit)), p0 = p_init, maxfev = 500000000)
+
+print out[0], out[1].diagonal()**0.5

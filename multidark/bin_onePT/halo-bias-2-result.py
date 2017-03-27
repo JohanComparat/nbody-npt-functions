@@ -68,14 +68,14 @@ bi_min = n.min(bias_all,axis = 0)
 
 
 bias_all = n.array([
-lib.b_BH(lib.hmf.sigma, a=0.7696+0.02, p=0.4952+0.03, q=1.3495+0.05), 
-lib.b_BH(lib.hmf.sigma, a=0.7696+0.02, p=0.4952+0.03, q=1.3495-0.05), 
-lib.b_BH(lib.hmf.sigma, a=0.7696+0.02, p=0.4952-0.03, q=1.3495-0.05), 
-lib.b_BH(lib.hmf.sigma, a=0.7696+0.02, p=0.4952-0.03, q=1.3495+0.05), 
-lib.b_BH(lib.hmf.sigma, a=0.7696-0.02, p=0.4952-0.03, q=1.3495-0.05), 
-lib.b_BH(lib.hmf.sigma, a=0.7696-0.02, p=0.4952-0.03, q=1.3495+0.05), 
-lib.b_BH(lib.hmf.sigma, a=0.7696-0.02, p=0.4952+0.03, q=1.3495-0.05),
-lib.b_BH(lib.hmf.sigma, a=0.7696-0.02, p=0.4952+0.03, q=1.3495+0.05)
+lib.b_BH(lib.hmf.sigma, a=0.7400+0.0084, p=0.6140+0.0184, q=1.6468+0.0259), 
+lib.b_BH(lib.hmf.sigma, a=0.7400+0.0084, p=0.6140+0.0184, q=1.6468-0.0259), 
+lib.b_BH(lib.hmf.sigma, a=0.7400+0.0084, p=0.6140-0.0184, q=1.6468-0.0259), 
+lib.b_BH(lib.hmf.sigma, a=0.7400+0.0084, p=0.6140-0.0184, q=1.6468+0.0259), 
+lib.b_BH(lib.hmf.sigma, a=0.7400-0.0084, p=0.6140-0.0184, q=1.6468-0.0259), 
+lib.b_BH(lib.hmf.sigma, a=0.7400-0.0084, p=0.6140-0.0184, q=1.6468+0.0259), 
+lib.b_BH(lib.hmf.sigma, a=0.7400-0.0084, p=0.6140+0.0184, q=1.6468-0.0259),
+lib.b_BH(lib.hmf.sigma, a=0.7400-0.0084, p=0.6140+0.0184, q=1.6468+0.0259)
 ])
 bi2_max = n.max(bias_all,axis = 0)
 bi2_min = n.min(bias_all,axis = 0)
@@ -104,11 +104,11 @@ n.savetxt(join(os.environ['MVIR_DIR'],"biasFunction_parameters_ST01_MFonly_fit.t
 p.figure(2,(6,6))
 p.axes([0.17, 0.17, 0.78, 0.78])
 
-p.plot(-n.log10(lib.hmf.sigma), lib.b_BH(lib.hmf.sigma, a=0.8915, p=0.5524, q=1.578),'k')
+p.plot(-n.log10(lib.hmf.sigma), lib.b_BH(lib.hmf.sigma, a=0.8915, p=0.5524, q=1.578),'k', lw=2)
 p.fill_between(-n.log10(lib.hmf.sigma), y1=bi_min, y2=bi_max, color='k',label='only HMF',alpha=0.2)
 
-p.plot(-n.log10(lib.hmf.sigma), b_fun(n.log10(lib.hmf.sigma), pOpt[0], pOpt[1],pOpt[2]), 'r')
-p.fill_between(-n.log10(lib.hmf.sigma), y1=bi2_min, y2=bi2_max, color='r',label='only bias',alpha=0.2)
+p.plot(-n.log10(lib.hmf.sigma), b_fun(n.log10(lib.hmf.sigma), pOpt[0], pOpt[1],pOpt[2]), 'm', lw=2)
+p.fill_between(-n.log10(lib.hmf.sigma), y1=bi2_min, y2=bi2_max, color='m',label='only bias',alpha=0.2)
 
 sel = (sel0) & (volume==400.**3.)
 p.errorbar(-n.log10(s_mean[sel]), b[sel], xerr=abs(n.log10(s_high[sel]) -n.log10(s_low[sel]) )/2., yerr = bErr[sel], rasterized=True, fmt='none', label='M04')
