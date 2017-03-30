@@ -49,7 +49,7 @@ dlnSigM = abs(n.log(dataMF['log_mvir_max']-dataMF['log_mvir_min'])*dataMF['dlnsi
 #lib.covariance_factor
 #lib.f_BH(sigma, 0.333, 0.788, 0.807, 1.795)
 biasHMF = lambda sigma : lib.b_BH(sigma, a=0.90343, p=0.64031, q=1.69561)
-biasB = lambda sigma : lib.b_BH(sigma, 0.76966, 0.49524, 1.34957)
+biasB = lambda sigma : lib.b_BH(sigma,  a=0.7400, p=0.6140, q=1.6468)
 
 bias = biasB
 # sample variance equation 16
@@ -122,8 +122,6 @@ p.grid()
 gl=p.legend(loc=0, frameon=False)
 p.savefig(join(os.environ['MVIR_DIR'],plotDir,"covariance_matrix_sn_sv_vol.png"))
 p.clf()
-
-#sys.exit()
 
 def plot_COV(fileC, binFile):
 	"""

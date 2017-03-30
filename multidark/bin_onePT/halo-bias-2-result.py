@@ -125,7 +125,7 @@ p.errorbar(-n.log10(s_mean[sel]), b[sel], xerr=abs(n.log10(s_high[sel]) -n.log10
 p.xlabel(r'$\log_{10}(\sigma^{-1})$')
 p.ylabel(r'bias')
 p.ylim((0.5,5))
-p.xlim((-0.5,0.3))
+p.xlim((-0.5,0.32))
 gl=p.legend(loc=0, frameon=False)
 p.grid()
 p.savefig(join(os.environ['MVIR_DIR'],"halo_bias_v2.png"))
