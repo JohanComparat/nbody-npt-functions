@@ -1,4 +1,5 @@
 ﻿# list of exports needed
+# to add to your ~/.bashrc
 
 export PYTHONPATH=$PYTHONPATH:/path_to/pySU/galaxy/python/
 export PYTHONPATH=$PYTHONPATH:/path_to/pySU/simulations/python/
