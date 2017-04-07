@@ -9,6 +9,15 @@ The class clusterScalingRelations is a wrapper to add cluster physics to the Mul
 Based on 
  * Mantz et al. 2010b
  * Zandanel et al. 2014
+ 
+To improve
+ * use M200c instead to be consistent with WL
+ * weak lensing, M500
+ * look at weighting the giant
+ * M200 mean in cosmo codes
+ * changing the slope as s function of mass
+ * add substructure
+ 
 """
 from scipy.stats import lognorm
 from scipy.stats import norm
