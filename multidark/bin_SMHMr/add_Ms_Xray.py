@@ -33,8 +33,8 @@ cdfs_interpolations = []
 XXS = n.arange(32,36.1,0.1)
 for jj,mass in enumerate(logMs):
 	pd = lambda ll : xr.psi(ll, logM=mass, z=z)
-	norm = quad( pd, 32, 36)[0]
-	cdfs_interpolations.append( interp1d(n.array([quad( pd, 32, X)[0] for X in XXS ])/norm,XXS) )
+	norming = quad( pd, 32, 36)[0]
+	cdfs_interpolations.append( interp1d(n.array([quad( pd, 32, X)[0] for X in XXS ])/norming,XXS) )
 
 cdfs_interpolations = n.array(cdfs_interpolations)
 
@@ -50,6 +50,7 @@ for fileName in fileList:
   randomX = n.random.rand(len(Mgal_mvir_Mo13))
   indexes = n.searchsorted(logMs,Mgal_mvir_Mo13)
   lambda_sar_Bo16 = n.array([ cdfs_interpolations[indexes[ii]](randomX[ii]) for ii in range(Nhalo) ])
+  print Mgal_mvir_Mo13[:10], indexes[:10}, lambda_sar_Bo16[:10]
   col0 = fits.Column(name='Mgal_mvir_Mo13',format='D', array = Mgal_mvir_Mo13 )
   col1 = fits.Column(name='Mgal_m200c_Mo13',format='D', array = norm.rvs( loc = sm.meanSM(10**hd[1].data['m200c'], z), scale = 0.15 ) )
   col2 = fits.Column(name='lambda_sar_Bo16',format='D', array = lambda_sar_Bo16 )
