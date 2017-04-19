@@ -13,20 +13,18 @@ import time
 import numpy as n
 import sys
 
-# set up box, and redshift
+print " set up box, and redshift "
 aexp = 0.74230
 z = 1./0.74230 -1.
 fileList = n.array(glob.glob(os.path.join(os.environ['MD04'], "snapshots", "hlist_" + str(aexp) + "_SAM_Nb_*.fits" )))
 fileList.sort()
-
+print fileList
 # set up the stellar mass computation
 sm = StellarMass.StellarMass()
 mhs = n.logspace(10,15,99)
 
 ratio = sm.SMHMr(mhs,0.)
 stellar_mass = sm.meanSM(mhs,0.)
-
-print sm.sample_Ms( mhs, 0., scatter = 0.15 )
 
 # set up the x ray lambda SAR
 xr = XrayLuminosity.XrayLuminosity()
@@ -40,19 +38,7 @@ for jj,mass in enumerate(logMs):
 
 cdfs_interpolations = n.array(cdfs_interpolations)
 
-
-sys.exit()
-
-print cdf(XXS, logM)
-
-print cdf_norm(logM)
-
-x = n.arange(29,37, 0.1)
-y = pdn(x)
-
-
-
-# loop on the files
+print " loop on the files "
 ii=0
 for fileName in fileList:
   t0=time.time()
