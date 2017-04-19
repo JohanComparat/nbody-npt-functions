@@ -1,5 +1,5 @@
-Library of functions add Xray luminosities to the Multidark simulations
-#######################################################################
+Xray luminosities scaling relations
+###################################
 
 .. automodule:: XrayLuminosity
    :members:

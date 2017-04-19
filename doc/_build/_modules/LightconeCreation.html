@@ -1,0 +1,330 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LightconeCreation &mdash; N-body n-point functions 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="N-body n-point functions 1.0 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" /> 
+  </head>
+  <body role="document">
+      <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
+          <span>N-body n-point functions 1.0 documentation</span></a></h1>
+        <h2 class="heading"><span>LightconeCreation</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="top navigation">
+      
+        <p>
+        <a class="uplink" href="../index.html">Contents</a>
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <h1>Source code for LightconeCreation</h1><div class="highlight"><pre>
+<span></span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">.. class:: LightconeSquare</span>
+
+<span class="sd">.. moduleauthor:: Johan Comparat &lt;johan.comparat__at__gmail.com&gt;</span>
+
+<span class="sd">The class LightconeSquare creates lightcones from N body simulations.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">fileinput</span>
+<span class="kn">import</span> <span class="nn">astropy.cosmology</span> <span class="kn">as</span> <span class="nn">co</span>
+<span class="n">c2</span><span class="o">=</span><span class="n">co</span><span class="o">.</span><span class="n">Planck13</span>
+<span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">interp1d</span>
+
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">uu</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">n</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+
+<div class="viewcode-block" id="LightconeSquare"><a class="viewcode-back" href="../LightconeCreation.html#LightconeCreation.LightconeSquare">[docs]</a><span class="k">class</span> <span class="nc">LightconeSquare</span> <span class="p">:</span>
+	<span class="n">__zMean</span> <span class="o">=</span> <span class="mf">0.88</span>
+	<span class="n">__Lbox</span> <span class="o">=</span> <span class="mf">2500.0</span> <span class="o">*</span> <span class="n">uu</span><span class="o">.</span><span class="n">Mpc</span> <span class="c1"># Mpc/h</span>
+	<span class="n">__wdir</span> <span class="o">=</span> <span class="s2">&quot;/home2/jcomparat/eBOSS-LC/Multidark-lightcones/&quot;</span>
+	<span class="n">__boxDir</span> <span class="o">=</span> <span class="s2">&quot;MD_2.5Gpc/&quot;</span>
+	<span class="n">__lcDir</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+	<span class="n">__snl</span> <span class="o">=</span>  <span class="s2">&quot;&quot;</span>
+	<span class="n">__zsl</span> <span class="o">=</span>  <span class="bp">None</span>
+	<span class="n">__zArray</span> <span class="o">=</span> <span class="n">n</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.2</span><span class="p">,</span><span class="mf">2.4</span><span class="p">,</span><span class="mf">1e-1</span><span class="p">)</span>
+	<span class="n">__Hbox</span> <span class="o">=</span> <span class="mf">67.77</span> <span class="o">*</span> <span class="n">uu</span><span class="o">.</span><span class="n">km</span> <span class="o">/</span> <span class="p">(</span><span class="n">uu</span><span class="o">.</span><span class="n">s</span> <span class="o">*</span> <span class="n">uu</span><span class="o">.</span><span class="n">Mpc</span><span class="p">)</span>
+	<span class="n">__outputName</span> <span class="o">=</span> <span class="s2">&quot;lc_square.txt&quot;</span>
+	<span class="n">__Melement</span> <span class="o">=</span> <span class="mf">23593750000.0</span>
+
+	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">zMean</span><span class="p">,</span><span class="n">Lbox</span><span class="p">,</span><span class="n">wdir</span><span class="p">,</span><span class="n">boxDir</span><span class="p">,</span><span class="n">lcDir</span><span class="p">,</span><span class="n">snl</span><span class="p">,</span><span class="n">zsl</span><span class="p">,</span><span class="n">zArray</span><span class="p">,</span><span class="n">Hbox</span><span class="p">,</span><span class="n">outputName</span><span class="p">,</span><span class="n">Melement</span> <span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__Lbox</span> <span class="o">=</span> <span class="n">Lbox</span> <span class="c1"># box length</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__Hbox</span> <span class="o">=</span> <span class="n">Hbox</span> <span class="c1"># Hubble constant at redshift 0 in the box</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__zMean</span> <span class="o">=</span> <span class="n">zMean</span> <span class="c1"># mean redshift desired</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__wdir</span> <span class="o">=</span> <span class="n">wdir</span> <span class="c1"># working directory</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__boxDir</span> <span class="o">=</span> <span class="n">boxDir</span> <span class="c1"># directory of the box where the snapshots a stored</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__lcDir</span> <span class="o">=</span> <span class="n">lcDir</span> <span class="c1"># directory where outputs will be stored</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__snl</span> <span class="o">=</span> <span class="n">snl</span> <span class="c1"># snapshot list</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__zsl</span> <span class="o">=</span> <span class="n">zsl</span> <span class="c1"># corresponding redshift list</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__zArray</span> <span class="o">=</span> <span class="n">zArray</span> <span class="c1"># redshift for the dC - z conversion</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__outputName</span> <span class="o">=</span> <span class="n">outputName</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__Melement</span> <span class="o">=</span> <span class="n">Melement</span> <span class="c1"># mass of one particle in the box</span>
+
+	<span class="k">def</span> <span class="nf">set_Melement</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">Melement</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__Melement</span> <span class="o">=</span> <span class="n">Melement</span>
+
+	<span class="k">def</span> <span class="nf">get_Melement</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__Melement</span> 
+
+	<span class="k">def</span> <span class="nf">set_zMean</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">zMean</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__zMean</span> <span class="o">=</span> <span class="n">zMean</span>
+
+	<span class="k">def</span> <span class="nf">get_zMean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__zMean</span> 
+
+	<span class="k">def</span> <span class="nf">set_outputName</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">outputName</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__outputName</span> <span class="o">=</span> <span class="n">outputName</span>
+
+	<span class="k">def</span> <span class="nf">get_outputName</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__outputName</span> 
+
+	<span class="k">def</span> <span class="nf">set_zArray</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">zArray</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__zArray</span> <span class="o">=</span> <span class="n">zArray</span>
+
+	<span class="k">def</span> <span class="nf">get_zArray</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__zArray</span> 
+
+	<span class="k">def</span> <span class="nf">set_Lbox</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">Lbox</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__Lbox</span> <span class="o">=</span> <span class="n">Lbox</span>
+
+	<span class="k">def</span> <span class="nf">get_Lbox</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__Lbox</span> 
+
+	<span class="k">def</span> <span class="nf">set_Hbox</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">Hbox</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__Hbox</span> <span class="o">=</span> <span class="n">Hbox</span>
+
+	<span class="k">def</span> <span class="nf">get_Hbox</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__Hbox</span> 
+
+	<span class="k">def</span> <span class="nf">set_wdir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">wdir</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__wdir</span> <span class="o">=</span> <span class="n">wdir</span>
+
+	<span class="k">def</span> <span class="nf">get_wdir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__wdir</span> 
+
+	<span class="k">def</span> <span class="nf">set_boxDir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">boxDir</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__boxDir</span> <span class="o">=</span> <span class="n">boxDir</span>
+
+	<span class="k">def</span> <span class="nf">get_boxDir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__boxDir</span> 
+
+	<span class="k">def</span> <span class="nf">set_lcDir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">lcDir</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__lcDir</span> <span class="o">=</span> <span class="n">lcDir</span>
+
+	<span class="k">def</span> <span class="nf">get_lcDir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__lcDir</span> 
+
+	<span class="k">def</span> <span class="nf">set_snl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">snl</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__snl</span> <span class="o">=</span> <span class="n">snl</span>
+
+	<span class="k">def</span> <span class="nf">get_snl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__snl</span> 
+
+	<span class="k">def</span> <span class="nf">set_zsl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">zsl</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__zsl</span> <span class="o">=</span> <span class="n">zsl</span>
+
+	<span class="k">def</span> <span class="nf">get_zsl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__zsl</span> 
+
+	<span class="k">def</span> <span class="nf">defineLClimits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">massFactor</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span> <span class="p">:</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">D_bar</span> <span class="o">=</span> <span class="n">c2</span><span class="o">.</span><span class="n">comoving_distance</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_zsl</span><span class="p">()[</span><span class="n">n</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_zsl</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_zMean</span><span class="p">()</span> <span class="p">)]</span> <span class="p">)</span> <span class="o">*</span> <span class="n">c2</span><span class="o">.</span><span class="n">h</span> <span class="c1"># Mpc / h</span>
+		<span class="k">print</span> <span class="s2">&quot;D_bar=&quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">D_bar</span>
+		<span class="c1">#self.theta_max = n.arcsin(1. / ( 1. + 2. * self.D_bar/ self.get_Lbox() ) ) # * 180. / n.pi</span>
+		<span class="c1">## print &quot;theta_max=&quot;,self.theta_max</span>
+		<span class="c1">#self.tg_theta_max = n.tan(self.theta_max)</span>
+		<span class="c1">## print &quot;tan theta_max=&quot;,self.tg_theta_max</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">D_min</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">D_bar</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_Lbox</span><span class="p">()</span><span class="o">/</span><span class="mf">2.</span> <span class="c1"># ( (self.D_bar - self.get_Lbox()/2.)**2. + (self.get_Lbox()/2.)**2.  ) ** 0.5</span>
+		<span class="k">print</span> <span class="s2">&quot;D_min=&quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">D_min</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">D_max</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">D_bar</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_Lbox</span><span class="p">()</span><span class="o">/</span><span class="mf">2.</span>
+		<span class="k">print</span> <span class="s2">&quot;D_max=&quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">D_max</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">dc_to_z</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">c2</span><span class="o">.</span><span class="n">comoving_distance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_zArray</span><span class="p">())</span> <span class="o">*</span> <span class="n">c2</span><span class="o">.</span><span class="n">h</span> <span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">get_zArray</span><span class="p">())</span>
+		<span class="c1"># print &quot;dc to z interpolated for&quot;,self.get_zArray()</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">Mmin</span><span class="o">=</span><span class="n">massFactor</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">get_Melement</span><span class="p">()</span>
+
+	<span class="k">def</span> <span class="nf">defineLClimitsObsInTheCenter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">massFactor</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span> <span class="p">:</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">D_bar</span> <span class="o">=</span> <span class="mf">0.</span> <span class="c1"># Mpc / h</span>
+		<span class="k">print</span> <span class="s2">&quot;D_bar=&quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">D_bar</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">D_min</span> <span class="o">=</span> <span class="mf">0.</span>
+		<span class="k">print</span> <span class="s2">&quot;D_min=&quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">D_min</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">D_max</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_Lbox</span><span class="p">()</span><span class="o">/</span><span class="mf">2.</span>
+		<span class="k">print</span> <span class="s2">&quot;D_max=&quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">D_max</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">dc_to_z</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">c2</span><span class="o">.</span><span class="n">comoving_distance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_zArray</span><span class="p">())</span> <span class="o">*</span> <span class="n">c2</span><span class="o">.</span><span class="n">h</span> <span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">get_zArray</span><span class="p">())</span>
+		<span class="c1"># print &quot;dc to z interpolated for&quot;,self.get_zArray()</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">Mmin</span><span class="o">=</span><span class="n">massFactor</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">get_Melement</span><span class="p">()</span>
+
+	<span class="k">def</span> <span class="nf">defineLClimitsObsInTheCorner</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">massFactor</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span> <span class="p">:</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">D_bar</span> <span class="o">=</span> <span class="mf">0.</span> <span class="c1"># Mpc / h</span>
+		<span class="k">print</span> <span class="s2">&quot;D_bar=&quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">D_bar</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">D_min</span> <span class="o">=</span> <span class="mf">0.</span>
+		<span class="k">print</span> <span class="s2">&quot;D_min=&quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">D_min</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">D_max</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_Lbox</span><span class="p">()</span><span class="o">/</span><span class="mf">2.</span>
+		<span class="k">print</span> <span class="s2">&quot;D_max=&quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">D_max</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">dc_to_z</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">c2</span><span class="o">.</span><span class="n">comoving_distance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_zArray</span><span class="p">())</span> <span class="o">*</span> <span class="n">c2</span><span class="o">.</span><span class="n">h</span> <span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">get_zArray</span><span class="p">())</span>
+		<span class="c1"># print &quot;dc to z interpolated for&quot;,self.get_zArray()</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">Mmin</span><span class="o">=</span><span class="n">massFactor</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">get_Melement</span><span class="p">()</span>
+
+	<span class="k">def</span> <span class="nf">defineSnapshotLimits</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;defines the limits of the LC&quot;&quot;&quot;</span>
+		<span class="n">dsl</span> <span class="o">=</span> <span class="n">c2</span><span class="o">.</span><span class="n">comoving_distance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_zsl</span><span class="p">())</span> <span class="o">*</span> <span class="n">c2</span><span class="o">.</span><span class="n">h</span> <span class="c1"># Mpc / h</span>
+		<span class="k">print</span> <span class="s2">&quot;dsl=&quot;</span><span class="p">,</span> <span class="n">dsl</span>
+		<span class="n">selection</span> <span class="o">=</span> <span class="p">(</span><span class="n">dsl</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">D_min</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">dsl</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">D_max</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">set_snl</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_snl</span><span class="p">()[</span><span class="n">selection</span><span class="p">])</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">set_zsl</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_zsl</span><span class="p">()[</span><span class="n">selection</span><span class="p">])</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">dTr</span><span class="o">=</span><span class="n">n</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">dsl</span><span class="p">[</span><span class="n">selection</span><span class="p">][</span><span class="mi">1</span><span class="p">:]</span><span class="o">+</span><span class="n">dsl</span><span class="p">[</span><span class="n">selection</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">/</span><span class="mf">2.</span><span class="p">)</span><span class="o">*</span><span class="n">uu</span><span class="o">.</span><span class="n">Mpc</span>
+		<span class="k">print</span> <span class="s2">&quot;dTr=&quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">dTr</span>
+		<span class="c1">#trs=n.hstack(( self.D_min, dTr, self.D_max )) </span>
+		<span class="c1">#print &quot;trs&quot;, trs</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">D_transition</span> <span class="o">=</span> <span class="n">n</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dTr</span><span class="p">)</span><span class="o">+</span><span class="mi">2</span><span class="p">))</span> <span class="o">*</span> <span class="n">uu</span><span class="o">.</span><span class="n">Mpc</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">D_transition</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">D_min</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">D_transition</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">D_max</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">D_transition</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dTr</span>
+		<span class="k">print</span> <span class="s2">&quot;D_transition=&quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">D_transition</span> 
+
+	<span class="k">def</span> <span class="nf">selectline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">line</span><span class="p">,</span><span class="n">dmin</span><span class="p">,</span><span class="n">dmax</span><span class="p">):</span>
+		<span class="c1"># from a line outputs transformed coordinates ra, dec, R</span>
+		<span class="c1"># based on standard Rockstar halo catalog structure</span>
+		<span class="n">x</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">17</span><span class="p">])</span> <span class="o">*</span> <span class="n">uu</span><span class="o">.</span><span class="n">Mpc</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">get_Lbox</span><span class="p">()</span><span class="o">/</span><span class="mf">2.</span>
+		<span class="n">y</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">18</span><span class="p">])</span> <span class="o">*</span> <span class="n">uu</span><span class="o">.</span><span class="n">Mpc</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">get_Lbox</span><span class="p">()</span><span class="o">/</span><span class="mf">2.</span>
+		<span class="n">z</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">19</span><span class="p">])</span> <span class="o">*</span> <span class="n">uu</span><span class="o">.</span><span class="n">Mpc</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">get_Lbox</span><span class="p">()</span><span class="o">/</span><span class="mf">2.</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">D_bar</span>
+		<span class="n">mvir</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">10</span><span class="p">])</span>
+		<span class="n">rr</span><span class="o">=</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">y</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">z</span><span class="o">**</span><span class="mi">2</span>
+		<span class="c1"># print line</span>
+		<span class="c1"># print x,y,z,rr**0.5, dmin, dmax, &quot;-----&quot;,mvir,self.Mmin #, abs(x/z), abs(y/z), self.tg_theta_max</span>
+		<span class="k">if</span> <span class="n">rr</span> <span class="o">&gt;=</span> <span class="n">dmin</span><span class="o">**</span><span class="mf">2.</span> <span class="ow">and</span> <span class="n">rr</span> <span class="o">&lt;</span> <span class="n">dmax</span><span class="o">**</span><span class="mf">2.</span> <span class="ow">and</span> <span class="n">mvir</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">Mmin</span><span class="p">:</span> <span class="c1"># and abs(x/z) &lt; self.tg_theta_max and abs(y/z) &lt; self.tg_theta_max :</span>
+			<span class="k">return</span> <span class="mf">1.</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="k">return</span> <span class="mf">0.</span>
+
+	<span class="k">def</span> <span class="nf">transformLine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">line</span><span class="p">):</span>
+		<span class="c1"># if the point is chosen, the line is transformed into the LC.</span>
+		<span class="n">a</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="c1"># scale factor</span>
+		<span class="n">x</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">17</span><span class="p">])</span> <span class="o">*</span> <span class="n">uu</span><span class="o">.</span><span class="n">Mpc</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">get_Lbox</span><span class="p">()</span><span class="o">/</span><span class="mf">2.</span>
+		<span class="n">y</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">18</span><span class="p">])</span> <span class="o">*</span> <span class="n">uu</span><span class="o">.</span><span class="n">Mpc</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">get_Lbox</span><span class="p">()</span><span class="o">/</span><span class="mf">2.</span>
+		<span class="n">z</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">19</span><span class="p">])</span> <span class="o">*</span> <span class="n">uu</span><span class="o">.</span><span class="n">Mpc</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">get_Lbox</span><span class="p">()</span><span class="o">/</span><span class="mf">2.</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">D_bar</span>
+		<span class="n">ra</span><span class="o">=</span><span class="n">n</span><span class="o">.</span><span class="n">arctan</span><span class="p">(</span><span class="n">x</span><span class="o">/</span><span class="n">z</span><span class="p">)</span><span class="o">*</span><span class="mi">180</span><span class="o">/</span><span class="n">n</span><span class="o">.</span><span class="n">pi</span>
+		<span class="n">dec</span><span class="o">=</span><span class="n">n</span><span class="o">.</span><span class="n">arctan</span><span class="p">(</span><span class="n">y</span><span class="o">/</span><span class="n">z</span><span class="p">)</span><span class="o">*</span><span class="mi">180</span><span class="o">/</span><span class="n">n</span><span class="o">.</span><span class="n">pi</span>
+
+		<span class="n">vx</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">20</span><span class="p">])</span> <span class="o">*</span> <span class="n">uu</span><span class="o">.</span><span class="n">km</span> <span class="o">/</span> <span class="n">uu</span><span class="o">.</span><span class="n">s</span>
+		<span class="n">vy</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">21</span><span class="p">])</span> <span class="o">*</span> <span class="n">uu</span><span class="o">.</span><span class="n">km</span> <span class="o">/</span> <span class="n">uu</span><span class="o">.</span><span class="n">s</span>
+		<span class="n">vz</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">22</span><span class="p">])</span> <span class="o">*</span> <span class="n">uu</span><span class="o">.</span><span class="n">km</span> <span class="o">/</span> <span class="n">uu</span><span class="o">.</span><span class="n">s</span>
+
+		<span class="n">rr</span><span class="o">=</span><span class="p">(</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">y</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">z</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">**</span><span class="mf">0.5</span>
+		<span class="n">redshiftR</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dc_to_z</span><span class="p">(</span><span class="n">rr</span><span class="p">)</span>
+
+		<span class="n">vPara</span> <span class="o">=</span> <span class="p">(</span><span class="n">vx</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="n">vy</span> <span class="o">*</span> <span class="n">y</span> <span class="o">+</span> <span class="n">vz</span> <span class="o">*</span> <span class="n">z</span> <span class="p">)</span><span class="o">/</span><span class="n">rr</span> 
+		<span class="n">rs</span> <span class="o">=</span> <span class="n">rr</span> <span class="o">+</span> <span class="n">vPara</span> <span class="o">/</span> <span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_Hbox</span><span class="p">())</span>
+		<span class="n">redshiftS</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dc_to_z</span><span class="p">(</span><span class="n">rs</span><span class="p">)</span>
+		<span class="c1">## print a,x,y,z,ra,dec,vx,vy,vz,rr,vPara, self.get_Hbox(),redshiftR,redshiftS</span>
+		
+		<span class="n">indexes</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">11</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">13</span><span class="p">,</span><span class="mi">16</span><span class="p">,</span><span class="mi">26</span><span class="p">,</span><span class="mi">37</span><span class="p">,</span><span class="mi">38</span><span class="p">,</span><span class="mi">44</span><span class="p">,</span><span class="mi">45</span><span class="p">,</span><span class="mi">57</span><span class="p">,</span><span class="mi">58</span><span class="p">,</span><span class="mi">59</span><span class="p">,</span><span class="mi">60</span><span class="p">,</span><span class="mi">61</span><span class="p">,</span><span class="mi">63</span><span class="p">,</span><span class="mi">64</span><span class="p">,</span><span class="mi">67</span><span class="p">]</span>
+		<span class="k">return</span> <span class="n">n</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span> <span class="nb">str</span><span class="p">(</span><span class="n">ra</span><span class="o">.</span><span class="n">value</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">dec</span><span class="o">.</span><span class="n">value</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">redshiftR</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">redshiftS</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">vPara</span><span class="o">.</span><span class="n">value</span><span class="p">),</span> <span class="n">n</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">line</span><span class="p">)[</span><span class="n">indexes</span><span class="p">]))</span>
+
+	<span class="k">def</span> <span class="nf">constructLC</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="n">fo</span><span class="o">=</span><span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_outputName</span><span class="p">(),</span><span class="s1">&#39;a&#39;</span><span class="p">)</span>
+		<span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_snl</span><span class="p">())):</span>
+			<span class="n">fl</span><span class="o">=</span><span class="n">fileinput</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_snl</span><span class="p">()[</span><span class="n">ii</span><span class="p">])</span>
+			<span class="n">dmin</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">D_transition</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span>
+			<span class="n">dmax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">D_transition</span><span class="p">[</span><span class="n">ii</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+			<span class="c1"># print &quot;opens file &quot;,self.get_snl()[ii],&quot;and gets halo in &quot;,dmin,dmax</span>
+			<span class="c1"># self.tg_theta_max</span>
+			<span class="n">count</span><span class="o">=</span><span class="mi">0</span>
+			<span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fl</span><span class="p">:</span>
+				<span class="k">if</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;#&quot;</span> <span class="p">:</span>
+					<span class="n">count</span><span class="o">+=</span><span class="mi">1</span>
+					<span class="k">continue</span>
+
+				<span class="n">yn</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">selectline</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(),</span><span class="n">dmin</span><span class="p">,</span><span class="n">dmax</span><span class="p">)</span>
+				<span class="k">if</span> <span class="n">yn</span> <span class="o">==</span> <span class="mf">0.</span> <span class="p">:</span>
+					<span class="n">count</span><span class="o">+=</span><span class="mi">1</span>					
+					<span class="k">continue</span>
+
+				<span class="k">if</span> <span class="n">yn</span> <span class="o">==</span> <span class="mf">1.</span><span class="p">:</span>
+					<span class="n">trL</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">transformLine</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+					<span class="n">toWrite</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">trL</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; </span><span class="se">\n</span><span class="s2">&quot;</span>
+					<span class="c1"># print &quot;got line&quot;</span>
+					<span class="c1"># print toWrite</span>
+					<span class="c1"># print count</span>
+					<span class="n">fo</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">toWrite</span><span class="p">)</span>
+					<span class="n">count</span><span class="o">+=</span><span class="mi">1</span>
+
+			
+			<span class="n">fl</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+		<span class="n">fo</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+	<span class="k">def</span> <span class="nf">constructLC_snapshot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">ii</span><span class="p">):</span>
+		<span class="n">fo</span><span class="o">=</span><span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_outputName</span><span class="p">(),</span><span class="s1">&#39;a&#39;</span><span class="p">)</span>
+		<span class="n">fl</span><span class="o">=</span><span class="n">fileinput</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_snl</span><span class="p">()[</span><span class="n">ii</span><span class="p">])</span>
+		<span class="n">dmin</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">D_transition</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span>
+		<span class="n">dmax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">D_transition</span><span class="p">[</span><span class="n">ii</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+		<span class="c1"># print &quot;opens file &quot;,self.get_snl()[ii],&quot;and gets halo in &quot;,dmin,dmax</span>
+		<span class="c1"># self.tg_theta_max</span>
+		<span class="n">count</span><span class="o">=</span><span class="mi">0</span>
+		<span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fl</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;#&quot;</span> <span class="p">:</span>
+				<span class="n">count</span><span class="o">+=</span><span class="mi">1</span>
+				<span class="k">continue</span>
+
+			<span class="n">yn</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">selectline</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(),</span><span class="n">dmin</span><span class="p">,</span><span class="n">dmax</span><span class="p">)</span>
+			<span class="k">if</span> <span class="n">yn</span> <span class="o">==</span> <span class="mf">0.</span> <span class="p">:</span>
+				<span class="n">count</span><span class="o">+=</span><span class="mi">1</span>					
+				<span class="k">continue</span>
+
+			<span class="k">if</span> <span class="n">yn</span> <span class="o">==</span> <span class="mf">1.</span><span class="p">:</span>
+				<span class="n">trL</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">transformLine</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+				<span class="n">toWrite</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">trL</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; </span><span class="se">\n</span><span class="s2">&quot;</span>
+				<span class="c1"># print &quot;got line&quot;</span>
+				<span class="c1"># print toWrite</span>
+				<span class="c1"># print count</span>
+				<span class="n">fo</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">toWrite</span><span class="p">)</span>
+				<span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+		
+		<span class="n">fl</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+		<span class="n">fo</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+</pre></div>
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      
+        <p>
+        <a class="uplink" href="../index.html">Contents</a>
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, johan comparat.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.6.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ClusterScalingRelations &mdash; N-body n-point functions 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="N-body n-point functions 1.0 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" /> 
+  </head>
+  <body role="document">
+      <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
+          <span>N-body n-point functions 1.0 documentation</span></a></h1>
+        <h2 class="heading"><span>ClusterScalingRelations</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="top navigation">
+      
+        <p>
+        <a class="uplink" href="../index.html">Contents</a>
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <h1>Source code for ClusterScalingRelations</h1><div class="highlight"><pre>
+<span></span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">.. class:: ClusterScalingRelations</span>
+
+<span class="sd">.. moduleauthor:: Johan Comparat &lt;johan.comparat__at__gmail.com&gt;</span>
+
+<span class="sd">The class clusterScalingRelations is a wrapper to add cluster physics to the Multidark simulations results / outputs.</span>
+
+<span class="sd">Based on </span>
+<span class="sd"> * Mantz et al. 2010b</span>
+<span class="sd"> * Zandanel et al. 2014</span>
+<span class="sd"> </span>
+<span class="sd">To improve</span>
+<span class="sd"> * use M200c instead to be consistent with WL</span>
+<span class="sd"> * weak lensing, M500</span>
+<span class="sd"> * look at weighting the giant</span>
+<span class="sd"> * M200 mean in cosmo codes</span>
+<span class="sd"> * changing the slope as s function of mass</span>
+<span class="sd"> * add substructure</span>
+<span class="sd"> </span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">lognorm</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span>
+<span class="kn">import</span> <span class="nn">cPickle</span>
+<span class="kn">import</span> <span class="nn">fileinput</span>
+<span class="kn">import</span> <span class="nn">astropy.io.fits</span> <span class="kn">as</span> <span class="nn">fits</span>
+<span class="kn">import</span> <span class="nn">astropy.cosmology</span> <span class="kn">as</span> <span class="nn">co</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
+<span class="kn">import</span> <span class="nn">astropy.constants</span> <span class="kn">as</span> <span class="nn">cc</span>
+<span class="n">c2</span> <span class="o">=</span> <span class="n">co</span><span class="o">.</span><span class="n">Planck13</span>
+<span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">interp1d</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">join</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">uu</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">n</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">scipy.spatial.ckdtree</span> <span class="kn">as</span> <span class="nn">t</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<div class="viewcode-block" id="ClusterScalingRelations"><a class="viewcode-back" href="../ClusterScalingRelations.html#ClusterScalingRelations.ClusterScalingRelations">[docs]</a><span class="k">class</span> <span class="nc">ClusterScalingRelations</span><span class="p">()</span> <span class="p">:</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	Loads the environement to assign stellar masses to halos from dark matter only simulations, here MultiDark simulations.</span>
+<span class="sd">	:param Lbox: length of the box in Mpc/h </span>
+<span class="sd">	:param wdir: Path to the multidark lightcone directory</span>
+<span class="sd">	:param boxDir: box directory name</span>
+<span class="sd">	:param snl: list of snapshots available</span>
+<span class="sd">	:param zsl: list of redshift corresponding to the snapshots   </span>
+<span class="sd">	:param zArray: redshift array to be considered to interpolate the redshift -- distance conversion</span>
+<span class="sd">	:param Hbox: Hubble constant at redshift 0 of the box</span>
+<span class="sd">	:param Melement: Mass of the resolution element in solar masses.   </span>
+<span class="sd">	:param columnDict: dictionnary to convert column name into the index to find it in the snapshots</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+
+	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">Lbox</span><span class="o">=</span><span class="mf">2500.0</span> <span class="o">*</span> <span class="n">uu</span><span class="o">.</span><span class="n">Mpc</span><span class="p">,</span> <span class="n">boxDir</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;MD04&#39;</span><span class="p">],</span> <span class="n">snl</span><span class="o">=</span><span class="p">[],</span> <span class="n">Hbox</span> <span class="o">=</span> <span class="mf">67.77</span> <span class="o">*</span> <span class="n">uu</span><span class="o">.</span><span class="n">km</span> <span class="o">/</span> <span class="p">(</span><span class="n">uu</span><span class="o">.</span><span class="n">s</span> <span class="o">*</span> <span class="n">uu</span><span class="o">.</span><span class="n">Mpc</span><span class="p">),</span> <span class="n">Melement</span> <span class="o">=</span> <span class="mf">23593750000.0</span> <span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">Lbox</span> <span class="o">=</span> <span class="n">Lbox</span> <span class="c1"># box length</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">Hbox</span> <span class="o">=</span> <span class="n">Hbox</span> <span class="c1"># Hubble constant at redshift 0 in the box</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">boxDir</span> <span class="o">=</span> <span class="n">boxDir</span> <span class="c1"># directory of the box where the snapshots a stored</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">snl</span> <span class="o">=</span> <span class="n">snl</span> <span class="c1"># snapshot list, path to files</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">Melement</span> <span class="o">=</span> <span class="n">Melement</span> <span class="c1"># mass of one particle in the box</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">h</span> <span class="o">=</span> <span class="mf">0.6777</span>
+		<span class="c1"># parameters used to run the simulation</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">omega_lambda</span> <span class="o">=</span> <span class="mf">0.692885</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">omega_matter</span> <span class="o">=</span> <span class="mf">0.307115</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">omega_baryon</span> <span class="o">=</span> <span class="mf">0.048206</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">ns</span> <span class="o">=</span> <span class="mf">0.96</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">sigma8</span> <span class="o">=</span> <span class="mf">0.8228</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">G</span> <span class="o">=</span> <span class="mf">6.67428</span> <span class="o">*</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mi">9</span><span class="p">)</span> <span class="c1"># cm3 g-1 s-2</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">Msun</span> <span class="o">=</span> <span class="mf">1.98892</span> <span class="o">*</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="mf">33.</span><span class="p">)</span> <span class="c1"># g</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">Npart</span> <span class="o">=</span> <span class="mi">3840</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">force_resolution</span> <span class="o">=</span> <span class="mf">5.</span> <span class="c1"># kpc /h</span>
+	
+<div class="viewcode-block" id="ClusterScalingRelations.logkbTci"><a class="viewcode-back" href="../ClusterScalingRelations.html#ClusterScalingRelations.ClusterScalingRelations.logkbTci">[docs]</a>	<span class="k">def</span> <span class="nf">logkbTci</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Mh_500</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">h70</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Computes the cluster temperature no centrally excised after Mantz et al. 2010b.</span>
+
+<span class="sd">		Returns : log of the temperature in keV</span>
+<span class="sd">		</span>
+<span class="sd">		:param Mh_500: halo mass array</span>
+<span class="sd">		:param z: redshift array</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="mf">0.91</span> <span class="o">+</span> <span class="mf">0.46</span> <span class="o">*</span> <span class="n">n</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">c2</span><span class="o">.</span><span class="n">efunc</span><span class="p">(</span><span class="n">z</span><span class="p">)</span> <span class="o">*</span> <span class="n">MH_500</span> <span class="o">*</span> <span class="n">h</span> <span class="o">/</span> <span class="p">(</span><span class="n">h70</span> <span class="o">*</span> <span class="mi">10</span><span class="o">**</span><span class="mi">15</span> <span class="p">)</span> <span class="p">)</span></div>
+
+<div class="viewcode-block" id="ClusterScalingRelations.get_Tci_K"><a class="viewcode-back" href="../ClusterScalingRelations.html#ClusterScalingRelations.ClusterScalingRelations.get_Tci_K">[docs]</a>	<span class="k">def</span> <span class="nf">get_Tci_K</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Mh_500</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">h70</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Samples with a Gaussian the Tci -- M500 scaling relation</span>
+
+<span class="sd">		returns the temperature in Kelvin</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">norm</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">loc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logkbTci</span><span class="p">(</span><span class="n">Mh_500</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">h70</span><span class="o">=</span><span class="mf">1.0</span><span class="p">),</span> <span class="n">scale</span> <span class="o">=</span> <span class="mf">0.06</span> <span class="p">)</span> <span class="p">)</span><span class="o">/</span><span class="n">cc</span><span class="o">.</span><span class="n">k_B</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;keV/K&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span></div>
+
+<div class="viewcode-block" id="ClusterScalingRelations.get_kbTci_keV"><a class="viewcode-back" href="../ClusterScalingRelations.html#ClusterScalingRelations.ClusterScalingRelations.get_kbTci_keV">[docs]</a>	<span class="k">def</span> <span class="nf">get_kbTci_keV</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Mh_500</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">h70</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Samples with a Gaussian the Tci -- M500 scaling relation</span>
+
+<span class="sd">		returns the temperature in keV</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">norm</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">loc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logkbTci</span><span class="p">(</span><span class="n">Mh_500</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">h70</span><span class="o">=</span><span class="mf">1.0</span><span class="p">),</span> <span class="n">scale</span> <span class="o">=</span> <span class="mf">0.06</span> <span class="p">)</span> <span class="p">)</span></div>
+
+<div class="viewcode-block" id="ClusterScalingRelations.logLxbol"><a class="viewcode-back" href="../ClusterScalingRelations.html#ClusterScalingRelations.ClusterScalingRelations.logLxbol">[docs]</a>	<span class="k">def</span> <span class="nf">logLxbol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Mh_500</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">h70</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Computes the bolometric X-ray luminosity for a halo of mass Mh_500</span>
+<span class="sd">		Returns : the bolometrix X-ray luminosity in keV</span>
+<span class="sd">		</span>
+<span class="sd">		:param Mh_500: halo mass array</span>
+<span class="sd">		:param z: redshift array</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="o">-</span><span class="mf">21.5</span> <span class="o">+</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="n">n</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">c2</span><span class="o">.</span><span class="n">efunc</span><span class="p">(</span><span class="n">z</span><span class="p">)</span> <span class="o">*</span> <span class="n">MH_500</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">h</span> <span class="o">/</span> <span class="p">(</span><span class="n">h70</span> <span class="o">*</span> <span class="mi">10</span><span class="o">**</span><span class="mi">15</span> <span class="p">)</span> <span class="p">)</span></div></div>
+</pre></div>
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      
+        <p>
+        <a class="uplink" href="../index.html">Contents</a>
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, johan comparat.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.6.
+    </div>
+  </body>
+</html>

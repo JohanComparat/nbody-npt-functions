@@ -1,5 +1,5 @@
-Library of functions adds stellar masses to the Multidark simulations
-#####################################################################
+Stellar mass to halo mass ratio
+###############################
 
 .. automodule:: StellarMass
    :members:

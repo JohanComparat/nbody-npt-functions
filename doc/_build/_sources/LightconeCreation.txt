@@ -1,5 +1,5 @@
-Library of functions to handle Multidark Lightcone Creation
-###########################################################
+Create light cones from Multidark
+#################################
 
 This class creates light cones
 

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Library of functions to handle add cluster physics to the Multidark simulations &mdash; pySU N-body n-point, pySU for N-body and n-point functions 1.0 documentation</title>
+    <title>Add cluster physics to the simulations &mdash; N-body n-point functions 1.0 documentation</title>
     
     <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -24,31 +24,122 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="pySU N-body n-point, pySU for N-body and n-point functions 1.0 documentation" href="index.html" />
-    <link rel="next" title="Library of functions adds stellar masses to the Multidark simulations" href="StellarMass.html" />
-    <link rel="prev" title="Library of functions add Xray luminosities to the Multidark simulations" href="XrayLuminosity.html" /> 
+    <link rel="top" title="N-body n-point functions 1.0 documentation" href="index.html" />
+    <link rel="next" title="Stellar mass to halo mass ratio" href="StellarMass.html" />
+    <link rel="prev" title="Xray luminosities scaling relations" href="XrayLuminosity.html" /> 
   </head>
   <body role="document">
       <div class="header" role="banner"><h1 class="heading"><a href="index.html">
-          <span>pySU N-body n-point, pySU for N-body and n-point functions 1.0 documentation</span></a></h1>
-        <h2 class="heading"><span>Library of functions to handle add cluster physics to the Multidark simulations</span></h2>
+          <span>N-body n-point functions 1.0 documentation</span></a></h1>
+        <h2 class="heading"><span>Add cluster physics to the simulations</span></h2>
       </div>
       <div class="topnav" role="navigation" aria-label="top navigation">
       
         <p>
-        «&#160;&#160;<a href="XrayLuminosity.html">Library of functions add Xray luminosities to the Multidark simulations</a>
+        «&#160;&#160;<a href="XrayLuminosity.html">Xray luminosities scaling relations</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="StellarMass.html">Library of functions adds stellar masses to the Multidark simulations</a>&#160;&#160;»
+        <a href="StellarMass.html">Stellar mass to halo mass ratio</a>&#160;&#160;»
         </p>
 
       </div>
       <div class="content">
         
         
-  <div class="section" id="library-of-functions-to-handle-add-cluster-physics-to-the-multidark-simulations">
-<h1>Library of functions to handle add cluster physics to the Multidark simulations<a class="headerlink" href="#library-of-functions-to-handle-add-cluster-physics-to-the-multidark-simulations" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-ClusterScalingRelations">
+<span id="add-cluster-physics-to-the-simulations"></span><h1>Add cluster physics to the simulations<a class="headerlink" href="#module-ClusterScalingRelations" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="ClusterScalingRelations.ClusterScalingRelations">
+<em class="property">class </em><code class="descclassname">ClusterScalingRelations.</code><code class="descname">ClusterScalingRelations</code><a class="reference internal" href="_modules/ClusterScalingRelations.html#ClusterScalingRelations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ClusterScalingRelations.ClusterScalingRelations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>The class clusterScalingRelations is a wrapper to add cluster physics to the Multidark simulations results / outputs.</p>
+<dl class="docutils">
+<dt>Based on </dt>
+<dd><ul class="first last simple">
+<li>Mantz et al. 2010b</li>
+<li>Zandanel et al. 2014</li>
+</ul>
+</dd>
+<dt>To improve</dt>
+<dd><ul class="first last simple">
+<li>use M200c instead to be consistent with WL</li>
+<li>weak lensing, M500</li>
+<li>look at weighting the giant</li>
+<li>M200 mean in cosmo codes</li>
+<li>changing the slope as s function of mass</li>
+<li>add substructure</li>
+</ul>
+</dd>
+</dl>
+<dl class="class">
+<dt>
+<em class="property">class </em><code class="descclassname">ClusterScalingRelations.</code><code class="descname">ClusterScalingRelations</code><span class="sig-paren">(</span><em>Lbox=&lt;Quantity 2500.0 Mpc&gt;</em>, <em>boxDir='/home/comparat/data/MultiDark'</em>, <em>snl=[]</em>, <em>Hbox=&lt;Quantity 67.77 km / (Mpc s)&gt;</em>, <em>Melement=23593750000.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ClusterScalingRelations.html#ClusterScalingRelations"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Loads the environement to assign stellar masses to halos from dark matter only simulations, here MultiDark simulations.
+:param Lbox: length of the box in Mpc/h 
+:param wdir: Path to the multidark lightcone directory
+:param boxDir: box directory name
+:param snl: list of snapshots available
+:param zsl: list of redshift corresponding to the snapshots   
+:param zArray: redshift array to be considered to interpolate the redshift &#8211; distance conversion
+:param Hbox: Hubble constant at redshift 0 of the box
+:param Melement: Mass of the resolution element in solar masses.   
+:param columnDict: dictionnary to convert column name into the index to find it in the snapshots</p>
+<dl class="method">
+<dt id="ClusterScalingRelations.ClusterScalingRelations.get_Tci_K">
+<code class="descname">get_Tci_K</code><span class="sig-paren">(</span><em>Mh_500</em>, <em>z</em>, <em>h=0.7</em>, <em>h70=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ClusterScalingRelations.html#ClusterScalingRelations.get_Tci_K"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ClusterScalingRelations.ClusterScalingRelations.get_Tci_K" title="Permalink to this definition">¶</a></dt>
+<dd><p>Samples with a Gaussian the Tci &#8211; M500 scaling relation</p>
+<p>returns the temperature in Kelvin</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ClusterScalingRelations.ClusterScalingRelations.get_kbTci_keV">
+<code class="descname">get_kbTci_keV</code><span class="sig-paren">(</span><em>Mh_500</em>, <em>z</em>, <em>h=0.7</em>, <em>h70=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ClusterScalingRelations.html#ClusterScalingRelations.get_kbTci_keV"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ClusterScalingRelations.ClusterScalingRelations.get_kbTci_keV" title="Permalink to this definition">¶</a></dt>
+<dd><p>Samples with a Gaussian the Tci &#8211; M500 scaling relation</p>
+<p>returns the temperature in keV</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ClusterScalingRelations.ClusterScalingRelations.logLxbol">
+<code class="descname">logLxbol</code><span class="sig-paren">(</span><em>Mh_500</em>, <em>z</em>, <em>h70=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ClusterScalingRelations.html#ClusterScalingRelations.logLxbol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ClusterScalingRelations.ClusterScalingRelations.logLxbol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the bolometric X-ray luminosity for a halo of mass Mh_500
+Returns : the bolometrix X-ray luminosity in keV</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>Mh_500</strong> &#8211; halo mass array</li>
+<li><strong>z</strong> &#8211; redshift array</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ClusterScalingRelations.ClusterScalingRelations.logkbTci">
+<code class="descname">logkbTci</code><span class="sig-paren">(</span><em>Mh_500</em>, <em>z</em>, <em>h=0.7</em>, <em>h70=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ClusterScalingRelations.html#ClusterScalingRelations.logkbTci"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ClusterScalingRelations.ClusterScalingRelations.logkbTci" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the cluster temperature no centrally excised after Mantz et al. 2010b.</p>
+<p>Returns : log of the temperature in keV</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>Mh_500</strong> &#8211; halo mass array</li>
+<li><strong>z</strong> &#8211; redshift array</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 
@@ -56,11 +147,11 @@
       <div class="bottomnav" role="navigation" aria-label="bottom navigation">
       
         <p>
-        «&#160;&#160;<a href="XrayLuminosity.html">Library of functions add Xray luminosities to the Multidark simulations</a>
+        «&#160;&#160;<a href="XrayLuminosity.html">Xray luminosities scaling relations</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="StellarMass.html">Library of functions adds stellar masses to the Multidark simulations</a>&#160;&#160;»
+        <a href="StellarMass.html">Stellar mass to halo mass ratio</a>&#160;&#160;»
         </p>
 
       </div>

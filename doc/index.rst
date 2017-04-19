@@ -9,7 +9,7 @@ Acknowledgment
 ==============
 
 If you use this code as a ressource to produce a scientific result, please :
- * cite the paper Comparat et al. 2016 https://arxiv.org/abs/1605.02875
+ * cite the paper Comparat et al. 2017 https://arxiv.org/abs/1702.01628
  * and acknowledge the skies and universes database as follows : "The skies and universes database is hosted by the UAM/CSIC-IFT cloud and funded by the Spanish MICINNs Consolider-Ingenio 2010 Programme, the MultiDark CSD2009-00064 grant and the MINECO Centro de Excelencia Severo Ochoa Programme under the grants SEV-2012-0249, FPA2012-34694, and the projects AYA2014-60641-C2-1-P and AYA2012-31101."
 
 Install
@@ -17,7 +17,7 @@ Install
 
 requirements :
  - python 2.7.8 and its main packages all installable through pip: numpy, scipy, matplotlib, math ...
- - astro dependencies: astropy, pyneb. Both are also installable with pip
+ - astro dependencies: astropy, pyneb, icrar hmf package. All are also installable with pip
 
 git clone https://github.com/JohanComparat/nbody-npt-functions.git
 

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Library of functions add Xray luminosities to the Multidark simulations &mdash; pySU N-body n-point, pySU for N-body and n-point functions 1.0 documentation</title>
+    <title>Xray luminosities scaling relations &mdash; N-body n-point functions 1.0 documentation</title>
     
     <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -24,31 +24,119 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="pySU N-body n-point, pySU for N-body and n-point functions 1.0 documentation" href="index.html" />
-    <link rel="next" title="Library of functions to handle add cluster physics to the Multidark simulations" href="ClusterScalingRelations.html" />
-    <link rel="prev" title="Library of functions to handleone point functions" href="lib_functions_1pt.html" /> 
+    <link rel="top" title="N-body n-point functions 1.0 documentation" href="index.html" />
+    <link rel="next" title="Add cluster physics to the simulations" href="ClusterScalingRelations.html" />
+    <link rel="prev" title="Estimate one point functions in MultiDark" href="lib_functions_1pt.html" /> 
   </head>
   <body role="document">
       <div class="header" role="banner"><h1 class="heading"><a href="index.html">
-          <span>pySU N-body n-point, pySU for N-body and n-point functions 1.0 documentation</span></a></h1>
-        <h2 class="heading"><span>Library of functions add Xray luminosities to the Multidark simulations</span></h2>
+          <span>N-body n-point functions 1.0 documentation</span></a></h1>
+        <h2 class="heading"><span>Xray luminosities scaling relations</span></h2>
       </div>
       <div class="topnav" role="navigation" aria-label="top navigation">
       
         <p>
-        «&#160;&#160;<a href="lib_functions_1pt.html">Library of functions to handleone point functions</a>
+        «&#160;&#160;<a href="lib_functions_1pt.html">Estimate one point functions in MultiDark</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="ClusterScalingRelations.html">Library of functions to handle add cluster physics to the Multidark simulations</a>&#160;&#160;»
+        <a href="ClusterScalingRelations.html">Add cluster physics to the simulations</a>&#160;&#160;»
         </p>
 
       </div>
       <div class="content">
         
         
-  <div class="section" id="library-of-functions-add-xray-luminosities-to-the-multidark-simulations">
-<h1>Library of functions add Xray luminosities to the Multidark simulations<a class="headerlink" href="#library-of-functions-add-xray-luminosities-to-the-multidark-simulations" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-XrayLuminosity">
+<span id="xray-luminosities-scaling-relations"></span><h1>Xray luminosities scaling relations<a class="headerlink" href="#module-XrayLuminosity" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="XrayLuminosity.XrayLuminosity">
+<em class="property">class </em><code class="descclassname">XrayLuminosity.</code><code class="descname">XrayLuminosity</code><a class="reference internal" href="_modules/XrayLuminosity.html#XrayLuminosity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#XrayLuminosity.XrayLuminosity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>The class XrayLuminosity is a wrapper to add Xray luminosity to the Multidark simulations results / outputs.</p>
+<p>It adds Xray luminosity to simulations following the Bongiorno et al. 2016 model.</p>
+<p>See <a class="reference external" href="http://adsabs.harvard.edu/abs/2016A%26A...588A..78B">http://adsabs.harvard.edu/abs/2016A%26A...588A..78B</a>
+equations 7, 10, 11, 12</p>
+<dl class="class">
+<dt>
+<em class="property">class </em><code class="descclassname">XrayLuminosity.</code><code class="descname">XrayLuminosity</code><span class="sig-paren">(</span><em>Lbox=&lt;Quantity 2500.0 Mpc&gt;</em>, <em>boxDir='/home/comparat/data/MultiDark'</em>, <em>snl=[]</em>, <em>Hbox=&lt;Quantity 67.77 km / (Mpc s)&gt;</em>, <em>Melement=23593750000.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/XrayLuminosity.html#XrayLuminosity"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Loads the environement to assign stellar masses to halos from dark matter only simulations, here MultiDark simulations.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>Lbox</strong> &#8211; length of the box in Mpc/h</li>
+<li><strong>wdir</strong> &#8211; Path to the multidark lightcone directory</li>
+<li><strong>boxDir</strong> &#8211; box directory name</li>
+<li><strong>snl</strong> &#8211; list of snapshots available</li>
+<li><strong>zsl</strong> &#8211; list of redshift corresponding to the snapshots</li>
+<li><strong>zArray</strong> &#8211; redshift array to be considered to interpolate the redshift &#8211; distance conversion</li>
+<li><strong>Hbox</strong> &#8211; Hubble constant at redshift 0 of the box</li>
+<li><strong>Melement</strong> &#8211; Mass of the resolution element in solar masses.</li>
+<li><strong>columnDict</strong> &#8211; dictionnary to convert column name into the index to find it in the snapshots</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="XrayLuminosity.XrayLuminosity.fM">
+<code class="descname">fM</code><span class="sig-paren">(</span><em>logM</em>, <em>z</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/XrayLuminosity.html#XrayLuminosity.fM"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#XrayLuminosity.XrayLuminosity.fM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes stellar mass component of the model $f_*$ (equation 10)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>logM</strong> &#8211; stellar mass array</li>
+<li><strong>z</strong> &#8211; redshift array</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="XrayLuminosity.XrayLuminosity.fll">
+<code class="descname">fll</code><span class="sig-paren">(</span><em>logM</em>, <em>z</em>, <em>ll</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/XrayLuminosity.html#XrayLuminosity.fll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#XrayLuminosity.XrayLuminosity.fll" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the specific accretion rate component of the model $f_lambda$ (equation 11)
+:param logM: stellar mass
+:param z: redshift
+:param ll: log lambda SAR, specific accretion rate</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="XrayLuminosity.XrayLuminosity.fz">
+<code class="descname">fz</code><span class="sig-paren">(</span><em>z</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/XrayLuminosity.html#XrayLuminosity.fz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#XrayLuminosity.XrayLuminosity.fz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the redshift component of the model $f_z(z)$ (equation 12)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>z</strong> &#8211; redshift array</li>
+<li><strong>z0</strong> &#8211; redshift turn over</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="XrayLuminosity.XrayLuminosity.psi">
+<code class="descname">psi</code><span class="sig-paren">(</span><em>logM</em>, <em>z</em>, <em>ll</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/XrayLuminosity.html#XrayLuminosity.psi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#XrayLuminosity.XrayLuminosity.psi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the bivariate distribution function (equation 7)
+:param logM: stellar mass
+:param z: redshift
+:param ll: log lambda SAR, specific accretion rate</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 
@@ -56,11 +144,11 @@
       <div class="bottomnav" role="navigation" aria-label="bottom navigation">
       
         <p>
-        «&#160;&#160;<a href="lib_functions_1pt.html">Library of functions to handleone point functions</a>
+        «&#160;&#160;<a href="lib_functions_1pt.html">Estimate one point functions in MultiDark</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="ClusterScalingRelations.html">Library of functions to handle add cluster physics to the Multidark simulations</a>&#160;&#160;»
+        <a href="ClusterScalingRelations.html">Add cluster physics to the simulations</a>&#160;&#160;»
         </p>
 
       </div>

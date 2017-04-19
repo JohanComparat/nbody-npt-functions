@@ -1,5 +1,5 @@
-Library of functions to handle Multidark simulations
-#######################################################
+handling Multidark simulations
+##############################
 
 This class handles the MultiDark data
 

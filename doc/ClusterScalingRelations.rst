@@ -1,5 +1,5 @@
-Library of functions to handle add cluster physics to the Multidark simulations
-###############################################################################
+Add cluster physics to the simulations
+######################################
 
 .. automodule:: ClusterScalingRelations
    :members:

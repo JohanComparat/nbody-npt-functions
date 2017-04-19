@@ -1,0 +1,162 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>StellarMass &mdash; N-body n-point functions 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="N-body n-point functions 1.0 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" /> 
+  </head>
+  <body role="document">
+      <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
+          <span>N-body n-point functions 1.0 documentation</span></a></h1>
+        <h2 class="heading"><span>StellarMass</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="top navigation">
+      
+        <p>
+        <a class="uplink" href="../index.html">Contents</a>
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <h1>Source code for StellarMass</h1><div class="highlight"><pre>
+<span></span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">.. class:: MultiDark</span>
+
+<span class="sd">.. moduleauthor:: Johan Comparat &lt;johan.comparat__at__gmail.com&gt;</span>
+
+<span class="sd">The class MultiDark is a wrapper to handle Multidark simulations results / outputs.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">lognorm</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span>
+<span class="kn">import</span> <span class="nn">cPickle</span>
+<span class="kn">import</span> <span class="nn">fileinput</span>
+<span class="kn">import</span> <span class="nn">astropy.io.fits</span> <span class="kn">as</span> <span class="nn">fits</span>
+<span class="kn">import</span> <span class="nn">astropy.cosmology</span> <span class="kn">as</span> <span class="nn">co</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
+<span class="n">c2</span> <span class="o">=</span> <span class="n">co</span><span class="o">.</span><span class="n">Planck13</span>
+<span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">interp1d</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">join</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">uu</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">n</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">scipy.spatial.ckdtree</span> <span class="kn">as</span> <span class="nn">t</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<div class="viewcode-block" id="StellarMass"><a class="viewcode-back" href="../StellarMass.html#StellarMass.StellarMass">[docs]</a><span class="k">class</span> <span class="nc">StellarMass</span><span class="p">()</span> <span class="p">:</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	Loads the environement to assign stellar masses to halos from dark matter only simulations, here MultiDark simulations.</span>
+<span class="sd">	:param Lbox: length of the box in Mpc/h </span>
+<span class="sd">	:param wdir: Path to the multidark lightcone directory</span>
+<span class="sd">	:param boxDir: box directory name</span>
+<span class="sd">	:param snl: list of snapshots available</span>
+<span class="sd">	:param zsl: list of redshift corresponding to the snapshots   </span>
+<span class="sd">	:param zArray: redshift array to be considered to interpolate the redshift -- distance conversion</span>
+<span class="sd">	:param Hbox: Hubble constant at redshift 0 of the box</span>
+<span class="sd">	:param Melement: Mass of the resolution element in solar masses.   </span>
+<span class="sd">	:param columnDict: dictionnary to convert column name into the index to find it in the snapshots</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+
+	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">Lbox</span><span class="o">=</span><span class="mf">2500.0</span> <span class="o">*</span> <span class="n">uu</span><span class="o">.</span><span class="n">Mpc</span><span class="p">,</span> <span class="n">boxDir</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;MD04&#39;</span><span class="p">],</span> <span class="n">snl</span><span class="o">=</span><span class="p">[],</span> <span class="n">Hbox</span> <span class="o">=</span> <span class="mf">67.77</span> <span class="o">*</span> <span class="n">uu</span><span class="o">.</span><span class="n">km</span> <span class="o">/</span> <span class="p">(</span><span class="n">uu</span><span class="o">.</span><span class="n">s</span> <span class="o">*</span> <span class="n">uu</span><span class="o">.</span><span class="n">Mpc</span><span class="p">),</span> <span class="n">Melement</span> <span class="o">=</span> <span class="mf">23593750000.0</span> <span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">Lbox</span> <span class="o">=</span> <span class="n">Lbox</span> <span class="c1"># box length</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">Hbox</span> <span class="o">=</span> <span class="n">Hbox</span> <span class="c1"># Hubble constant at redshift 0 in the box</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">boxDir</span> <span class="o">=</span> <span class="n">boxDir</span> <span class="c1"># directory of the box where the snapshots a stored</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">snl</span> <span class="o">=</span> <span class="n">snl</span> <span class="c1"># snapshot list, path to files</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">Melement</span> <span class="o">=</span> <span class="n">Melement</span> <span class="c1"># mass of one particle in the box</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">h</span> <span class="o">=</span> <span class="mf">0.6777</span>
+		<span class="c1"># parameters used to run the simulation</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">omega_lambda</span> <span class="o">=</span> <span class="mf">0.692885</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">omega_matter</span> <span class="o">=</span> <span class="mf">0.307115</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">omega_baryon</span> <span class="o">=</span> <span class="mf">0.048206</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">ns</span> <span class="o">=</span> <span class="mf">0.96</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">sigma8</span> <span class="o">=</span> <span class="mf">0.8228</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">G</span> <span class="o">=</span> <span class="mf">6.67428</span> <span class="o">*</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mi">9</span><span class="p">)</span> <span class="c1"># cm3 g-1 s-2</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">Msun</span> <span class="o">=</span> <span class="mf">1.98892</span> <span class="o">*</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="mf">33.</span><span class="p">)</span> <span class="c1"># g</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">Npart</span> <span class="o">=</span> <span class="mi">3840</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">force_resolution</span> <span class="o">=</span> <span class="mf">5.</span> <span class="c1"># kpc /h</span>
+	
+<div class="viewcode-block" id="StellarMass.SMHMr"><a class="viewcode-back" href="../StellarMass.html#StellarMass.StellarMass.SMHMr">[docs]</a>	<span class="k">def</span> <span class="nf">SMHMr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Mh</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Computes the mu star parameter for a halo mass according to the Moster et al. 2013 equations</span>
+<span class="sd">		</span>
+<span class="sd">		Returns :</span>
+<span class="sd">		</span>
+<span class="sd">		$\mu_* = 2\left(0.0351 - 0.0247 \frac{z}{1+z}\right)\left(\left[\left(\frac{10^{11.59 + 1.195 \frac{z}{1+z}}}{M_h}\right)^{1.376 - 0.826 \frac{z}{1+z}} + \left(\frac{M_h}{10^{11.59 + 1.195 \frac{z}{1+z}}} \right)^{0.608 + 0.329 \frac{z}{1+z}}  \right]^{-1}\right)- 0.0225$</span>
+<span class="sd">		</span>
+<span class="sd">		</span>
+<span class="sd">		:param Mh: halo mass array</span>
+<span class="sd">		:param z: redshift array</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">aexp</span> <span class="o">=</span> <span class="n">z</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="n">z</span><span class="p">)</span>
+		<span class="k">return</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span> <span class="mf">0.0351</span> <span class="o">-</span> <span class="mf">0.0247</span> <span class="o">*</span> <span class="n">aexp</span><span class="p">)</span> <span class="o">/</span> <span class="p">((</span><span class="n">Mh</span><span class="o">/</span> <span class="p">(</span><span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="mf">11.59</span> <span class="o">+</span> <span class="mf">1.195</span> <span class="o">*</span> <span class="n">aexp</span><span class="p">))</span> <span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="o">-</span> <span class="mf">1.376</span> <span class="o">+</span> <span class="mf">0.826</span> <span class="o">*</span> <span class="n">aexp</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span> <span class="n">Mh</span> <span class="o">/</span><span class="p">(</span><span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="mf">11.59</span> <span class="o">+</span> <span class="mf">1.195</span> <span class="o">*</span> <span class="n">aexp</span><span class="p">))</span> <span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mf">0.608</span> <span class="o">+</span> <span class="mf">0.329</span> <span class="o">*</span><span class="n">aexp</span><span class="p">)</span> <span class="p">)</span> <span class="c1">#- 0.0225</span></div>
+
+<div class="viewcode-block" id="StellarMass.meanSM"><a class="viewcode-back" href="../StellarMass.html#StellarMass.StellarMass.meanSM">[docs]</a>	<span class="k">def</span> <span class="nf">meanSM</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Mh</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Computes the mu star parameter for a halo mass according to the Moster et al. 2013 equations</span>
+<span class="sd">		</span>
+<span class="sd">		Returns :</span>
+<span class="sd">		</span>
+<span class="sd">		$\mu_* = 2\left(0.0351 - 0.0247 \frac{z}{1+z}\right)\left(\left[\left(\frac{10^{11.59 + 1.195 \frac{z}{1+z}}}{M_h}\right)^{1.376 - 0.826 \frac{z}{1+z}} + \left(\frac{M_h}{10^{11.59 + 1.195 \frac{z}{1+z}}} \right)^{0.608 + 0.329 \frac{z}{1+z}}  \right]^{-1}\right)- 0.0225$</span>
+<span class="sd">		</span>
+<span class="sd">		</span>
+<span class="sd">		:param Mh: halo mass array</span>
+<span class="sd">		:param z: redshift array</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">aexp</span> <span class="o">=</span> <span class="n">z</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="n">z</span><span class="p">)</span>
+		<span class="k">return</span> <span class="n">n</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">Mh</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span> <span class="mf">0.0351</span> <span class="o">-</span> <span class="mf">0.0247</span> <span class="o">*</span> <span class="n">aexp</span><span class="p">)</span> <span class="o">/</span> <span class="p">((</span><span class="n">Mh</span><span class="o">/</span> <span class="p">(</span><span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="mf">11.59</span> <span class="o">+</span> <span class="mf">1.195</span> <span class="o">*</span> <span class="n">aexp</span><span class="p">))</span> <span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="o">-</span> <span class="mf">1.376</span> <span class="o">+</span> <span class="mf">0.826</span> <span class="o">*</span> <span class="n">aexp</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span> <span class="n">Mh</span> <span class="o">/</span><span class="p">(</span><span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="mf">11.59</span> <span class="o">+</span> <span class="mf">1.195</span> <span class="o">*</span> <span class="n">aexp</span><span class="p">))</span> <span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mf">0.608</span> <span class="o">+</span> <span class="mf">0.329</span> <span class="o">*</span><span class="n">aexp</span><span class="p">)</span> <span class="p">))</span> <span class="c1">#- 0.0225</span></div>
+	
+<div class="viewcode-block" id="StellarMass.sample_Ms"><a class="viewcode-back" href="../StellarMass.html#StellarMass.StellarMass.sample_Ms">[docs]</a>	<span class="k">def</span> <span class="nf">sample_Ms</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">Mh</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">scatter</span> <span class="o">=</span> <span class="mf">0.15</span> <span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Draws a stellar mass from a lognormal distribution centered on mu_star with witdth sigma_star</span>
+<span class="sd">		</span>
+<span class="sd">		:param Mh: halo mass</span>
+<span class="sd">		:param z: redshift</span>
+<span class="sd">		:param scatter: scatter in the stellar mass to halo mass relation</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="n">norm</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span> <span class="n">loc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">meanSM</span><span class="p">(</span><span class="n">Mh</span><span class="p">,</span> <span class="n">z</span><span class="p">),</span> <span class="n">scale</span> <span class="o">=</span> <span class="n">scatter</span> <span class="p">)</span></div></div>
+		
+	      
+	      
+</pre></div>
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      
+        <p>
+        <a class="uplink" href="../index.html">Contents</a>
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, johan comparat.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.6.
+    </div>
+  </body>
+</html>

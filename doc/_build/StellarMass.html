@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Library of functions adds stellar masses to the Multidark simulations &mdash; pySU N-body n-point, pySU for N-body and n-point functions 1.0 documentation</title>
+    <title>Stellar mass to halo mass ratio &mdash; N-body n-point functions 1.0 documentation</title>
     
     <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -24,18 +24,18 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="pySU N-body n-point, pySU for N-body and n-point functions 1.0 documentation" href="index.html" />
-    <link rel="prev" title="Library of functions to handle add cluster physics to the Multidark simulations" href="ClusterScalingRelations.html" /> 
+    <link rel="top" title="N-body n-point functions 1.0 documentation" href="index.html" />
+    <link rel="prev" title="Add cluster physics to the simulations" href="ClusterScalingRelations.html" /> 
   </head>
   <body role="document">
       <div class="header" role="banner"><h1 class="heading"><a href="index.html">
-          <span>pySU N-body n-point, pySU for N-body and n-point functions 1.0 documentation</span></a></h1>
-        <h2 class="heading"><span>Library of functions adds stellar masses to the Multidark simulations</span></h2>
+          <span>N-body n-point functions 1.0 documentation</span></a></h1>
+        <h2 class="heading"><span>Stellar mass to halo mass ratio</span></h2>
       </div>
       <div class="topnav" role="navigation" aria-label="top navigation">
       
         <p>
-        «&#160;&#160;<a href="ClusterScalingRelations.html">Library of functions to handle add cluster physics to the Multidark simulations</a>
+        «&#160;&#160;<a href="ClusterScalingRelations.html">Add cluster physics to the simulations</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="index.html">Contents</a>
         </p>
@@ -44,8 +44,116 @@
       <div class="content">
         
         
-  <div class="section" id="library-of-functions-adds-stellar-masses-to-the-multidark-simulations">
-<h1>Library of functions adds stellar masses to the Multidark simulations<a class="headerlink" href="#library-of-functions-adds-stellar-masses-to-the-multidark-simulations" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-StellarMass">
+<span id="stellar-mass-to-halo-mass-ratio"></span><h1>Stellar mass to halo mass ratio<a class="headerlink" href="#module-StellarMass" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="StellarMass.MultiDark">
+<em class="property">class </em><code class="descclassname">StellarMass.</code><code class="descname">MultiDark</code><a class="headerlink" href="#StellarMass.MultiDark" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>The class MultiDark is a wrapper to handle Multidark simulations results / outputs.</p>
+<dl class="class">
+<dt id="StellarMass.StellarMass">
+<em class="property">class </em><code class="descclassname">StellarMass.</code><code class="descname">StellarMass</code><span class="sig-paren">(</span><em>Lbox=&lt;Quantity 2500.0 Mpc&gt;</em>, <em>boxDir='/home/comparat/data/MultiDark'</em>, <em>snl=[]</em>, <em>Hbox=&lt;Quantity 67.77 km / (Mpc s)&gt;</em>, <em>Melement=23593750000.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/StellarMass.html#StellarMass"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#StellarMass.StellarMass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads the environement to assign stellar masses to halos from dark matter only simulations, here MultiDark simulations.
+:param Lbox: length of the box in Mpc/h 
+:param wdir: Path to the multidark lightcone directory
+:param boxDir: box directory name
+:param snl: list of snapshots available
+:param zsl: list of redshift corresponding to the snapshots   
+:param zArray: redshift array to be considered to interpolate the redshift &#8211; distance conversion
+:param Hbox: Hubble constant at redshift 0 of the box
+:param Melement: Mass of the resolution element in solar masses.   
+:param columnDict: dictionnary to convert column name into the index to find it in the snapshots</p>
+<dl class="method">
+<dt id="StellarMass.StellarMass.SMHMr">
+<code class="descname">SMHMr</code><span class="sig-paren">(</span><em>Mh</em>, <em>z</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/StellarMass.html#StellarMass.SMHMr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#StellarMass.StellarMass.SMHMr" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Computes the mu star parameter for a halo mass according to the Moster et al. 2013 equations</p>
+<p>Returns :</p>
+<p>$mu_* = 2left(0.0351 - 0.0247</p>
+</div></blockquote>
+<p>rac{z}{1+z}
+ight)left(left[left(
+rac{10^{11.59 + 1.195 
+rac{z}{1+z}}}{M_h}
+ight)^{1.376 - 0.826 
+rac{z}{1+z}} + left(
+rac{M_h}{10^{11.59 + 1.195 
+rac{z}{1+z}}} 
+ight)^{0.608 + 0.329 
+rac{z}{1+z}}  
+ight]^{-1}
+ight)- 0.0225$</p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param Mh:</th><td class="field-body">halo mass array</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param z:</th><td class="field-body">redshift array</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="StellarMass.StellarMass.meanSM">
+<code class="descname">meanSM</code><span class="sig-paren">(</span><em>Mh</em>, <em>z</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/StellarMass.html#StellarMass.meanSM"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#StellarMass.StellarMass.meanSM" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Computes the mu star parameter for a halo mass according to the Moster et al. 2013 equations</p>
+<p>Returns :</p>
+<p>$mu_* = 2left(0.0351 - 0.0247</p>
+</div></blockquote>
+<p>rac{z}{1+z}
+ight)left(left[left(
+rac{10^{11.59 + 1.195 
+rac{z}{1+z}}}{M_h}
+ight)^{1.376 - 0.826 
+rac{z}{1+z}} + left(
+rac{M_h}{10^{11.59 + 1.195 
+rac{z}{1+z}}} 
+ight)^{0.608 + 0.329 
+rac{z}{1+z}}  
+ight]^{-1}
+ight)- 0.0225$</p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param Mh:</th><td class="field-body">halo mass array</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param z:</th><td class="field-body">redshift array</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="StellarMass.StellarMass.sample_Ms">
+<code class="descname">sample_Ms</code><span class="sig-paren">(</span><em>Mh</em>, <em>z</em>, <em>scatter=0.15</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/StellarMass.html#StellarMass.sample_Ms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#StellarMass.StellarMass.sample_Ms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draws a stellar mass from a lognormal distribution centered on mu_star with witdth sigma_star</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>Mh</strong> &#8211; halo mass</li>
+<li><strong>z</strong> &#8211; redshift</li>
+<li><strong>scatter</strong> &#8211; scatter in the stellar mass to halo mass relation</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 
@@ -53,7 +161,7 @@
       <div class="bottomnav" role="navigation" aria-label="bottom navigation">
       
         <p>
-        «&#160;&#160;<a href="ClusterScalingRelations.html">Library of functions to handle add cluster physics to the Multidark simulations</a>
+        «&#160;&#160;<a href="ClusterScalingRelations.html">Add cluster physics to the simulations</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="index.html">Contents</a>
         </p>
