@@ -1,10 +1,10 @@
 
 """
-.. class:: MultiDark
+.. class:: XrayLuminosity
 
 .. moduleauthor:: Johan Comparat <johan.comparat__at__gmail.com>
 
-The class MultiDark is a wrapper to handle Multidark simulations results / outputs.
+The class XrayLuminosity is a wrapper to add Xray luminosity to the Multidark simulations results / outputs.
 
 It adds Xray luminosity to simulations following the Bongiorno et al. 2016 model.
 
@@ -34,6 +34,7 @@ import time
 class XrayLuminosity() :
 	"""
 	Loads the environement to assign stellar masses to halos from dark matter only simulations, here MultiDark simulations.
+	
 	:param Lbox: length of the box in Mpc/h 
 	:param wdir: Path to the multidark lightcone directory
 	:param boxDir: box directory name

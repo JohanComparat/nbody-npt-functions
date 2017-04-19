@@ -10,5 +10,7 @@ export PYTHONPATH=$PYTHONPATH:/path_to/pySU/targetselection/python/
 export DATA_DIR='/path_to_data/’
 export PYSU_DIR='/path_to/pySU/'
 
+export GIT_NBODY_NPT='/data17s/darksim/software/nbody-npt-functions'
+
 export PYTHONPATH=$PYTHONPATH:/users/username/.local/
 
