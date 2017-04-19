@@ -16,7 +16,7 @@ import sys
 print " set up box, and redshift "
 aexp = 0.74230
 z = 1./0.74230 -1.
-fileList = n.array(glob.glob(os.path.join(os.environ['MD04'], "snapshots", "hlist_" + str(aexp) + "_SAM_Nb_*.fits" )))
+fileList = n.array(glob.glob(os.path.join(os.environ['MD04'], "snapshots", "hlist_*_SAM_Nb_*.fits" )))
 fileList.sort()
 print fileList
 # set up the stellar mass computation
