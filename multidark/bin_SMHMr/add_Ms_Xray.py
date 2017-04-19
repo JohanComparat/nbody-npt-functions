@@ -83,8 +83,8 @@ def create_catalogs(aexp = 0.74230, env='MD04' ):
 		thdulist.writeto(outFile)
 		print time.time()-t0
 
-#create_catalogs(aexp = 0.74230, fileList = n.array(glob.glob(os.path.join(os.environ['MD04'], "snapshots", "hlist_*_SAM_Nb_*.fits" ))))
-create_catalogs(aexp = 0.74980, fileList = n.array(glob.glob(os.path.join(os.environ['MD10'], "snapshots", "hlist_*_SAM_Nb_*.fits" ))))
-create_catalogs(aexp = 0.75440, fileList = n.array(glob.glob(os.path.join(os.environ['MD25'], "snapshots", "hlist_*_SAM_Nb_*.fits" ))))
+#create_catalogs(aexp = 0.74230, env='MD04')
+create_catalogs(aexp = 0.74980, env='MD10')
+create_catalogs(aexp = 0.75440, env='MD25')
 
 
