@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Library of functions to handle Multidark simulations &#8212; pySU N-body n-point, pySU for N-body and n-point functions 1.0 documentation</title>
+    <title>Library of functions to handle Multidark simulations &mdash; pySU N-body n-point, pySU for N-body and n-point functions 1.0 documentation</title>
     
     <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -17,16 +17,14 @@
         VERSION:     '1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
+        HAS_SOURCE:  true
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="pySU N-body n-point, pySU for N-body and n-point functions 1.0 documentation" href="index.html" />
     <link rel="next" title="Library of functions to handle Multidark Lightcone Creation" href="LightconeCreation.html" />
     <link rel="prev" title="Welcome to Nbody n-point function documentation" href="index.html" /> 
   </head>
@@ -211,6 +209,16 @@ Resamples the box in smaller boxes of length Ljk in Mpc/h
 :param NperBatch: number of line per fits file, default: 1000000</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="MultiDark.MultiDarkSimulation.writeSAMcatalog">
+<code class="descname">writeSAMcatalog</code><span class="sig-paren">(</span><em>ii</em>, <em>mmin=100000000</em>, <em>NperBatch=2000000</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/MultiDark.html#MultiDarkSimulation.writeSAMcatalog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#MultiDark.MultiDarkSimulation.writeSAMcatalog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extracts the positions and mass out of a snapshot of the Multidark simulation.        
+:param ii: index of the snapshot in the list self.snl
+:param vmin: name of the quantity of interest, mass, velocity.
+:param vmax: of the quantity of interest in the snapshots.
+:param NperBatch: number of line per fits file, default: 1000000</p>
+</dd></dl>
+
 </dd></dl>
 
 </div>
@@ -230,8 +238,8 @@ Resamples the box in smaller boxes of length Ljk in Mpc/h
       </div>
 
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2016, johan comparat.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.1.
+        &copy; Copyright 2016, johan comparat.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.6.
     </div>
   </body>
 </html>
