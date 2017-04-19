@@ -102,7 +102,7 @@ class XrayLuminosity() :
 		#g2 = -3.72
 		return ( ((ll_val)/(ll0))**(g1z) + ((ll_val)/(ll0))**(3.72) )**(-1.)
 		
-	def psi(self, logM, z, ll):
+	def psi(self, ll, logM, z):
 		"""
 		Computes the bivariate distribution function (equation 7)
 		:param logM: stellar mass

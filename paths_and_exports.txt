@@ -11,6 +11,7 @@ export DATA_DIR='/path_to_data/’
 export PYSU_DIR='/path_to/pySU/'
 
 export GIT_NBODY_NPT='/data17s/darksim/software/nbody-npt-functions'
+export GIT_MD='/data17s/darksim/software/nbody-npt-functions/multidark'
 
 export PYTHONPATH=$PYTHONPATH:/users/username/.local/
 
