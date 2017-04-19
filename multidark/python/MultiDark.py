@@ -57,8 +57,10 @@ class MultiDarkSimulation :
 		self.Npart = 3840
 		self.force_resolution = 5. # kpc /h
 		self.columnDict = {'id': 0, 'desc_id': 1, 'mvir': 2, 'vmax': 3, 'vrms': 4, 'rvir': 5, 'rs': 6, 'Np': 7, 'x': 8, 'y': 9, 'z': 10, 'vx': 11, 'vy': 12, 'vz': 13, 'Jx': 14, 'Jy': 15, 'Jz': 16, 'Spin':17, 'Rs_Klypin': 18, 'Mmvir_all': 19, 'M200b': 20, 'M200c': 21, 'M500c': 22, 'M2500c': 23, 'Xoff': 24, 'Voff': 25, 'Spin_Bullock': 26, 'b_to_a': 27, 'c_to_a': 28, 'Ax': 29, 'Ay': 30, 'Az': 31, 'b_to_a_500c': 32, 'c_to_a_500c': 33, 'Ax_500c': 34, 'Ay_500c': 35, 'Az_500c': 36, 'TU': 37, 'M_pe_Behroozi': 38, 'M_pe_Diemer': 39, 'pid': 40}
-		#self.columnDict = {'scale': 0, 'id': 1, 'desc_scale': 2, 'desc_id': 3, 'num_prog': 4, 'pid': 5, 'upid': 6, 'desc_pid': 7, 'phantom': 8, 'sam_mvir': 9, 'mvir': 10, 'rvir': 11, 'rs': 12, 'vrms': 13, 'mmp?': 14, 'scale_of_last_MM': 15, 'vmax': 16, 'x': 17, 'y': 18, 'z': 19, 'vx': 20, 'vy': 21, 'vz': 22, 'Jx': 23, 'Jy': 24, 'Jz': 25, 'Spin': 26, 'Breadth_first_ID': 27, 'Depth_first_ID': 28, 'Tree_root_ID': 29, 'Orig_halo_ID': 30, 'Snap_num': 31, 'Next_coprogenitor_depthfirst_ID': 32, 'Last_progenitor_depthfirst_ID': 33, 'Last_mainleaf_depthfirst_ID': 34, 'Rs_Klypin': 35, 'Mmvir_all': 36, 'M200b': 37, 'M200c': 38, 'M500c': 39, 'M2500c': 40, 'Xoff': 41, 'Voff': 42, 'Spin_Bullock': 43, 'b_to_a': 44, 'c_to_a': 45, 'Ax': 46, 'Ay': 47, 'Az': 48, 'b_to_a500c': 49, 'c_to_a500c': 50, 'Ax500c': 51, 'Ay500c': 52, 'Az500c': 53, 'TU': 54, 'M_pe_Behroozi': 55, 'M_pe_Diemer': 56, 'Macc': 57, 'Mpeak': 58, 'Vacc': 59, 'Vpeak': 60, 'Halfmass_Scale': 61, 'Acc_Rate_Inst': 62, 'Acc_Rate_100Myr': 63, 'Acc_Rate_1Tdyn': 64, 'Acc_Rate_2Tdyn': 65, 'Acc_Rate_Mpeak': 66, 'Mpeak_Scale': 67, 'Acc_Scale': 68, 'First_Acc_Scale': 69, 'First_Acc_Mvir': 70, 'First_Acc_Vmax': 71, 'VmaxAtMpeak': 72}
-		#self.columnDict = {'scale': 0, 'id': 1, 'desc_scale': 2, 'desc_id': 3, 'num_prog': 4, 'pid': 5, 'upid': 6, 'desc_pid': 7, 'phantom': 8, 'sam_mvir': 9, 'mvir': 10, 'rvir': 11, 'rs': 12, 'vrms': 13, 'mmp?': 14, 'scale_of_last_MM': 15, 'vmax': 16, 'x': 17, 'y': 18, 'z': 19, 'vx': 20, 'vy': 21, 'vz': 22, 'Jx': 23, 'Jy': 24, 'Jz': 25, 'Spin': 26, 'Breadth_first_ID': 27, 'Depth_first_ID': 28, 'Tree_root_ID': 29, 'Orig_halo_ID': 30, 'Snap_num': 31, 'Next_coprogenitor_depthfirst_ID': 32, 'Last_progenitor_depthfirst_ID': 33, 'Last_mainleaf_depthfirst_ID': 34, 'Tidal_Force': 35, 'Tidal_ID': 36, 'Rs_Klypin': 37, 'Mmvir_all': 38, 'M200b': 39, 'M200c': 40, 'M500c': 41, 'M2500c': 42, 'Xoff': 43, 'Voff': 44, 'Spin_Bullock': 45, 'b_to_a': 46, 'c_to_a': 47, 'Ax': 48, 'Ay': 49, 'Az': 50, 'b_to_a500c' : 51, 'c_to_a500c' : 52, 'Ax500c' : 53, 'Ay500c' : 54, 'Az500c' : 55, 'TU': 56, 'M_pe_Behroozi': 57, 'M_pe_Diemer': 58, 'Macc': 59, 'Mpeak': 60, 'Vacc': 61, 'Vpeak': 62, 'Halfmass_Scale': 63, 'Acc_Rate_Inst': 64, 'Acc_Rate_100Myr': 65, 'Acc_Rate_1Tdyn': 66, 'Acc_Rate_2Tdyn': 67, 'Acc_Rate_Mpeak': 68, 'Mpeak_Scale': 69, 'Acc_Scale': 70, 'First_Acc_Scale': 71, 'First_Acc_Mvir': 72, 'First_Acc_Vmax': 73, 'VmaxAtMpeak': 74, 'Tidal_Force_Tdyn': 75 }
+		#self.columnDictHlist = {'scale': 0, 'id': 1, 'desc_scale': 2, 'desc_id': 3, 'num_prog': 4, 'pid': 5, 'upid': 6, 'desc_pid': 7, 'phantom': 8, 'sam_mvir': 9, 'mvir': 10, 'rvir': 11, 'rs': 12, 'vrms': 13, 'mmp?': 14, 'scale_of_last_MM': 15, 'vmax': 16, 'x': 17, 'y': 18, 'z': 19, 'vx': 20, 'vy': 21, 'vz': 22, 'Jx': 23, 'Jy': 24, 'Jz': 25, 'Spin': 26, 'Breadth_first_ID': 27, 'Depth_first_ID': 28, 'Tree_root_ID': 29, 'Orig_halo_ID': 30, 'Snap_num': 31, 'Next_coprogenitor_depthfirst_ID': 32, 'Last_progenitor_depthfirst_ID': 33, 'Last_mainleaf_depthfirst_ID': 34, 'Rs_Klypin': 35, 'Mmvir_all': 36, 'M200b': 37, 'M200c': 38, 'M500c': 39, 'M2500c': 40, 'Xoff': 41, 'Voff': 42, 'Spin_Bullock': 43, 'b_to_a': 44, 'c_to_a': 45, 'Ax': 46, 'Ay': 47, 'Az': 48, 'b_to_a500c': 49, 'c_to_a500c': 50, 'Ax500c': 51, 'Ay500c': 52, 'Az500c': 53, 'TU': 54, 'M_pe_Behroozi': 55, 'M_pe_Diemer': 56, 'Macc': 57, 'Mpeak': 58, 'Vacc': 59, 'Vpeak': 60, 'Halfmass_Scale': 61, 'Acc_Rate_Inst': 62, 'Acc_Rate_100Myr': 63, 'Acc_Rate_1Tdyn': 64, 'Acc_Rate_2Tdyn': 65, 'Acc_Rate_Mpeak': 66, 'Mpeak_Scale': 67, 'Acc_Scale': 68, 'First_Acc_Scale': 69, 'First_Acc_Mvir': 70, 'First_Acc_Vmax': 71, 'VmaxAtMpeak': 72}
+		self.columnDictHlist = {'scale': 0, 'id': 1, 'desc_scale': 2, 'desc_id': 3, 'num_prog': 4, 'pid': 5, 'upid': 6, 'desc_pid': 7, 'phantom': 8, 'sam_mvir': 9, 'mvir': 10, 'rvir': 11, 'rs': 12, 'vrms': 13, 'mmp?': 14, 'scale_of_last_MM': 15, 'vmax': 16, 'x': 17, 'y': 18, 'z': 19, 'vx': 20, 'vy': 21, 'vz': 22, 'Jx': 23, 'Jy': 24, 'Jz': 25, 'Spin': 26, 'Breadth_first_ID': 27, 'Depth_first_ID': 28, 'Tree_root_ID': 29, 'Orig_halo_ID': 30, 'Snap_num': 31, 'Next_coprogenitor_depthfirst_ID': 32, 'Last_progenitor_depthfirst_ID': 33, 'Last_mainleaf_depthfirst_ID': 34, 'Tidal_Force': 35, 'Tidal_ID': 36, 'Rs_Klypin': 37, 'Mmvir_all': 38, 'M200b': 39, 'M200c': 40, 'M500c': 41, 'M2500c': 42, 'Xoff': 43, 'Voff': 44, 'Spin_Bullock': 45, 'b_to_a': 46, 'c_to_a': 47, 'Ax': 48, 'Ay': 49, 'Az': 50, 'b_to_a_500c' : 51, 'c_to_a_500c' : 52, 'Ax_500c' : 53, 'Ay_500c' : 54, 'Az_500c' : 55, 'TU': 56, 'M_pe_Behroozi': 57, 'M_pe_Diemer': 58, 'Macc': 59, 'Mpeak': 60, 'Vacc': 61, 'Vpeak': 62, 'Halfmass_Scale': 63, 'Acc_Rate_Inst': 64, 'Acc_Rate_100Myr': 65, 'Acc_Rate_1Tdyn': 66, 'Acc_Rate_2Tdyn': 67, 'Acc_Rate_Mpeak': 68, 'Mpeak_Scale': 69, 'Acc_Scale': 70, 'First_Acc_Scale': 71, 'First_Acc_Mvir': 72, 'First_Acc_Vmax': 73, 'VmaxAtMpeak': 74, 'Tidal_Force_Tdyn': 75, 'logVmaxVmaxmaxTdynTmpeak': 76, 'Time_to_future_merger': 77, 'Future_merger_MMP_ID': 78 }
+		
+		self.columnDictHlist25 = {'scale': 0, 'id': 1, 'desc_scale': 2, 'desc_id': 3, 'num_prog': 4, 'pid': 5, 'upid': 6, 'desc_pid': 7, 'phantom': 8, 'sam_mvir': 9, 'mvir': 10, 'rvir': 11, 'rs': 12, 'vrms': 13, 'mmp?': 14, 'scale_of_last_MM': 15, 'vmax': 16, 'x': 17, 'y': 18, 'z': 19, 'vx': 20, 'vy': 21, 'vz': 22, 'Jx': 23, 'Jy': 24, 'Jz': 25, 'Spin': 26, 'Breadth_first_ID': 27, 'Depth_first_ID': 28, 'Tree_root_ID': 29, 'Orig_halo_ID': 30, 'Snap_num': 31, 'Next_coprogenitor_depthfirst_ID': 32, 'Last_progenitor_depthfirst_ID': 33, 'Last_mainleaf_depthfirst_ID': 34, 'Rs_Klypin': 35, 'Mmvir_all': 36, 'M200b': 37, 'M200c': 38, 'M500c': 39, 'M2500c': 40, 'Xoff': 41, 'Voff': 42, 'Spin_Bullock': 43, 'b_to_a': 44, 'c_to_a': 45, 'Ax': 46, 'Ay': 47, 'Az': 48, 'b_to_a_500c' : 49, 'c_to_a_500c' : 50, 'Ax_500c' : 51, 'Ay_500c' : 52, 'Az_500c' : 53, 'TU': 54, 'M_pe_Behroozi': 55, 'M_pe_Diemer': 56, 'Halfmass_Radius': 57, 'Macc': 58, 'Mpeak': 59, 'Vacc': 60, 'Vpeak': 61, 'Halfmass_Scale': 62, 'Acc_Rate_Inst': 63, 'Acc_Rate_100Myr': 64, 'Acc_Rate_1Tdyn': 65, 'Acc_Rate_2Tdyn': 66, 'Acc_Rate_Mpeak': 67, 'Mpeak_Scale': 68, 'Acc_Scale': 69, 'First_Acc_Scale': 70, 'First_Acc_Mvir': 71, 'First_Acc_Vmax': 72, 'VmaxAtMpeak': 73, 'Tidal_Force_Tdyn': 74, 'logVmaxVmaxmaxTdynTmpeak': 75, 'Time_to_future_merger': 76, 'Future_merger_MMP_ID': 77 }
 		
 		if self.boxDir == "MD_0.4Gpc":
 			self.Melement = 9.63 * 10**7 # Msun
@@ -179,7 +181,7 @@ class MultiDarkSimulation :
 		os.system("rm "+self.snl[ii][:-5]+"_cornerLC_Nb_"+str(Nb)+".fits")
 		thdulist.writeto(self.snl[ii][:-5]+"_cornerLC_Nb_"+str(Nb)+".fits")
 
-	def writeSAMcatalog(self, ii, mmin=10**8, NperBatch = 20000000):
+	def writeSAMcatalog(self, ii, mmin=10**8, NperBatch = 2000000):
 		"""
 		Extracts the positions and mass out of a snapshot of the Multidark simulation.        
 		:param ii: index of the snapshot in the list self.snl
@@ -191,13 +193,18 @@ class MultiDarkSimulation :
 		nameSnapshot = os.path.basename(self.snl[ii])[:-5]
 		Nb = 0
 		count = 0
-		output = n.zeros((NperBatch,7))
+		output = n.zeros((NperBatch,37))
 		for line in fl:
+			#print line
 			if line[0] == "#" :
 				continue
 
 			line = line.split()
-			newline =n.array([			int(line[self.columnDict['id']]), 			float(line[self.columnDict['vmax']]),			float(line[self.columnDict['vrms']]), 			float(line[self.columnDict['rvir']]), 			float(line[self.columnDict['rs']]), 			float(line[self.columnDict['pid']]), 			float(line[self.columnDict['x']]), 			float(line[self.columnDict['y']]), 			float(line[self.columnDict['z']]), 			float(line[self.columnDict['vx']]), 			float(line[self.columnDict['vy']]), 			float(line[self.columnDict['vz']]), 			float(line[self.columnDict['Jx']]), 			float(line[self.columnDict['Jy']]), 			float(line[self.columnDict['Jz']]), 			float(line[self.columnDict['Spin']]), 			float(line[self.columnDict['Rs_Klypin']]), 			float(line[self.columnDict['Mmvir_all']]), 			float(line[self.columnDict['Xoff']]), 			float(line[self.columnDict['Voff']]), 			float(line[self.columnDict['Spin_Bullock']]), 			float(line[self.columnDict['Ax']]), 			float(line[self.columnDict['Ay']]), 			float(line[self.columnDict['Az']]), 			float(line[self.columnDict['b_to_a']]), 			float(line[self.columnDict['c_to_a']]), 			float(line[self.columnDict['b_to_a_500c']]), 			float(line[self.columnDict['c_to_a_500c']]),						float(line[self.columnDict['Ax_500c']]), 			float(line[self.columnDict['Ay_500c']]), 			float(line[self.columnDict['Az_500c']]), 			float(line[self.columnDict['TU']]), 			float(line[self.columnDict['M_pe_Diemer']]), 			float(line[self.columnDict['M_pe_Behroozi']]), 			n.log10(float(line[self.columnDict['mvir']])), 			n.log10(float(line[self.columnDict['M200c']])),		n.log10(float(line[self.columnDict['M500c']])), n.log10(float(line[self.columnDict['M2500c']])) ]) 
+			#print line
+			#print len(line)
+			newline =n.array([int(line[self.columnDict['id']]), float(line[self.columnDict['vmax']]), float(line[self.columnDict['vrms']]), float(line[self.columnDict['rvir']]), float(line[self.columnDict['rs']]), float(line[self.columnDict['pid']]), float(line[self.columnDict['x']]), float(line[self.columnDict['y']]), float(line[self.columnDict['z']]), float(line[self.columnDict['vx']]), float(line[self.columnDict['vy']]), float(line[self.columnDict['vz']]), float(line[self.columnDict['Jx']]), float(line[self.columnDict['Jy']]), float(line[self.columnDict['Jz']]), float(line[self.columnDict['Spin']]), float(line[self.columnDict['Rs_Klypin']]), float(line[self.columnDict['Xoff']]), float(line[self.columnDict['Voff']]), float(line[self.columnDict['Spin_Bullock']]), float(line[self.columnDict['Ax']]), float(line[self.columnDict['Ay']]), float(line[self.columnDict['Az']]), float(line[self.columnDict['b_to_a']]), float(line[self.columnDict['c_to_a']]), float(line[self.columnDict['b_to_a_500c']]), float(line[self.columnDict['c_to_a_500c']]), float(line[self.columnDict['Ax_500c']]), float(line[self.columnDict['Ay_500c']]), float(line[self.columnDict['Az_500c']]), float(line[self.columnDict['TU']]),  float(line[self.columnDict['M_pe_Diemer']]), float(line[self.columnDict['M_pe_Behroozi']]), n.log10(float(line[self.columnDict['mvir']])), n.log10(float(line[self.columnDict['M200c']])), n.log10(float(line[self.columnDict['M500c']])), n.log10(float(line[self.columnDict['M2500c']])) ])
+			#print newline
+			#print newline.shape
 			if float(line[self.columnDict['mvir']])>mmin :
 				output[count] = newline
 				count+=1
@@ -208,15 +215,45 @@ class MultiDarkSimulation :
 				#print output.shape
 				#print output.T[0].shape
 				#define the columns
-				col0 = fits.Column(name='id',format='D', array= output.T[0] )
-				col1 = fits.Column(name='pid',format='D', array= output.T[1] )
-				col2 = fits.Column(name='x',format='D', array=output.T[2] )
-				col3 = fits.Column(name='y',format='D', array= output.T[3] )
-				col4 = fits.Column(name='z',format='D', array= output.T[4] )
-				col5 = fits.Column(name='vmax',format='D', array= output.T[5] )
-				col6 = fits.Column(name='mvir',format='D', array=output.T[6] )
-				#define the table hdu 
-				hdu_cols  = fits.ColDefs([col0, col1, col2, col3, col4, col5, col6])
+				hdu_cols  = fits.ColDefs([
+				fits.Column(name='id',format='I', array= output.T[0] )
+				,fits.Column(name='vmax',format='D', array= output.T[1] ) 
+				,fits.Column(name='vrms',format='D', array= output.T[2] ) 
+				,fits.Column(name='rvir',format='D', array= output.T[3] ) 
+				,fits.Column(name='rs',format='D', array= output.T[4] ) 
+				,fits.Column(name='pid',format='D', array= output.T[5] ) 
+				,fits.Column(name='x',format='D', array= output.T[6] ) 
+				,fits.Column(name='y',format='D', array= output.T[7] ) 
+				,fits.Column(name='z',format='D', array= output.T[8] ) 
+				,fits.Column(name='vx',format='D', array= output.T[9] ) 
+				,fits.Column(name='vy',format='D', array= output.T[10] ) 
+				,fits.Column(name='vz',format='D', array= output.T[11] ) 
+				,fits.Column(name='Jx',format='D', array= output.T[12] ) 
+				,fits.Column(name='Jy',format='D', array= output.T[13] ) 
+				,fits.Column(name='Jz',format='D', array= output.T[14] ) 
+				,fits.Column(name='Spin',format='D', array= output.T[15] ) 
+				,fits.Column(name='Rs_Klypin',format='D', array= output.T[16] ) 
+				,fits.Column(name='Xoff',format='D', array= output.T[17] ) 
+				,fits.Column(name='Voff',format='D', array= output.T[18] ) 
+				,fits.Column(name='Spin_Bullock',format='D', array= output.T[19] ) 
+				,fits.Column(name='Ax',format='D', array= output.T[20] ) 
+				,fits.Column(name='Ay',format='D', array= output.T[21] ) 
+				,fits.Column(name='Az',format='D', array= output.T[22] ) 
+				,fits.Column(name='b_to_a',format='D', array= output.T[23] ) 
+				,fits.Column(name='c_to_a',format='D', array= output.T[24] ) 
+				,fits.Column(name='b_to_a_500c',format='D', array= output.T[25] ) 
+				,fits.Column(name='c_to_a_500c',format='D', array= output.T[26] ) 
+				,fits.Column(name='Ax_500c',format='D', array= output.T[27] ) 
+				,fits.Column(name='Ay_500c',format='D', array= output.T[28] ) 
+				,fits.Column(name='Az_500c',format='D', array= output.T[29] ) 
+				,fits.Column(name='TU',format='D', array= output.T[30] )  
+				,fits.Column(name='M_pe_Diemer',format='D', array= output.T[31] ) 
+				,fits.Column(name='M_pe_Behroozi',format='D', array= output.T[32] ) 
+				,fits.Column(name='mvir',format='D', array= output.T[33] ) 
+				,fits.Column(name='M200c',format='D', array= output.T[34] ) 
+				,fits.Column(name='M500c',format='D', array= output.T[35] ) 
+				,fits.Column(name='M2500c',format='D', array= output.T[36] )
+				])
 				tb_hdu = fits.BinTableHDU.from_columns( hdu_cols )
 				#define the header
 				prihdr = fits.Header()
@@ -227,24 +264,54 @@ class MultiDarkSimulation :
 				prihdu = fits.PrimaryHDU(header=prihdr)
 				#writes the file
 				thdulist = fits.HDUList([prihdu, tb_hdu])
-				os.system("rm "+self.snl[ii][:-5]+"_PM_Nb_"+str(Nb)+".fits")
-				thdulist.writeto(self.snl[ii][:-5]+"_PM_Nb_"+str(Nb)+".fits")
+				os.system("rm "+self.snl[ii][:-5]+"_SAM_Nb_"+str(Nb)+".fits")
+				thdulist.writeto(self.snl[ii][:-5]+"_SAM_Nb_"+str(Nb)+".fits")
 				Nb+=1
 				count=0
 				#resest the output matrix
-				output = n.zeros((NperBatch,7))
+				output = n.zeros((NperBatch,37))
 		
 		
 		# and for the last batch :		
-		col0 = fits.Column(name='id',format='D', array= output.T[0][:count] )
-		col1 = fits.Column(name='pid',format='D', array= output.T[1][:count] )
-		col2 = fits.Column(name='x',format='D', array=output.T[2][:count] )
-		col3 = fits.Column(name='y',format='D', array= output.T[3][:count] )
-		col4 = fits.Column(name='z',format='D', array= output.T[4][:count] )
-		col5 = fits.Column(name='vmax',format='D', array= output.T[5][:count] )
-		col6 = fits.Column(name='mvir',format='D', array=output.T[6][:count] )
-		#define the table hdu 
-		hdu_cols  = fits.ColDefs([col0, col1, col2, col3, col4, col5, col6])
+		hdu_cols  = fits.ColDefs([
+		fits.Column(name='id',format='I', array= output.T[0][:count] )
+		,fits.Column(name='vmax',format='D', array= output.T[1][:count]) 
+		,fits.Column(name='vrms',format='D', array= output.T[2][:count]) 
+		,fits.Column(name='rvir',format='D', array= output.T[3][:count]) 
+		,fits.Column(name='rs',format='D', array= output.T[4][:count]) 
+		,fits.Column(name='pid',format='D', array= output.T[5][:count]) 
+		,fits.Column(name='x',format='D', array= output.T[6][:count]) 
+		,fits.Column(name='y',format='D', array= output.T[7][:count]) 
+		,fits.Column(name='z',format='D', array= output.T[8][:count]) 
+		,fits.Column(name='vx',format='D', array= output.T[9][:count]) 
+		,fits.Column(name='vy',format='D', array= output.T[10][:count]) 
+		,fits.Column(name='vz',format='D', array= output.T[11][:count]) 
+		,fits.Column(name='Jx',format='D', array= output.T[12][:count]) 
+		,fits.Column(name='Jy',format='D', array= output.T[13][:count]) 
+		,fits.Column(name='Jz',format='D', array= output.T[14][:count]) 
+		,fits.Column(name='Spin',format='D', array= output.T[15][:count]) 
+		,fits.Column(name='Rs_Klypin',format='D', array= output.T[16][:count]) 
+		,fits.Column(name='Xoff',format='D', array= output.T[17][:count]) 
+		,fits.Column(name='Voff',format='D', array= output.T[18][:count]) 
+		,fits.Column(name='Spin_Bullock',format='D', array= output.T[19][:count]) 
+		,fits.Column(name='Ax',format='D', array= output.T[20][:count]) 
+		,fits.Column(name='Ay',format='D', array= output.T[21][:count]) 
+		,fits.Column(name='Az',format='D', array= output.T[22][:count]) 
+		,fits.Column(name='b_to_a',format='D', array= output.T[23][:count]) 
+		,fits.Column(name='c_to_a',format='D', array= output.T[24][:count]) 
+		,fits.Column(name='b_to_a_500c',format='D', array= output.T[25][:count]) 
+		,fits.Column(name='c_to_a_500c',format='D', array= output.T[26][:count]) 
+		,fits.Column(name='Ax_500c',format='D', array= output.T[27][:count]) 
+		,fits.Column(name='Ay_500c',format='D', array= output.T[28][:count]) 
+		,fits.Column(name='Az_500c',format='D', array= output.T[29][:count]) 
+		,fits.Column(name='TU',format='D', array= output.T[30][:count])  
+		,fits.Column(name='M_pe_Diemer',format='D', array= output.T[31][:count]) 
+		,fits.Column(name='M_pe_Behroozi',format='D', array= output.T[32][:count]) 
+		,fits.Column(name='mvir',format='D', array= output.T[33][:count]) 
+		,fits.Column(name='M200c',format='D', array= output.T[34][:count]) 
+		,fits.Column(name='M500c',format='D', array= output.T[35][:count]) 
+		,fits.Column(name='M2500c',format='D', array= output.T[36][:count])
+		])
 		tb_hdu = fits.BinTableHDU.from_columns( hdu_cols )
 		#define the header
 		prihdr = fits.Header()
@@ -255,8 +322,8 @@ class MultiDarkSimulation :
 		prihdu = fits.PrimaryHDU(header=prihdr)
 		#writes the file
 		thdulist = fits.HDUList([prihdu, tb_hdu])
-		os.system("rm "+self.snl[ii][:-5]+"_PM_Nb_"+str(Nb)+".fits")
-		thdulist.writeto(self.snl[ii][:-5]+"_PM_Nb_"+str(Nb)+".fits")
+		os.system("rm "+self.snl[ii][:-5]+"_SAM_Nb_"+str(Nb)+".fits")
+		thdulist.writeto(self.snl[ii][:-5]+"_SAM_Nb_"+str(Nb)+".fits")
 	
 	def writePositionCatalogPM(self, ii, vmin=30., mmin=10**8, NperBatch = 20000000):
 		"""
