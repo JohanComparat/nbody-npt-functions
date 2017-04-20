@@ -20,7 +20,7 @@ print " set up box, and redshift "
 #MD 1 hlist_0.74980_SAM_Nb_0.fits
 #MD 25 hlist_0.75440_SAM_Nb_10.fits
 
-bins = n.arange(9,15,0.1)
+bins = n.arange(10,15,0.1)
 
 def create_plots(env='MD04'):
 	fileList = n.array(glob.glob(os.path.join(os.environ[env], "catalogs", "*.Ms.fits")))
