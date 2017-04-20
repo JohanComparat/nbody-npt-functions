@@ -6,8 +6,9 @@ from scipy.stats import norm
 from scipy.integrate import quad
 from scipy.interpolate import interp1d
 
-import matplotlib.pyplot as p
+import matplotlib
 matplotlib.use('pdf')
+import matplotlib.pyplot as p
 import glob
 import astropy.io.fits as fits
 import os
