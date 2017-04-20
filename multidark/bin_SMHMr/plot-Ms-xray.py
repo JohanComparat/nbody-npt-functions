@@ -21,7 +21,7 @@ print " set up box, and redshift "
 #MD 25 hlist_0.75440_SAM_Nb_10.fits
 
 def create_plots(env='MD04'):
-	fileList = n.array(glob.glob(os.path.join(os.environ[env], "snapshots", "*.Ms.fits")))
+	fileList = n.array(glob.glob(os.path.join(os.environ[env], "catalogs", "*.Ms.fits")))
 	for fileN in range(len(fileList)):
 		print fileN
 		hd = fits.open(fileN)[1].data	
