@@ -38,7 +38,7 @@ def create_plots(env='MD04'):
 		p.hist(hd['mvir'][cut430], bins=bins, normed =True, label='L>43.0', histtype='step', cumulative = True)
 		p.hist(hd['mvir'][cut435], bins=bins, normed =True, label='L>43.5', histtype='step', cumulative = True)
 		p.xlabel(r'$\log_{10} M_\odot$')
-		p.ylabel(r'$\log_{10}\lambda_{SAR} + \log_{10}M_\odot$')
+		p.ylabel(r'normed cumulative distribution')
 		p.grid()
 		p.legend(frameon=False)
 		p.savefig(os.path.join(os.environ[env], "results", os.path.basename(fileN)[:-5]+'_mvir_hist.pdf'))
