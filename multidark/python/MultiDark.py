@@ -721,8 +721,10 @@ class MultiDarkSimulation :
 		# first create the catalog
 		hdus = []
 		for ii in n.arange(len(catalogList)):
+			hd = fits.open(catalogList[ii])[1].data
 			cut_min = (hd['lambda_sar_Bo16']+hd['Mgal_mvir_Mo13'] > vmin)
-			hdus.append( fits.open(catalogList[ii])[1].data[cut_min] )
+			hdus.append( hd[cut_min] )
+			print catalogList[ii], len(hd[cut_min])
 
 		vbins = n.arange(vmin, 43.51 ,dlogBin)
 		#n.arange(8,16,0.05)
