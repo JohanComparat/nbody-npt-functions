@@ -26,7 +26,7 @@ bins = n.arange(10,15,0.1)
 xb = (bins[1:] + bins[:-1]) / 2.
 
 def create_plots(env='MD04', file_type="out"):
-	fileList = n.array(glob.glob(os.path.join(os.environ[env], file_type+"catalogs", file_type+"*.Ms.fits")))
+	fileList = n.array(glob.glob(os.path.join(os.environ[env], "catalogs", file_type+"*.Ms.fits")))
 	print fileList
 	Hall = n.zeros((len(fileList), len(bins)-1))
 	H420 = n.zeros((len(fileList), len(bins)-1))
