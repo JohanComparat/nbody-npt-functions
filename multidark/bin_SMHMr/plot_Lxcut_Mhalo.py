@@ -65,11 +65,12 @@ def create_plots(env='MD04', file_type="out"):
 	p.clf()
 	
 create_plots(env='MD04', file_type="out")
-create_plots(env='MD10', file_type="out")
-create_plots(env='MD25', file_type="out")
-
 os.system("cp $MD04/results/*.pdf ~/wwwDir/eRoMok/plots/MD_0.4Gpc/")
+
+create_plots(env='MD10', file_type="out")
 os.system("cp $MD10/results/*.pdf ~/wwwDir/eRoMok/plots/MD_1.0Gpc/")
+
+create_plots(env='MD25', file_type="out")
 os.system("cp $MD25/results/*.pdf ~/wwwDir/eRoMok/plots/MD_2.5Gpc/")
 
 sys.exit()
