@@ -94,8 +94,8 @@ def create_catalogs(aexp = 0.74230, env='MD04' , file_type= "hlist"):
 		thdulist.writeto(outFile)
 		print time.time()-t0
 
-create_catalogs(aexp = 0.74230, env='MD04', "hlist")
-create_catalogs(aexp = 0.74980, env='MD10', "hlist")
-create_catalogs(aexp = 0.75440, env='MD25', "hlist")
+create_catalogs(aexp = 0.74230, env='MD04', file_type="hlist")
+create_catalogs(aexp = 0.74980, env='MD10', file_type="hlist")
+create_catalogs(aexp = 0.75440, env='MD25', file_type="hlist")
 
 
