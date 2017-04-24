@@ -710,7 +710,7 @@ class MultiDarkSimulation :
 					#print "total time in s, min",t4 - t0, (t4 - t0)/60.
 					#return DR, volume, dV, pairCount, pairs, nD, nR
 
-def compute2PCF_LX(self, catalogList, rmax=200, dr = 0.1, vmin=41., dlogBin=0.25, Nmax=2000000.,  name = ""):
+	def compute2PCF_LX(self, catalogList, rmax=200, dr = 0.1, vmin=41., dlogBin=0.25, Nmax=2000000.,  name = ""):
 		"""
 		Extracts the 2PCF out of a catalog of halos        
 		:param catalog: where the catalog is
