@@ -62,10 +62,10 @@ def create_catalogs(aexp = 0.74230, env='MD04' ):
 		col1 = fits.Column(name='Mgal_m200c_Mo13',format='D', array = norm.rvs( loc = sm.meanSM(10**hd[1].data['m200c'], z), scale = 0.15 ) )
 		col2 = fits.Column(name='lambda_sar_Bo16',format='D', array = lambda_sar_Bo16 )
 		# columns related to clusters
-		col3 = fits.Column(name='Lx_cluster',format='D', array =n.log10(cl.logM500_to_logMgas(hd[1].data['M500c'], z))
-		col4 = fits.Column(name='Lx_cluster',format='D', array =cl.logM500_to_kT(hd[1].data['M500c'], z))
-		col5 = fits.Column(name='Lx_cluster',format='D', array =n.log10(cl.logM500_to_L(hd[1].data['M500c'], z))
-		col6 = fits.Column(name='Lx_cluster',format='D', array =n.log10(cl.logM500_to_Lce(hd[1].data['M500c'], z))
+		col3 = fits.Column(name='Mgas_cluster',format='D', array =n.log10(cl.logM500_to_logMgas(hd[1].data['M500c'], z)))
+		col4 = fits.Column(name='kT_cluster',format='D', unit='keV', array =cl.logM500_to_kT(hd[1].data['M500c'], z))
+		col5 = fits.Column(name='Lx_bol_cluster',format='D', array =n.log10(cl.logM500_to_L(hd[1].data['M500c'], z)))
+		col6 = fits.Column(name='Lx_ce_cluster',format='D', array =n.log10(cl.logM500_to_Lce(hd[1].data['M500c'], z)))
 
 		#define the table hdu 
 		colArray = []
