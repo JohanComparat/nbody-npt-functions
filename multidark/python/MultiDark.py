@@ -724,7 +724,7 @@ def compute2PCF_LX(self, catalogList, rmax=200, dr = 0.1, vmin=41., dlogBin=0.25
 			cut_min = (hd['lambda_sar_Bo16']+hd['Mgal_mvir_Mo13'] > vmin)
 			hdus.append( fits.open(catalogList[ii])[1].data[cut_min] )
 
-		vbins = n.arange(vmin, 43.51. ,dlogBin)
+		vbins = n.arange(vmin, 43.51 ,dlogBin)
 		#n.arange(8,16,0.05)
 		for jj in range(len(vbins)-1):
 			outfile = catalogList[0][:-13] + "_LX_" +str(n.round(vbins[jj],2))+ "_" +str(n.round(vbins[jj+1],2)) + "_" + name + "_xiR.pkl"
