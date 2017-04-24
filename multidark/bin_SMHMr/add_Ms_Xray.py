@@ -20,8 +20,8 @@ print " set up box, and redshift "
 #MD 1 hlist_0.74980_SAM_Nb_0.fits
 #MD 25 hlist_0.75440_SAM_Nb_10.fits
 
-def create_catalogs(aexp = 0.74230, env='MD04' ):
-	fileList = n.array(glob.glob(os.path.join(os.environ[env], "snapshots", "out_*_SAM_Nb_*.fits" )))
+def create_catalogs(aexp = 0.74230, env='MD04' , file_type= "hlist"):
+	fileList = n.array(glob.glob(os.path.join(os.environ[env], "snapshots", file_type+"_*_SAM_Nb_*.fits" )))
 	z = 1./0.74230 -1.
 	fileList.sort()
 	print fileList
@@ -94,8 +94,8 @@ def create_catalogs(aexp = 0.74230, env='MD04' ):
 		thdulist.writeto(outFile)
 		print time.time()-t0
 
-create_catalogs(aexp = 0.74230, env='MD04')
-create_catalogs(aexp = 0.74980, env='MD10')
-create_catalogs(aexp = 0.75440, env='MD25')
+create_catalogs(aexp = 0.74230, env='MD04', "hlist")
+create_catalogs(aexp = 0.74980, env='MD10', "hlist")
+create_catalogs(aexp = 0.75440, env='MD25', "hlist")
 
 
