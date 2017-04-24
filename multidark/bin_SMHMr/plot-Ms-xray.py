@@ -20,8 +20,8 @@ print " set up box, and redshift "
 #MD 1 hlist_0.74980_SAM_Nb_0.fits
 #MD 25 hlist_0.75440_SAM_Nb_10.fits
 
-def create_plots(env='MD04'):
-	fileList = n.array(glob.glob(os.path.join(os.environ[env], "catalogs", "*.Ms.fits")))
+def create_plots(env='MD04', file_type="out"):
+	fileList = n.array(glob.glob(os.path.join(os.environ[env], "catalogs", +file_type"*.Ms.fits")))
 	print fileList
 	for fileN in fileList:
 		print fileN
@@ -34,9 +34,9 @@ def create_plots(env='MD04'):
 		p.savefig(os.path.join(os.environ[env], "results", os.path.basename(fileN)[:-5]+'.pdf'))
         p.clf()
         
-create_plots(env='MD04')
-create_plots(env='MD10')
-create_plots(env='MD25')
+create_plots(env='MD04', file_type="out")
+create_plots(env='MD10', file_type="out")
+create_plots(env='MD25', file_type="out")
 
 os.system("cp $MD04/results/*.pdf ~/wwwDir/eRoMok/plots/MD_0.4Gpc")
 os.system("cp $MD10/results/*.pdf ~/wwwDir/eRoMok/plots/MD_1.0Gpc")

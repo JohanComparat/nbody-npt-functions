@@ -25,8 +25,8 @@ print " set up box, and redshift "
 bins = n.arange(10,15,0.1)
 xb = (bins[1:] + bins[:-1]) / 2.
 
-def create_plots(env='MD04'):
-	fileList = n.array(glob.glob(os.path.join(os.environ[env], "catalogs", "*.Ms.fits")))
+def create_plots(env='MD04', file_type="out"):
+	fileList = n.array(glob.glob(os.path.join(os.environ[env], file_type+"catalogs", +file_type"*.Ms.fits")))
 	print fileList
 	Hall = n.zeros((len(fileList), len(bins)-1))
 	H420 = n.zeros((len(fileList), len(bins)-1))
@@ -46,7 +46,7 @@ def create_plots(env='MD04'):
 		H430[ii],bb = n.histogram(hd['mvir'][cut430], bins=bins)
 		H435[ii],bb = n.histogram(hd['mvir'][cut435], bins=bins)
 	
-	all_halos_i = n.sum(Hall, axis=0)
+	all_halos_i = n.sum(Hall, axis=0)*1.
 	sel = (all_halos_i>0)
 	all_halos = all_halos_i[sel]
 	                                                              
@@ -62,9 +62,9 @@ def create_plots(env='MD04'):
 	p.savefig(os.path.join(os.environ[env], "results", os.path.basename(fileN)[:-5]+'_HOD_LX.pdf'))
 	p.clf()
 	
-create_plots(env='MD04')
-create_plots(env='MD10')
-create_plots(env='MD25')
+create_plots(env='MD04', file_type="out")
+create_plots(env='MD10', file_type="out")
+create_plots(env='MD25', file_type="out")
 
 os.system("cp $MD04/results/*.pdf ~/wwwDir/eRoMok/plots/MD_0.4Gpc/")
 os.system("cp $MD10/results/*.pdf ~/wwwDir/eRoMok/plots/MD_1.0Gpc/")
