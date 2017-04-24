@@ -6,6 +6,9 @@ from scipy.stats import norm
 from scipy.integrate import quad
 from scipy.interpolate import interp1d
 
+import ClusterScalingRelations
+cl = ClusterScalingRelations.ClusterScalingRelations_Mantz2016()
+
 import glob
 import astropy.io.fits as fits
 import os
@@ -54,10 +57,15 @@ def create_catalogs(aexp = 0.74230, env='MD04' ):
 		indexes = n.searchsorted(logMs,Mgal_mvir_Mo13)
 		lambda_sar_Bo16 = n.array([ cdfs_interpolations[indexes[ii]](randomX[ii]) for ii in range(Nhalo) ])
 		print Mgal_mvir_Mo13[:5], indexes[:5], lambda_sar_Bo16[:5]
+		# columns related to Xray AGN
 		col0 = fits.Column(name='Mgal_mvir_Mo13',format='D', array = Mgal_mvir_Mo13 )
 		col1 = fits.Column(name='Mgal_m200c_Mo13',format='D', array = norm.rvs( loc = sm.meanSM(10**hd[1].data['m200c'], z), scale = 0.15 ) )
 		col2 = fits.Column(name='lambda_sar_Bo16',format='D', array = lambda_sar_Bo16 )
-		col3 = fits.Column(name='Lx_cluster',format='D', array = n.ones(Nhalo) )
+		# columns related to clusters
+		col3 = fits.Column(name='Lx_cluster',format='D', array =n.log10(cl.logM500_to_logMgas(hd[1].data['M500c'], z))
+		col4 = fits.Column(name='Lx_cluster',format='D', array =cl.logM500_to_kT(hd[1].data['M500c'], z))
+		col5 = fits.Column(name='Lx_cluster',format='D', array =n.log10(cl.logM500_to_L(hd[1].data['M500c'], z))
+		col6 = fits.Column(name='Lx_cluster',format='D', array =n.log10(cl.logM500_to_Lce(hd[1].data['M500c'], z))
 
 		#define the table hdu 
 		colArray = []
@@ -68,6 +76,9 @@ def create_catalogs(aexp = 0.74230, env='MD04' ):
 		colArray.append(col1)
 		colArray.append(col2)
 		colArray.append(col3)
+		colArray.append(col4)
+		colArray.append(col5)
+		colArray.append(col6)
 		
 		hdu_cols  = fits.ColDefs(colArray)
 		tb_hdu = fits.BinTableHDU.from_columns( hdu_cols )
