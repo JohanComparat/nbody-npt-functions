@@ -734,7 +734,7 @@ def compute2PCF_LX(self, catalogList, rmax=200, dr = 0.1, vmin=41., dlogBin=0.25
 				pass
 			else :
 				t0 = time.time()
-				sel = n.array([ hdu['lambda_sar_Bo16']+hdu['Mgal_mvir_Mo13']>vbins[jj])&(hdu['lambda_sar_Bo16']+hdu['Mgal_mvir_Mo13']<vbins[jj+1]) for hdu in hdus])
+				sel = n.array([ (hdu['lambda_sar_Bo16']+hdu['Mgal_mvir_Mo13']>vbins[jj])&(hdu['lambda_sar_Bo16']+hdu['Mgal_mvir_Mo13']<vbins[jj+1]) for hdu in hdus])
 				xR = n.hstack(( n.array([ hdus[ii]['x'][sel[ii]] for ii in range(len(hdus)) ]) ))
 				yR = n.hstack(( n.array([ hdus[ii]['y'][sel[ii]] for ii in range(len(hdus)) ]) ))
 				zR = n.hstack(( n.array([ hdus[ii]['z'][sel[ii]] for ii in range(len(hdus)) ]) ))
