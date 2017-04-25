@@ -20,7 +20,7 @@ print " set up box, and redshift "
 #MD 1 hlist_0.74980_SAM_Nb_0.fits
 #MD 25 hlist_0.75440_SAM_Nb_10.fits
 
-
+duty_cycle = 0.01
 
 bins = n.arange(10,15,0.1)
 xb = (bins[1:] + bins[:-1]) / 2.
@@ -51,16 +51,17 @@ def create_plots(env='MD04', file_type="out"):
 	all_halos = all_halos_i[sel].astype('float')
 	                                                              
 	p.figure(1, (6,6))
-	p.plot(xb, n.sum(H420, axis=0)[sel]/all_halos, label= 'L>42.0')
-	p.plot(xb, n.sum(H425, axis=0)[sel]/all_halos, label= 'L>42.5')
-	p.plot(xb, n.sum(H430, axis=0)[sel]/all_halos, label= 'L>43.0')
-	p.plot(xb, n.sum(H435, axis=0)[sel]/all_halos, label= 'L>43.5')
+	p.plot(xb, n.sum(H420 * duty_cycle, axis=0)[sel]/all_halos, label= 'L>42.0')
+	p.plot(xb, n.sum(H425 * duty_cycle, axis=0)[sel]/all_halos, label= 'L>42.5')
+	p.plot(xb, n.sum(H430 * duty_cycle, axis=0)[sel]/all_halos, label= 'L>43.0')
+	p.plot(xb, n.sum(H435 * duty_cycle, axis=0)[sel]/all_halos, label= 'L>43.5')
 	p.xlabel(r'$\log_{10} M_\odot$')
 	p.ylabel(r'N AGN / N halo')
 	p.grid()
 	p.yscale('log')
 	p.ylim((0.001,1.01))
 	p.legend(frameon=False)
+	p.title('Duty cycle 1%')
 	p.savefig(os.path.join(os.environ[env], "results", os.path.basename(fileN)[:-5]+'_HOD_LX.pdf'))
 	p.clf()
 	
