@@ -119,7 +119,9 @@ def create_catalogs(aexp = 0.74230, env='MD04' , file_type= "hlist"):
 		print time.time()-t0
 
 create_catalogs(aexp = 0.74230, env='MD04', file_type="hlist")
+create_catalogs(aexp = 0.74230, env='MD04', file_type="out")
 create_catalogs(aexp = 0.74980, env='MD10', file_type="hlist")
 create_catalogs(aexp = 0.75440, env='MD25', file_type="hlist")
-
+create_catalogs(aexp = 0.74980, env='MD10', file_type="out")
+create_catalogs(aexp = 0.75440, env='MD25', file_type="out")
 
