@@ -20,7 +20,7 @@ print " set up box, and redshift "
 #MD 1 hlist_0.74980_SAM_Nb_0.fits
 #MD 25 hlist_0.75440_SAM_Nb_10.fits
 
-duty_cycle = 0.01
+#duty_cycle = 0.01
 
 bins = n.arange(10,15,0.1)
 xb = (bins[1:] + bins[:-1]) / 2.
@@ -36,10 +36,10 @@ def create_plots(env='MD04', file_type="out"):
 	for ii, fileN in enumerate(fileList):
 		print fileN
 		hd = fits.open(fileN)[1].data	
-		cut420 = (hd['lambda_sar_Bo16']+hd['Mgal_mvir_Mo13'] > 42.)
-		cut425 = (hd['lambda_sar_Bo16']+hd['Mgal_mvir_Mo13'] > 42.5)
-		cut430 = (hd['lambda_sar_Bo16']+hd['Mgal_mvir_Mo13'] > 43.)
-		cut435 = (hd['lambda_sar_Bo16']+hd['Mgal_mvir_Mo13'] > 43.5)
+		cut420 = (hd['AGN']) & (hd['lambda_sar_Bo16']+hd['Mgal_mvir_Mo13'] > 42.)
+		cut425 = (hd['AGN']) & (hd['lambda_sar_Bo16']+hd['Mgal_mvir_Mo13'] > 42.5)
+		cut430 = (hd['AGN']) & (hd['lambda_sar_Bo16']+hd['Mgal_mvir_Mo13'] > 43.)
+		cut435 = (hd['AGN']) & (hd['lambda_sar_Bo16']+hd['Mgal_mvir_Mo13'] > 43.5)
 		Hall[ii],bb = n.histogram(hd['mvir'], bins=bins)
 		H420[ii],bb = n.histogram(hd['mvir'][cut420], bins=bins)
 		H425[ii],bb = n.histogram(hd['mvir'][cut425], bins=bins)
@@ -51,10 +51,10 @@ def create_plots(env='MD04', file_type="out"):
 	all_halos = all_halos_i[sel].astype('float')
 	                                                              
 	p.figure(1, (6,6))
-	p.plot(xb, n.sum(H420 * duty_cycle, axis=0)[sel]/all_halos, label= 'L>42.0')
-	p.plot(xb, n.sum(H425 * duty_cycle, axis=0)[sel]/all_halos, label= 'L>42.5')
-	p.plot(xb, n.sum(H430 * duty_cycle, axis=0)[sel]/all_halos, label= 'L>43.0')
-	p.plot(xb, n.sum(H435 * duty_cycle, axis=0)[sel]/all_halos, label= 'L>43.5')
+	p.plot(xb, n.sum(H420, axis=0)[sel]/all_halos, label= 'L>42.0')
+	p.plot(xb, n.sum(H425, axis=0)[sel]/all_halos, label= 'L>42.5')
+	p.plot(xb, n.sum(H430, axis=0)[sel]/all_halos, label= 'L>43.0')
+	p.plot(xb, n.sum(H435, axis=0)[sel]/all_halos, label= 'L>43.5')
 	p.xlabel(r'$\log_{10} M_\odot$')
 	p.ylabel(r'N AGN / N halo')
 	p.grid()
