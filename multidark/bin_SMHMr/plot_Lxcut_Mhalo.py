@@ -22,6 +22,8 @@ print " set up box, and redshift "
 
 #duty_cycle = 0.01
 
+AL12_mass, AL12_hod_mean, AL12_hod_up, AL12_hod_low = n.loadtxt("/home/comparat/darksim/data/2PCF/allevato_2012_hod.txt", unpack=True)
+
 bins = n.arange(10,15,0.1)
 xb = (bins[1:] + bins[:-1]) / 2.
 
@@ -36,21 +38,22 @@ def create_plots(env='MD04', file_type="out"):
 	for ii, fileN in enumerate(fileList):
 		print fileN
 		hd = fits.open(fileN)[1].data	
-		cut420 = (hd['AGN']) & (hd['lambda_sar_Bo16']+hd['Mgal_mvir_Mo13'] > 42.)
-		cut425 = (hd['AGN']) & (hd['lambda_sar_Bo16']+hd['Mgal_mvir_Mo13'] > 42.5)
-		cut430 = (hd['AGN']) & (hd['lambda_sar_Bo16']+hd['Mgal_mvir_Mo13'] > 43.)
-		cut435 = (hd['AGN']) & (hd['lambda_sar_Bo16']+hd['Mgal_mvir_Mo13'] > 43.5)
-		Hall[ii],bb = n.histogram(hd['mvir'], bins=bins)
-		H420[ii],bb = n.histogram(hd['mvir'][cut420], bins=bins)
-		H425[ii],bb = n.histogram(hd['mvir'][cut425], bins=bins)
-		H430[ii],bb = n.histogram(hd['mvir'][cut430], bins=bins)
-		H435[ii],bb = n.histogram(hd['mvir'][cut435], bins=bins)
+		cut420 = (hd['pid']=-1) & (hd['AGN']) & (hd['lambda_sar_Bo16']+hd['Mgal_mvir_Mo13'] > 42.)
+		cut425 = (hd['pid']=-1) & (hd['AGN']) & (hd['lambda_sar_Bo16']+hd['Mgal_mvir_Mo13'] > 42.5)
+		cut430 = (hd['pid']=-1) & (hd['AGN']) & (hd['lambda_sar_Bo16']+hd['Mgal_mvir_Mo13'] > 43.)
+		cut435 = (hd['pid']=-1) & (hd['AGN']) & (hd['lambda_sar_Bo16']+hd['Mgal_mvir_Mo13'] > 43.5)
+		Hall[ii], bb = n.histogram(hd['mvir'], bins=bins)
+		H420[ii], bb = n.histogram(hd['mvir'][cut420], bins=bins)
+		H425[ii], bb = n.histogram(hd['mvir'][cut425], bins=bins)
+		H430[ii], bb = n.histogram(hd['mvir'][cut430], bins=bins)
+		H435[ii], bb = n.histogram(hd['mvir'][cut435], bins=bins)
 	
 	all_halos_i = n.sum(Hall, axis=0)
 	sel = (all_halos_i>0)
 	all_halos = all_halos_i[sel].astype('float')
 	                                                              
 	p.figure(1, (6,6))
+	p.fill_between(n.log10(AL12_mass), AL12_hod_up, AL12_hod_low, color='b', alpha=0.5, label='Allevato 12' )
 	p.plot(xb, n.sum(H420, axis=0)[sel]/all_halos, label= 'L>42.0')
 	p.plot(xb, n.sum(H425, axis=0)[sel]/all_halos, label= 'L>42.5')
 	p.plot(xb, n.sum(H430, axis=0)[sel]/all_halos, label= 'L>43.0')
@@ -65,13 +68,13 @@ def create_plots(env='MD04', file_type="out"):
 	p.savefig(os.path.join(os.environ[env], "results", os.path.basename(fileN)[:-5]+'_HOD_LX.pdf'))
 	p.clf()
 	
-create_plots(env='MD04', file_type="out")
+create_plots(env='MD04', file_type="hlist")
 os.system("cp $MD04/results/*.pdf ~/wwwDir/eRoMok/plots/MD_0.4Gpc/")
 
-create_plots(env='MD10', file_type="out")
+create_plots(env='MD10', file_type="hlist")
 os.system("cp $MD10/results/*.pdf ~/wwwDir/eRoMok/plots/MD_1.0Gpc/")
 
-create_plots(env='MD25', file_type="out")
+create_plots(env='MD25', file_type="hlist")
 os.system("cp $MD25/results/*.pdf ~/wwwDir/eRoMok/plots/MD_2.5Gpc/")
 
 sys.exit()
