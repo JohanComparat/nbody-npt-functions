@@ -61,7 +61,7 @@ def create_catalogs(aexp = 0.74230, env='MD04' , file_type= "hlist"):
 		randomX = n.random.rand(len(Mgal_mvir_Mo13))
 		indexes = n.searchsorted(logMs,Mgal_mvir_Mo13)
 		lambda_sar_Bo16 = n.array([ cdfs_interpolations[indexes[ii]](randomX[ii]) for ii in range(Nhalo) ])
-		active_gn = n.array([ cdfs_interpolations_maxs[indexes[ii]]>randomX[ii] for ii in range(Nhalo) ])
+		active_gn = n.array([ cdfs_interpolations_maxs[indexes[ii]] > randomX[ii] for ii in range(Nhalo) ])
 		print Mgal_mvir_Mo13[:5], indexes[:5], lambda_sar_Bo16[:5]
 		# columns related to Xray AGN
 		col0 = fits.Column(name='Mgal_mvir_Mo13',format='D', array = Mgal_mvir_Mo13 )
