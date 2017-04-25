@@ -1,20 +1,23 @@
-import StellarMass
-import XrayLuminosity
-
-import numpy as n
-from scipy.stats import norm
-from scipy.integrate import quad
-from scipy.interpolate import interp1d
-
-import ClusterScalingRelations
-cl = ClusterScalingRelations.ClusterScalingRelations_Mantz2016()
-
+# overall python packages
 import glob
 import astropy.io.fits as fits
 import os
 import time
 import numpy as n
 import sys
+
+# specific functions
+from scipy.stats import norm
+from scipy.integrate import quad
+from scipy.interpolate import interp1d
+
+# dedicated packages
+import ClusterScalingRelations
+cl = ClusterScalingRelations.ClusterScalingRelations_Mantz2016()
+import StellarMass
+import XrayLuminosity
+xr = XrayLuminosity.XrayLuminosity()
+
 
 print " set up box, and redshift "
 #MD 1 hlist_0.74980_SAM_Nb_0.fits
@@ -33,16 +36,18 @@ def create_catalogs(aexp = 0.74230, env='MD04' , file_type= "hlist"):
 	stellar_mass = sm.meanSM(mhs,0.)
 
 	# set up the x ray lambda SAR
-	xr = XrayLuminosity.XrayLuminosity()
 	logMs = n.arange(6.5,12.5,0.01)
 	cdfs_interpolations = []
+	cdfs_interpolations_maxs = []
 	XXS = n.arange(32,36.1,0.1)
 	for jj,mass in enumerate(logMs):
 		pd = lambda ll : xr.psi(ll, logM=mass, z=z)
 		norming = quad( pd, 32, 36)[0]
-		cdfs_interpolations.append( interp1d(n.array([quad( pd, 32, X)[0] for X in XXS ])/norming,XXS) )
+		cdfs_interpolations.append( interp1d(n.array([quad( pd, 32, X)[0] for X in XXS ])/norming, XXS) )
+		cdfs_interpolations_maxs.append( norming )
 
 	cdfs_interpolations = n.array(cdfs_interpolations)
+	cdfs_interpolations_maxs = n.array(cdfs_interpolations_maxs)
 
 	print " loop on the files "
 	ii=0
@@ -56,11 +61,14 @@ def create_catalogs(aexp = 0.74230, env='MD04' , file_type= "hlist"):
 		randomX = n.random.rand(len(Mgal_mvir_Mo13))
 		indexes = n.searchsorted(logMs,Mgal_mvir_Mo13)
 		lambda_sar_Bo16 = n.array([ cdfs_interpolations[indexes[ii]](randomX[ii]) for ii in range(Nhalo) ])
+		active_gn = n.array([ cdfs_interpolations_maxs[indexes[ii]]<randomX[ii] for ii in range(Nhalo) ])
 		print Mgal_mvir_Mo13[:5], indexes[:5], lambda_sar_Bo16[:5]
 		# columns related to Xray AGN
 		col0 = fits.Column(name='Mgal_mvir_Mo13',format='D', array = Mgal_mvir_Mo13 )
 		col1 = fits.Column(name='Mgal_m200c_Mo13',format='D', array = norm.rvs( loc = sm.meanSM(10**hd[1].data['m200c'], z), scale = 0.15 ) )
 		col2 = fits.Column(name='lambda_sar_Bo16',format='D', array = lambda_sar_Bo16 )
+		col21 = fits.Column(name='AGN',format='L', array = active_gn )
+		
 		# columns related to clusters
 		col3 = fits.Column(name='Mgas_cluster',format='D', array =n.log10(cl.logM500_to_logMgas(hd[1].data['M500c'], z)))
 		col4 = fits.Column(name='kT_cluster',format='D', unit='keV', array =cl.logM500_to_kT(hd[1].data['M500c'], z))
@@ -75,6 +83,7 @@ def create_catalogs(aexp = 0.74230, env='MD04' , file_type= "hlist"):
 		colArray.append(col0)
 		colArray.append(col1)
 		colArray.append(col2)
+		colArray.append(col21)
 		colArray.append(col3)
 		colArray.append(col4)
 		colArray.append(col5)
