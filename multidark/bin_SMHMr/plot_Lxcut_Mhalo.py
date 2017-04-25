@@ -38,10 +38,10 @@ def create_plots(env='MD04', file_type="out"):
 	for ii, fileN in enumerate(fileList):
 		print fileN
 		hd = fits.open(fileN)[1].data	
-		cut420 = (hd['pid']=-1) & (hd['AGN']) & (hd['lambda_sar_Bo16']+hd['Mgal_mvir_Mo13'] > 42.)
-		cut425 = (hd['pid']=-1) & (hd['AGN']) & (hd['lambda_sar_Bo16']+hd['Mgal_mvir_Mo13'] > 42.5)
-		cut430 = (hd['pid']=-1) & (hd['AGN']) & (hd['lambda_sar_Bo16']+hd['Mgal_mvir_Mo13'] > 43.)
-		cut435 = (hd['pid']=-1) & (hd['AGN']) & (hd['lambda_sar_Bo16']+hd['Mgal_mvir_Mo13'] > 43.5)
+		cut420 = (hd['pid']==-1) & (hd['AGN']) & (hd['lambda_sar_Bo16']+hd['Mgal_mvir_Mo13'] > 42.)
+		cut425 = (hd['pid']==-1) & (hd['AGN']) & (hd['lambda_sar_Bo16']+hd['Mgal_mvir_Mo13'] > 42.5)
+		cut430 = (hd['pid']==-1) & (hd['AGN']) & (hd['lambda_sar_Bo16']+hd['Mgal_mvir_Mo13'] > 43.)
+		cut435 = (hd['pid']==-1) & (hd['AGN']) & (hd['lambda_sar_Bo16']+hd['Mgal_mvir_Mo13'] > 43.5)
 		Hall[ii], bb = n.histogram(hd['mvir'], bins=bins)
 		H420[ii], bb = n.histogram(hd['mvir'][cut420], bins=bins)
 		H425[ii], bb = n.histogram(hd['mvir'][cut425], bins=bins)
