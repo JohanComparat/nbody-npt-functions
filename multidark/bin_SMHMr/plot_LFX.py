@@ -47,14 +47,23 @@ def create_LF_plot(env='MD04', file_type="out"):
 		hd = fits.open(fileN)[1].data	
 		defined = (hd['pid']==-1) #& (hd['AGN']) 
 		Hall[ii], bb = n.histogram(hd['lambda_sar_Bo16'][defined]+hd['Mgal_mvir_Mo13'][defined], bins=bins)
+		defined = (hd['pid']==-1) & (hd['AGN']) 
+		H420[ii], bb = n.histogram(hd['lambda_sar_Bo16'][defined]+hd['Mgal_mvir_Mo13'][defined], bins=bins)
+	
+	                                                              
+	p.figure(1, (6,6))
+	p.fill_between(lglx[lf_sel], phi_low[lf_sel], phi_hi[lf_sel], color='b', alpha=0.5, label='Ueda 14' )
 	
 	all_halos_i = n.sum(Hall, axis=0)
 	sel = (all_halos_i>0)
 	all_halos = all_halos_i[sel].astype('float')
-	                                                              
-	p.figure(1, (6,6))
-	p.fill_between(lglx[lf_sel], phi_low[lf_sel], phi_hi[lf_sel], color='b', alpha=0.5, label='Ueda 14' )
-	p.plot(xb, all_halos/volume_dict[env]/dlogX, label= 'simulation')
+	p.plot(xb, all_halos/volume_dict[env]/dlogX, label= 'simulation disctinct')
+	
+	all_halos_i = n.sum(H420, axis=0)
+	sel = (all_halos_i>0)
+	all_halos = all_halos_i[sel].astype('float')
+	p.plot(xb, all_halos/volume_dict[env]/dlogX, label= 'simulation AGN')
+	
 	p.xlabel(r'$\log_{10} (L_X/[erg/s])$')
 	p.ylabel(r'luminosity function')
 	p.grid()
@@ -65,11 +74,11 @@ def create_LF_plot(env='MD04', file_type="out"):
 	p.savefig(os.path.join(os.environ[env], "results", os.path.basename(fileN)[:-5]+'_XLF.pdf'))
 	p.clf()
 	
-create_plots(env='MD04', file_type="hlist")
+create_LF_plot(env='MD04', file_type="hlist")
 os.system("cp $MD04/results/*.pdf ~/wwwDir/eRoMok/plots/MD_0.4Gpc/")
 
-create_plots(env='MD10', file_type="hlist")
+create_LF_plot(env='MD10', file_type="hlist")
 os.system("cp $MD10/results/*.pdf ~/wwwDir/eRoMok/plots/MD_1.0Gpc/")
 
-create_plots(env='MD25', file_type="hlist")
+create_LF_plot(env='MD25', file_type="hlist")
 os.system("cp $MD25/results/*.pdf ~/wwwDir/eRoMok/plots/MD_2.5Gpc/")
