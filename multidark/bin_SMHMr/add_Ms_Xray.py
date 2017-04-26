@@ -45,7 +45,7 @@ def create_catalogs(aexp = 0.74230, env='MD04' , file_type= "hlist"):
 		pd = lambda ll : xr.psi(ll, logM=mass, z=z)
 		norming = quad( pd, 32, 36)[0]
 		cdfs_interpolations.append( interp1d(n.array([quad( pd, 32, X)[0] for X in XXS ])/norming, XXS) )
-		cdfs_interpolations_maxs.append( norming*10. )
+		cdfs_interpolations_maxs.append( norming*50. )
 
 	cdfs_interpolations = n.array(cdfs_interpolations)
 	cdfs_interpolations_maxs = n.array(cdfs_interpolations_maxs)
