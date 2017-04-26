@@ -27,9 +27,8 @@ AL12_mass, AL12_hod_mean, AL12_hod_up, AL12_hod_low = n.loadtxt("/home/comparat/
 
 z, lglx, phi_med, phi_low, phi_hi = n.loadtxt("/home/comparat/darksim/data/LXFunction/XLFAGN_STAN.RES". unpack=True)
 
-lf_sel = (z==0.25)
-
-0.25 38.5 -6.25795767806 -9.63144066207 -2.56060363285
+#lf_sel = (z==0.25)
+#0.25 38.5 -6.25795767806 -9.63144066207 -2.56060363285
 
 dlogX = 0.2
 bins = n.arange(38,45,dlogX)
@@ -48,7 +47,7 @@ def create_LF_plot(env='MD04', file_type="out"):
 	for ii, fileN in enumerate(fileList):
 		print fileN
 		hd = fits.open(fileN)[1].data	
-		defined = (hd['pid']==-1) & (hd['AGN']) 
+		defined = (hd['pid']==-1) #& (hd['AGN']) 
 		Hall[ii], bb = n.histogram(hd['lambda_sar_Bo16'][defined]+hd['Mgal_mvir_Mo13'][defined], bins=bins)
 	
 	all_halos_i = n.sum(Hall, axis=0)
