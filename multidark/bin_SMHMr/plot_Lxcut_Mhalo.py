@@ -47,6 +47,7 @@ def create_plots(env='MD04', file_type="out"):
 		H425[ii], bb = n.histogram(hd['mvir'][cut425], bins=bins)
 		H430[ii], bb = n.histogram(hd['mvir'][cut430], bins=bins)
 		H435[ii], bb = n.histogram(hd['mvir'][cut435], bins=bins)
+		print len(hd['mvir'][cut420])
 	
 	all_halos_i = n.sum(Hall, axis=0)
 	sel = (all_halos_i>0)
