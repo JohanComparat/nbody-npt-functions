@@ -51,7 +51,8 @@ def create_LF_plot(env='MD04', file_type="out"):
 		defined = (hd['pid']==-1) & (hd['AGN']) 
 		H420[ii], bb = n.histogram(hd['lambda_sar_Bo16'][defined]+hd['Mgal_mvir_Mo13'][defined], bins=bins)
 	
-	                                                              
+	
+	print env, volume_dict[env]                                                              
 	p.figure(1, (6,6))
 	p.fill_between(lglx[lf_sel], 10**phi_low[lf_sel], 10**phi_hi[lf_sel], color='b', alpha=0.5, label='Ueda 14' )
 	
@@ -76,10 +77,13 @@ def create_LF_plot(env='MD04', file_type="out"):
 	p.clf()
 	
 create_LF_plot(env='MD04', file_type="hlist")
+create_LF_plot(env='MD04', file_type="o")
 os.system("cp $MD04/results/*.pdf ~/wwwDir/eRoMok/plots/MD_0.4Gpc/")
 
 create_LF_plot(env='MD10', file_type="hlist")
+create_LF_plot(env='MD10', file_type="out")
 os.system("cp $MD10/results/*.pdf ~/wwwDir/eRoMok/plots/MD_1.0Gpc/")
 
 create_LF_plot(env='MD25', file_type="hlist")
+create_LF_plot(env='MD25', file_type="out")
 os.system("cp $MD25/results/*.pdf ~/wwwDir/eRoMok/plots/MD_2.5Gpc/")
