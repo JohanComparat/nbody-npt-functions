@@ -52,7 +52,7 @@ def create_LF_plot(env='MD04', file_type="out"):
 	
 	                                                              
 	p.figure(1, (6,6))
-	p.fill_between(lglx[lf_sel], phi_low[lf_sel], phi_hi[lf_sel], color='b', alpha=0.5, label='Ueda 14' )
+	p.fill_between(lglx[lf_sel], 10**phi_low[lf_sel], 10**phi_hi[lf_sel], color='b', alpha=0.5, label='Ueda 14' )
 	
 	all_halos_i = n.sum(Hall, axis=0)
 	sel = (all_halos_i>0)
@@ -68,9 +68,9 @@ def create_LF_plot(env='MD04', file_type="out"):
 	p.ylabel(r'luminosity function')
 	p.grid()
 	p.yscale('log')
-	p.ylim((0.001,1.01))
+	p.ylim((0.000001,1.01))
 	p.legend(frameon=False)
-	p.title('Duty cycle 1%')
+	#p.title('Duty cycle 1%')
 	p.savefig(os.path.join(os.environ[env], "results", os.path.basename(fileN)[:-5]+'_XLF.pdf'))
 	p.clf()
 	
