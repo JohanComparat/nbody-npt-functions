@@ -29,6 +29,7 @@ xb = (bins[1:] + bins[:-1]) / 2.
 
 def create_plots(env='MD04', file_type="out"):
 	fileList = n.array(glob.glob(os.path.join(os.environ[env], "catalogs", file_type+"*.Ms.fits")))
+	fileList.sort()
 	print fileList
 	Hall = n.zeros((len(fileList), len(bins)-1))
 	H420 = n.zeros((len(fileList), len(bins)-1))
@@ -65,7 +66,6 @@ def create_plots(env='MD04', file_type="out"):
 	p.yscale('log')
 	p.ylim((0.001,1.01))
 	p.legend(frameon=False)
-	p.title('Duty cycle 1%')
 	p.savefig(os.path.join(os.environ[env], "results", os.path.basename(fileN)[:-5]+'_HOD_LX.pdf'))
 	p.clf()
 	

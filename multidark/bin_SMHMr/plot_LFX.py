@@ -36,6 +36,7 @@ volume_dict={'MD04': 400.**3., 'MD10': 1000.**3., 'MD25': 2500.**3.}
 def create_LF_plot(env='MD04', file_type="out"):
 	
 	fileList = n.array(glob.glob(os.path.join(os.environ[env], "catalogs", file_type+"*.Ms.fits")))
+	fileList.sort()
 	print fileList
 	Hall = n.zeros((len(fileList), len(bins)-1))
 	H420 = n.zeros((len(fileList), len(bins)-1))

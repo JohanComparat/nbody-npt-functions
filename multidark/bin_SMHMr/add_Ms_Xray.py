@@ -25,6 +25,7 @@ print " set up box, and redshift "
 
 def create_catalogs(aexp = 0.74230, env='MD04' , file_type= "hlist"):
 	fileList = n.array(glob.glob(os.path.join(os.environ[env], "snapshots", file_type+"_*_SAM_Nb_*.fits" )))
+	fileList.sort()
 	z = 1./0.74230 -1.
 	fileList.sort()
 	print fileList
