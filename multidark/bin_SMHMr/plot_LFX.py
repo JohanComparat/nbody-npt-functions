@@ -57,12 +57,12 @@ def create_LF_plot(env='MD04', file_type="out"):
 	all_halos_i = n.sum(Hall, axis=0)
 	sel = (all_halos_i>0)
 	all_halos = all_halos_i[sel].astype('float')
-	p.plot(xb, all_halos/volume_dict[env]/dlogX, label= 'simulation disctinct')
+	p.plot(xb[sel], all_halos/volume_dict[env]/dlogX, label= 'simulation disctinct')
 	
 	all_halos_i = n.sum(H420, axis=0)
 	sel = (all_halos_i>0)
 	all_halos = all_halos_i[sel].astype('float')
-	p.plot(xb, all_halos/volume_dict[env]/dlogX, label= 'simulation AGN')
+	p.plot(xb[sel], all_halos/volume_dict[env]/dlogX, label= 'simulation AGN')
 	
 	p.xlabel(r'$\log_{10} (L_X/[erg/s])$')
 	p.ylabel(r'luminosity function')
