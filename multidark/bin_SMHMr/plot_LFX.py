@@ -25,7 +25,7 @@ print " set up box, and redshift "
 # AL12_mass, AL12_hod_mean, AL12_hod_up, AL12_hod_low = n.loadtxt("/home/comparat/darksim/data/2PCF/allevato_2012_hod.txt", unpack=True)
 z, lglx, phi_med, phi_low, phi_hi = n.loadtxt("/home/comparat/darksim/data/LXFunction/XLFAGN_STAN.RES", unpack=True)
 
-#lf_sel = (z==0.25)
+lf_sel = (z==0.25)
 #0.25 38.5 -6.25795767806 -9.63144066207 -2.56060363285
 
 dlogX = 0.2
