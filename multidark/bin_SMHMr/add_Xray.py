@@ -45,7 +45,7 @@ def create_catalogs(aexp = 0.74230, env='MD04' , file_type= "hlist"):
 	#cdfs_interpolations_maxs = []
 	XXS = n.arange(32,36.1,0.1)
 	for jj,mass in enumerate(logMs):
-		norming = Phi_stellar_mass(mass, z)
+		norming = xr.Phi_stellar_mass(mass, z)
 		cdfs_interpolations.append( interp1d(n.array([xr.Phi_stellar_mass_to_X(X, mass, z) for X in XXS ])/norming, XXS) )
 		#cdfs_interpolations_maxs.append( norming )
 
