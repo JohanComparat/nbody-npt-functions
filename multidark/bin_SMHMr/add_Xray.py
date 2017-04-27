@@ -18,6 +18,7 @@ import StellarMass
 import XrayLuminosity
 xr = XrayLuminosity.XrayLuminosity()
 
+# open the correct duty cycle tabulate file ...
 stellar_mass, duty_cycle_data = n.loadtxt(os.path.join("..", "..", "data", "duty_cycle_0.74230_.txt"), header="stellar_mass duty_cycle")
 duty_cycle = interp1d(stellar_mass, duty_cycle_data)
 
@@ -41,21 +42,21 @@ def create_catalogs(aexp = 0.74230, env='MD04' , file_type= "hlist"):
 	# set up the x ray lambda SAR
 	logMs = n.arange(6.5,12.5,0.01)
 	cdfs_interpolations = []
-	cdfs_interpolations_maxs = []
+	#cdfs_interpolations_maxs = []
 	XXS = n.arange(32,36.1,0.1)
 	for jj,mass in enumerate(logMs):
 		norming = Phi_stellar_mass(mass, z)
 		cdfs_interpolations.append( interp1d(n.array([Phi_stellar_mass_to_X(X, mass, z) for X in XXS ])/norming, XXS) )
-		cdfs_interpolations_maxs.append( norming )
+		#cdfs_interpolations_maxs.append( norming )
 
 	cdfs_interpolations = n.array(cdfs_interpolations)
-	cdfs_interpolations_maxs = n.array(cdfs_interpolations_maxs)
+	#cdfs_interpolations_maxs = n.array(cdfs_interpolations_maxs)
 
 	print " loop on the files "
 	ii=0
 	for fileName in fileList:
 		t0=time.time()
-		outFile = os.path.join(os.environ[env], "catalogs", os.path.basename(fileName)[:-5] + ".Ms.fits")
+		outFile = os.path.join(os.environ[env], "catalogs", os.path.basename(fileName)[:-5] + "_Xray.fits")
 		print outFile
 		hd = fits.open(fileName)
 		
@@ -92,7 +93,7 @@ def create_catalogs(aexp = 0.74230, env='MD04' , file_type= "hlist"):
 			colArray.append(col)
 		
 		# AGN Mvir cols
-		colArray.append(col00)
+		#colArray.append(col00)
 		colArray.append(col01)
 		colArray.append(col02)
 		# AGN M200c cols
