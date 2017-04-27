@@ -19,7 +19,7 @@ import XrayLuminosity
 xr = XrayLuminosity.XrayLuminosity()
 
 # open the correct duty cycle tabulate file ...
-stellar_mass, duty_cycle_data = n.loadtxt(os.path.join("..", "..", "data", "duty_cycle_0.74230_.txt"), header="stellar_mass duty_cycle")
+stellar_mass, duty_cycle_data = n.loadtxt(os.path.join("..", "..", "data", "duty_cycle_0.74230_.txt"), unpack=True)
 duty_cycle = interp1d(stellar_mass, duty_cycle_data)
 
 print " set up box, and redshift "
