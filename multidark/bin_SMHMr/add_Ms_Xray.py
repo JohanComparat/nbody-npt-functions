@@ -18,13 +18,15 @@ import StellarMass
 import XrayLuminosity
 xr = XrayLuminosity.XrayLuminosity()
 
+stellar_mass, duty_cycle_data = n.loadtxt(os.path.join("..", "..", "data", "duty_cycle_0.74230_.txt"), header="stellar_mass duty_cycle")
+duty_cycle = interp1d(stellar_mass, duty_cycle_data)
 
 print " set up box, and redshift "
 #MD 1 hlist_0.74980_SAM_Nb_0.fits
 #MD 25 hlist_0.75440_SAM_Nb_10.fits
 
 def create_catalogs(aexp = 0.74230, env='MD04' , file_type= "hlist"):
-	fileList = n.array(glob.glob(os.path.join(os.environ[env], "snapshots", file_type+"_*_SAM_Nb_*.fits" )))
+	fileList = n.array(glob.glob(os.path.join(os.environ[env], "snapshots", file_type+"_*_stellar_mass.fits" )))
 	fileList.sort()
 	z = 1./0.74230 -1.
 	fileList.sort()
@@ -56,12 +58,13 @@ def create_catalogs(aexp = 0.74230, env='MD04' , file_type= "hlist"):
 		outFile = os.path.join(os.environ[env], "catalogs", os.path.basename(fileName)[:-5] + ".Ms.fits")
 		print outFile
 		hd = fits.open(fileName)
+		
 		Nhalo=len(hd[1].data['mvir'])
-		Mgal_mvir_Mo13 = norm.rvs( loc = sm.meanSM(10**hd[1].data['mvir'], z), scale = 0.15 )
-		randomX = n.random.rand(len(Mgal_mvir_Mo13))
-		indexes = n.searchsorted(logMs,Mgal_mvir_Mo13)
+		randomX = n.random.rand(len(hd[1].data['stellar_mass_Mo13_mvir']))
+		indexes = n.searchsorted(logMs,hd[1].data['stellar_mass_Mo13_mvir'])
 		lambda_sar_Bo16 = n.array([ cdfs_interpolations[indexes[ii]](randomX[ii]) for ii in range(Nhalo) ])
-		active_gn = n.array([ cdfs_interpolations_maxs[indexes[ii]] > randomX[ii] for ii in range(Nhalo) ])
+		
+		active_gn = n.array([ duty_cycle(hd[1].data['stellar_mass_Mo13_mvir']) > randomX ])
 		
 		#Mgal_m200c_Mo13 = norm.rvs( loc = sm.meanSM(10**hd[1].data['mvir'], z), scale = 0.15 )
 		#randomY = n.random.rand(len(Mgal_m200c_Mo13))
@@ -69,9 +72,7 @@ def create_catalogs(aexp = 0.74230, env='MD04' , file_type= "hlist"):
 		#lambda_sar_Bo16_m200c = n.array([ cdfs_interpolations[indexesY[ii]](randomY[ii]) for ii in range(Nhalo) ])
 		#active_gn_m200c = n.array([ cdfs_interpolations_maxs[indexesY[ii]] > randomY[ii] for ii in range(Nhalo) ])
 		
-		print Mgal_mvir_Mo13[:5], indexes[:5], lambda_sar_Bo16[:5]
 		# columns related to Xray AGN
-		col00 = fits.Column(name='Mgal_mvir_Mo13',format='D', array = Mgal_mvir_Mo13 )
 		col01 = fits.Column(name='lambda_sar_Bo16',format='D', array = lambda_sar_Bo16 )
 		col02 = fits.Column(name='AGN',format='L', array = active_gn )
 		

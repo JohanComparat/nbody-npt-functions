@@ -26,7 +26,7 @@ bins = n.arange(6,13,0.1)
 xb = (bins[1:] + bins[:-1]) / 2.
 
 def measureSMF(env='MD04', volume=400.**3., file_type="out"):
-	fileList = n.array(glob.glob(os.path.join(os.environ[env], "catalogs", file_type+"*.Ms.fits")))
+	fileList = n.array(glob.glob(os.path.join(os.environ[env], "catalogs", file_type+"*_stellar_mass.fits")))
 	fileList.sort()
 	print fileList
 	Hall = n.zeros((len(fileList), len(bins)-1))
