@@ -30,6 +30,7 @@ import glob
 import scipy.spatial.ckdtree as t
 import time
 
+from scipy.integrate import quad
 
 class XrayLuminosity() :
 	"""
@@ -64,14 +65,14 @@ class XrayLuminosity() :
 		self.Npart = 3840
 		self.force_resolution = 5. # kpc /h
 		
-		# parameters for the model
+		# parameters of the model
 		self.z0 = 1.1
 		self.psiStar = - 6.86
 		
 		
-	def fz ( self, z ): 
+	def f_z ( self, z ): 
 		"""
-		Computes the redshift component of the model $f_z(z)$ (equation 12)  
+		Computes the redshift component of the model :math:`f_z(z)` (equation 12)  
 		
 		:param z: redshift array
 		:param z0: redshift turn over
@@ -80,34 +81,75 @@ class XrayLuminosity() :
 		return n.piecewise(z, [z <= self.z0, z > self.z0], [ lambda z : (1.+z)**(5.82), lambda z : (1. + self.z0)**(5.82) * ((1.+z)/(1.+self.z0))**(2.36)])
 	
         
-	def fM(self, logM, z):
+	def f_Mstar(self, logM, z):
 		"""
 		Computes stellar mass component of the model $f_*$ (equation 10)
 		
-		:param logM: stellar mass array
+		:param logM: log stellar mass array
 		:param z: redshift array
 		"""
-		return (10**logM / 10**10.99 )**(0.24)*n.e**( - 10**logM / 10**10.99 )
+		return (10**(logM - 10.99) )**(0.24) * n.e**( - 10**(logM - 10.99) )
 	
-	def fll( self, logM, z, ll ):
+	def f_lambda_sar( self, logM, z, log_lambda_SAR ):
 		"""
 		Computes the specific accretion rate component of the model $f_\lambda$ (equation 11)
 		:param logM: stellar mass
 		:param z: redshift
-		:param ll: log lambda SAR, specific accretion rate
+		:param log_lambda_SAR: log lambda SAR, specific accretion rate
 		"""
-		ll0 = 10**(33.8 - 0.48 * (logM - 11.) )
-		ll_val = 10**ll
+		log_lambda_SAR_var = 10**( log_lambda_SAR - 33.8 + 0.48 * (logM - 11.) )		
 		g1z = 1.01 - 0.58 * (z - self.z0)
-		#g2 = -3.72
-		return ( ((ll_val)/(ll0))**(g1z) + ((ll_val)/(ll0))**(3.72) )**(-1.)
+		return 1. / ( log_lambda_SAR_var**(g1z) + log_lambda_SAR_var**(3.72) )
 		
-	def psi(self, ll, logM, z):
+	def psi_log(self, log_lambda_SAR, logM, z):
 		"""
 		Computes the bivariate distribution function (equation 7)
 		:param logM: stellar mass
 		:param z: redshift
-		:param ll: log lambda SAR, specific accretion rate
+		:param log_lambda_SAR: log lambda SAR, specific accretion rate
 		"""
-		return 10**self.psiStar * self.fll( logM, z, ll ) * self.fM( logM, z ) * self.fz( z )
+		return 10**self.psiStar * self.f_lambda_sar( logM, z, log_lambda_SAR ) * self.f_Mstar( logM, z ) * self.f_z( z )
 	      
+	def psi(self, lambda_SAR, stellar_mass, redshift):
+		"""
+		Computes the bivariate distribution function (equation 7)
+		:param logM: stellar mass
+		:param z: redshift
+		:param log_lambda_SAR: log lambda SAR, specific accretion rate
+		"""
+		return psi_log(n.log10(lambda_SAR), n.log10(stellar_mass), redshift)
+	
+	def Phi_lambda_SAR(self, log_lambda_SAR, redshift):
+		"""
+		Integrates the bivariate distribution function on logM (equation 9) gives the specific accretion rate distribution function (SARDF). :math:`dN/dVdlogM`
+		:param logM: stellar mass
+		:param z: redshift
+		:param log_lambda_SAR: log lambda SAR, specific accretion rate
+		"""
+		integrand = lambda M, log_lambda_SAR, z : self.psi_log( log_lambda_SAR, n.log10(M), z)/(n.log(10)*M)
+		return quad(integrand, 10**9.5, 10**10.5, args=(log_lambda_SAR, redshift))[0] + quad(integrand, 10**10.5, 10**11.5, args=(log_lambda_SAR, redshift))[0] + quad(integrand, 10**11.5, 10**12.5, args=(log_lambda_SAR, redshift))[0]+quad(integrand, 10**12.5, 10**13.5, args=(log_lambda_SAR, redshift))[0]
+	
+	def Phi_stellar_mass(self, stellar_mass, redshift):
+		"""
+		Integrates the bivariate distribution function on logM (equation 8). Gives the host galxy stellar mass function (AGN HGMF). :math:`dN/dVdlog\lambda`
+		:param logM: stellar mass
+		:param z: redshift
+		"""
+		integrand = lambda lambda_SAR, logM, z : self.psi_log( n.log10(lambda_SAR), logM, z)/(n.log(10)*lambda_SAR)
+		return quad(integrand, 10**32, 10**33, args=(stellar_mass, redshift))[0] + quad(integrand, 10**33, 10**34, args=(stellar_mass, redshift))[0] + quad(integrand, 10**34, 10**35, args=(stellar_mass, redshift))[0]+quad(integrand, 10**35, 10**36, args=(stellar_mass, redshift))[0]
+	
+	def Phi_stellar_mass_to_X(self, X, stellar_mass, redshift):
+		"""
+		Integrates the bivariate distribution function on logM (equation 8). Gives the host galxy stellar mass function (AGN HGMF). :math:`dN/dVdlog\lambda`
+		:param logM: stellar mass
+		:param z: redshift
+		"""
+		integrand = lambda lambda_SAR, logM, z : self.psi_log( n.log10(lambda_SAR), logM, z)/(n.log(10)*lambda_SAR)
+		if X>35 :
+			return quad(integrand, 10**32, 10**33, args=(stellar_mass, redshift))[0] + quad(integrand, 10**33, 10**34, args=(stellar_mass, redshift))[0] + quad(integrand, 10**34, 10**35, args=(stellar_mass, redshift))[0]+quad(integrand, 10**35, 10**35, args=(stellar_mass, redshift))[0]
+		elif X>34 :
+			return quad(integrand, 10**32, 10**33, args=(stellar_mass, redshift))[0] + quad(integrand, 10**33, 10**34, args=(stellar_mass, redshift))[0] + quad(integrand, 10**34, 10**X, args=(stellar_mass, redshift))[0]
+		elif X>33 :
+			return quad(integrand, 10**32, 10**33, args=(stellar_mass, redshift))[0] + quad(integrand, 10**33, 10**X, args=(stellar_mass, redshift))[0]
+		else :
+			return quad(integrand, 10**32, 10**X, args=(stellar_mass, redshift))[0]

@@ -42,10 +42,9 @@ def create_catalogs(aexp = 0.74230, env='MD04' , file_type= "hlist"):
 	cdfs_interpolations_maxs = []
 	XXS = n.arange(32,36.1,0.1)
 	for jj,mass in enumerate(logMs):
-		pd = lambda ll : xr.psi(ll, logM=mass, z=z)
-		norming = quad( pd, 32, 36)[0]
-		cdfs_interpolations.append( interp1d(n.array([quad( pd, 32, X)[0] for X in XXS ])/norming, XXS) )
-		cdfs_interpolations_maxs.append( norming*50. )
+		norming = Phi_stellar_mass(mass, z)
+		cdfs_interpolations.append( interp1d(n.array([Phi_stellar_mass_to_X(X, mass, z) for X in XXS ])/norming, XXS) )
+		cdfs_interpolations_maxs.append( norming )
 
 	cdfs_interpolations = n.array(cdfs_interpolations)
 	cdfs_interpolations_maxs = n.array(cdfs_interpolations_maxs)
@@ -64,11 +63,11 @@ def create_catalogs(aexp = 0.74230, env='MD04' , file_type= "hlist"):
 		lambda_sar_Bo16 = n.array([ cdfs_interpolations[indexes[ii]](randomX[ii]) for ii in range(Nhalo) ])
 		active_gn = n.array([ cdfs_interpolations_maxs[indexes[ii]] > randomX[ii] for ii in range(Nhalo) ])
 		
-		Mgal_m200c_Mo13 = norm.rvs( loc = sm.meanSM(10**hd[1].data['mvir'], z), scale = 0.15 )
-		randomY = n.random.rand(len(Mgal_m200c_Mo13))
-		indexesY = n.searchsorted(logMs,Mgal_m200c_Mo13)
-		lambda_sar_Bo16_m200c = n.array([ cdfs_interpolations[indexesY[ii]](randomY[ii]) for ii in range(Nhalo) ])
-		active_gn_m200c = n.array([ cdfs_interpolations_maxs[indexesY[ii]] > randomY[ii] for ii in range(Nhalo) ])
+		#Mgal_m200c_Mo13 = norm.rvs( loc = sm.meanSM(10**hd[1].data['mvir'], z), scale = 0.15 )
+		#randomY = n.random.rand(len(Mgal_m200c_Mo13))
+		#indexesY = n.searchsorted(logMs,Mgal_m200c_Mo13)
+		#lambda_sar_Bo16_m200c = n.array([ cdfs_interpolations[indexesY[ii]](randomY[ii]) for ii in range(Nhalo) ])
+		#active_gn_m200c = n.array([ cdfs_interpolations_maxs[indexesY[ii]] > randomY[ii] for ii in range(Nhalo) ])
 		
 		print Mgal_mvir_Mo13[:5], indexes[:5], lambda_sar_Bo16[:5]
 		# columns related to Xray AGN
@@ -76,9 +75,9 @@ def create_catalogs(aexp = 0.74230, env='MD04' , file_type= "hlist"):
 		col01 = fits.Column(name='lambda_sar_Bo16',format='D', array = lambda_sar_Bo16 )
 		col02 = fits.Column(name='AGN',format='L', array = active_gn )
 		
-		col10 = fits.Column(name='Mgal_m200c_Mo13',format='D', array = Mgal_m200c_Mo13 )
-		col11 = fits.Column(name='lambda_sar_Bo16_M200c',format='D', array = lambda_sar_Bo16_m200c )
-		col12 = fits.Column(name='AGN_M200c',format='L', array = active_gn_m200c )
+		#col10 = fits.Column(name='Mgal_m200c_Mo13',format='D', array = Mgal_m200c_Mo13 )
+		#col11 = fits.Column(name='lambda_sar_Bo16_M200c',format='D', array = lambda_sar_Bo16_m200c )
+		#col12 = fits.Column(name='AGN_M200c',format='L', array = active_gn_m200c )
 		
 		# columns related to clusters
 		col3 = fits.Column(name='Mgas_cluster',format='D', array =n.log10(cl.logM500_to_logMgas(hd[1].data['M500c'], z)))
@@ -96,9 +95,9 @@ def create_catalogs(aexp = 0.74230, env='MD04' , file_type= "hlist"):
 		colArray.append(col01)
 		colArray.append(col02)
 		# AGN M200c cols
-		colArray.append(col10)
-		colArray.append(col11)
-		colArray.append(col12)
+		#colArray.append(col10)
+		#colArray.append(col11)
+		#colArray.append(col12)
 		# Clusters columns
 		colArray.append(col3)
 		colArray.append(col4)
