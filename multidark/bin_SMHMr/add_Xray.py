@@ -30,12 +30,12 @@ def create_catalogs(env='MD04', file_type="out", aexp='0.74230', out_dir = os.pa
 	percentage_active = interp1d(n.hstack((-200., 0,n.min(log_stellar_mass)-0.01,log_stellar_mass,n.max(log_stellar_mass)+0.01,15)), n.hstack(( 0., 0., 0., duty_cycle, 0., 0.)))
 
 	# set up the x ray lambda SAR
-	logMs = n.arange(4.5,14.5,0.25)#,0.01)
+	logMs = n.arange(4.5,14.5,0.01)
 	cdfs_interpolations = []
-	XXS = n.arange(32,36.1,0.5)#0.1)
+	XXS = n.arange(32,36.1,0.1)
 	for mass in logMs:
 		norming = xr.Phi_stellar_mass(mass, z)
-		cdfs_interpolations.append( interp1d(n.hstack((n.array([xr.Phi_stellar_mass_to_X(X, mass, z) for X in XXS ])/norming, 1.)), n.hstack((XXS, XXS[-1]))) )
+		cdfs_interpolations.append( interp1d(n.hstack((n.array([xr.Phi_stellar_mass_to_X(X, mass, z) for X in XXS ])/norming, 1.)), n.hstack((XXS, XXS[-1]+0.1))) )
 
 	cdfs_interpolations = n.array(cdfs_interpolations)
 
@@ -49,7 +49,7 @@ def create_catalogs(env='MD04', file_type="out", aexp='0.74230', out_dir = os.pa
 		stellar_mass = hd[1].data['stellar_mass_Mo13_mvir']
 		selection = hd[1].data['stellar_mass_reliable']
 		Nhalo=len(stellar_mass)
-		
+		print Nhalo
 		randomX = n.random.rand(Nhalo)
 		active_gn = n.array([ percentage_active(stellar_mass) > randomX ])
 		
@@ -65,10 +65,10 @@ def create_catalogs(env='MD04', file_type="out", aexp='0.74230', out_dir = os.pa
 		col2 = fits.Column(name='activity',format='L', array = active_gn )
 		
 		# columns related to clusters
-		col3 = fits.Column(name='Mgas_cluster',format='D', array =n.log10(cl.logM500_to_logMgas(hd[1].data['M500c'], z)))
-		col4 = fits.Column(name='kT_cluster',format='D', unit='keV', array =cl.logM500_to_kT(hd[1].data['M500c'], z))
+		col3 = fits.Column(name='Mgas_cluster'  ,format='D', array =n.log10(cl.logM500_to_logMgas(hd[1].data['M500c'], z)))
+		col4 = fits.Column(name='kT_cluster'    ,format='D', unit='keV', array =cl.logM500_to_kT(hd[1].data['M500c'], z))
 		col5 = fits.Column(name='Lx_bol_cluster',format='D', array =n.log10(cl.logM500_to_L(hd[1].data['M500c'], z)))
-		col6 = fits.Column(name='Lx_ce_cluster',format='D', array =n.log10(cl.logM500_to_Lce(hd[1].data['M500c'], z)))
+		col6 = fits.Column(name='Lx_ce_cluster' ,format='D', array =n.log10(cl.logM500_to_Lce(hd[1].data['M500c'], z)))
 
 		#define the table hdu 
 		colArray = []
