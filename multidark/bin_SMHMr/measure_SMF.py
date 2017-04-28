@@ -25,7 +25,7 @@ print " set up box, and redshift "
 bins = n.arange(6,13,0.1)
 xb = (bins[1:] + bins[:-1]) / 2.
 
-def measureSMF(env='MD04', volume=400.**3., file_type="out", outfile):
+def measureSMF(env='MD04', volume=400.**3., file_type="out", outfile=".."):
 	fileList = n.array(glob.glob(os.path.join(os.environ[env], "catalogs", file_type+"*_stellar_mass.fits")))
 	fileList.sort()
 	print fileList
