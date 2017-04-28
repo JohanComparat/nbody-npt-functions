@@ -18,14 +18,6 @@ import StellarMass
 import XrayLuminosity
 xr = XrayLuminosity.XrayLuminosity()
 
-# open the correct duty cycle tabulate file ...
-stellar_mass, duty_cycle_data = n.loadtxt(os.path.join("..", "..", "data", "duty_cycle_0.74230_.txt"), unpack=True)
-duty_cycle = interp1d(stellar_mass, duty_cycle_data)
-
-print " set up box, and redshift "
-#MD 1 hlist_0.74980_SAM_Nb_0.fits
-#MD 25 hlist_0.75440_SAM_Nb_10.fits
-
 def create_catalogs(env='MD04', volume=400.**3.,  file_type="hlist", aexp='0.74230', out_dir = os.path.join("../../data/")):
 	# gets the file list to add the Xray luminosity
 	fileList = n.array(glob.glob(os.path.join(os.environ[env], "catalogs", file_type+"*"+aexp+"*stellar_mass.fits" )))
