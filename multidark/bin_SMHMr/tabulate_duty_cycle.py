@@ -39,7 +39,7 @@ xb = (bins[1:] + bins[:-1]) / 2.
 
 
 
-logMs = n.arange(6.5,12.5,0.01)
+logMs = n.arange(5.5,13.5,0.01)
 mbins = n.arange(8,12.5,0.25)
 
 p.figure(1, (6,6))
@@ -65,29 +65,41 @@ p.legend(loc=0, frameon=False)
 p.savefig('/home/comparat/data/eRoMok/BO12_MO13_duty_cycle.png')
 p.clf()
 
-logMs_low, logMs_up, counts, dN_dVdlogM = n.loadtxt(glob.glob(os.path.join("..", "..", "data", "out*0.4Gpc*_SMF.txt"))[0], unpack=True)
-MD_SMF = interp1d((logMs_low+ logMs_up)/2.-n.log10(0.6777), n.log10(dN_dVdlogM*0.6777**3./n.log(10)))
 AGN_HGMF = interp1d(logMs, n.array([n.log10(xr.Phi_stellar_mass(logMs_i, 1/0.74230-1.)) for logMs_i in logMs]))
+  
+def get_dc(path_to_SMF = glob.glob(os.path.join("..", "..", "data", "out*0.4Gpc*_SMF.txt"))[0]):
+    logMs_low, logMs_up, counts, dN_dVdlogM = n.loadtxt(path_to_SMF, unpack=True)
+    maxMS = n.max(logMs_up[(counts>1)])-n.log10(0.6777)
+    minMS = n.min(logMs_low[(counts>1)])-n.log10(0.6777)
+    x_SMF = (logMs_low+ logMs_up)/2.-n.log10(0.6777)
+    sel=(x_SMF>minMS)&(x_SMF<maxMS)
+    y_SMF = n.log10(dN_dVdlogM[sel]*0.6777**3./n.log(10))
+    duty_cycle = 10**AGN_HGMF(x_SMF[sel]) / 10**y_SMF
+    return x_SMF[sel], duty_cycle
 
-logMS_DC = n.arange(7,12.5,0.05)
-duty_cycle = 10**AGN_HGMF(logMS_DC) / 10**MD_SMF(logMS_DC)
-nans = n.isnan(duty_cycle) | (duty_cycle == n.inf)
-max_dc = n.max(duty_cycle[nans==False])
-duty_cycle[nans] = max_dc*n.ones_like(duty_cycle[nans])
-
-n.savetxt(os.path.join("..", "..", "data", "duty_cycle_0.74230_.txt"), n.transpose([logMS_DC, duty_cycle]), header="stellar_mass duty_cycle")
+logMS_DC_10, duty_cycle_10 = get_dc(glob.glob(os.path.join("..", "..", "data", "out*1.0*Gpc*_SMF.txt"))[0])
+logMS_DC_04,duty_cycle_04 = get_dc(glob.glob(os.path.join("..", "..", "data", "out*0.4Gpc*_SMF.txt"))[0])
+logMS_DC_25,duty_cycle_25 = get_dc(glob.glob(os.path.join("..", "..", "data", "out*2.5Gpc*_SMF.txt"))[0])
 
 p.figure(1, (6,6))
-p.plot(logMS_DC, duty_cycle)
+p.plot(logMS_DC_04, duty_cycle_04)
+p.plot(logMS_DC_10, duty_cycle_10)
+p.plot(logMS_DC_25, duty_cycle_25)
+p.axvline(7., 'k--')
+p.axvline(9.5, 'k--')
+p.axvline(11.2, 'k--')
 p.xlabel('active fraction')
 p.ylabel('log stellar mass')
-p.xlim((7., 12.2))
+p.xlim((6.5,12.2))
 p.yscale('log')
 p.ylim((0.005, .9))
 p.grid()
 p.legend(loc=0, frameon=False)
 p.savefig('/home/comparat/data/eRoMok/BO12_duty_cycle.png')
 p.clf()
+
+
+n.savetxt(os.path.join("..", "..", "data", "duty_cycle_0.4Gpc_0.74230.txt"), n.transpose([logMS_DC_04, duty_cycle_04]), header="stellar_mass duty_cycle")
 
 sys.exit()
 
