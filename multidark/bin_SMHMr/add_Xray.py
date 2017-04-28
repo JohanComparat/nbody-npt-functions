@@ -30,10 +30,10 @@ def create_catalogs(env='MD04', file_type="out", aexp='0.74230', out_dir = os.pa
 	percentage_active = interp1d(n.hstack((-200., 0,n.min(log_stellar_mass)-0.01,log_stellar_mass,n.max(log_stellar_mass)+0.01,15)), n.hstack(( 0., 0., 0., duty_cycle, 0., 0.)))
 
 	# set up the x ray lambda SAR
-	logMs = n.arange(6.5,12.5,0.01)
+	logMs = n.arange(4.5,14.5,0.25)#,0.01)
 	cdfs_interpolations = []
-	XXS = n.arange(32,36.1,0.1)
-	for jj,mass in enumerate(logMs):
+	XXS = n.arange(32,36.1,0.5)#0.1)
+	for mass in logMs:
 		norming = xr.Phi_stellar_mass(mass, z)
 		cdfs_interpolations.append( interp1d(n.array([xr.Phi_stellar_mass_to_X(X, mass, z) for X in XXS ])/norming, XXS) )
 
@@ -55,6 +55,9 @@ def create_catalogs(env='MD04', file_type="out", aexp='0.74230', out_dir = os.pa
 		
 		indexes = n.searchsorted(logMs,stellar_mass)
 		indexes[selection] = n.zeros_like(indexes[selection])
+		print n.min(indexes), n.max(indexes),indexes
+		print n.min(randomX),n.max(randomX),randomX
+		print cdfs_interpolations[0].x
 		lambda_sar_Bo16 = n.array([ cdfs_interpolations[indexes[ii]](randomX[ii]) for ii in range(Nhalo) ])
 		
 		# columns related to Xray AGN
