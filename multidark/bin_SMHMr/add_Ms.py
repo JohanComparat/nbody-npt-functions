@@ -28,11 +28,11 @@ def create_catalogs(aexp = 0.74230, env='MD04' , file_type= "hlist"):
 		print outFile
 		hd = fits.open(fileName)
 		
-		Mgal_mvir_Mo13 = norm.rvs( loc = sm.meanSM(10**hd[1].data['mvir'], z), scale = 0.15 )
-		Mgal_m200c_Mo13 = norm.rvs( loc = sm.meanSM(10**hd[1].data['mvir'], z), scale = 0.15 )
+		Mgal_mvir_Mo13 = norm.rvs( loc = sm.meanSM(10**hd[1].data['mvir'], z), scale = 0.15 )-n.log10(0.6777)
+		Mgal_m200c_Mo13 = norm.rvs( loc = sm.meanSM(10**hd[1].data['mvir'], z), scale = 0.15 )-n.log10(0.6777)
 		
-		col00 = fits.Column(name='stellar_mass_Mo13_mvir',format='D', array = Mgal_mvir_Mo13 )
-		col10 = fits.Column(name='stellar_mass_Mo13_m200c',format='D', array = Mgal_m200c_Mo13 )
+		col00 = fits.Column(name='stellar_mass_Mo13_mvir',format='D', unit='logMsun', array = Mgal_mvir_Mo13 )
+		col10 = fits.Column(name='stellar_mass_Mo13_m200c',format='D', unit='logMsun', array = Mgal_m200c_Mo13 )
 		
 		#define the table hdu 
 		colArray = []
