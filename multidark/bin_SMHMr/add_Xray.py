@@ -35,7 +35,7 @@ def create_catalogs(env='MD04', file_type="out", aexp='0.74230', out_dir = os.pa
 	XXS = n.arange(32,36.1,0.5)#0.1)
 	for mass in logMs:
 		norming = xr.Phi_stellar_mass(mass, z)
-		cdfs_interpolations.append( interp1d(n.array([xr.Phi_stellar_mass_to_X(X, mass, z) for X in XXS ])/norming, XXS) )
+		cdfs_interpolations.append( interp1d(n.hstack((n.array([xr.Phi_stellar_mass_to_X(X, mass, z) for X in XXS ])/norming, 1.)), n.hstack((XXS, XXS[-1]))) )
 
 	cdfs_interpolations = n.array(cdfs_interpolations)
 
