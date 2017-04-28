@@ -17,7 +17,7 @@ cl = ClusterScalingRelations.ClusterScalingRelations_Mantz2016()
 import StellarMass
 import XrayLuminosity
 xr = XrayLuminosity.XrayLuminosity()
-
+dV = -99.99
 def create_catalogs(env='MD04', file_type="out", aexp='0.74230', out_dir = os.path.join("../../data/")):
 	# gets the file list to add the Xray luminosity
 	fileList = n.array(glob.glob(os.path.join(os.environ[env], "catalogs", file_type+"_"+aexp+"_*stellar_mass.fits" )))
@@ -27,7 +27,7 @@ def create_catalogs(env='MD04', file_type="out", aexp='0.74230', out_dir = os.pa
 	# opens the duty cycle file_type
 	path_to_duty_cycle = os.path.join(out_dir, env+"_"+file_type+"_"+aexp+"_duty_cycle.txt")
 	log_stellar_mass, duty_cycle = n.loadtxt(path_to_duty_cycle, unpack="True")
-	percentage_active = interp1d(n.hstack((-200.,0,n.min(log_stellar_mass)-0.01,log_stellar_mass,n.max(log_stellar_mass)+0.01,15)), n.hstack((0., 0., 0., duty_cycle, 0., 0.)))
+	percentage_active = interp1d(n.hstack((-200., 0,n.min(log_stellar_mass)-0.01,log_stellar_mass,n.max(log_stellar_mass)+0.01,15)), n.hstack(( 0., 0., 0., duty_cycle, 0., 0.)))
 
 	# set up the x ray lambda SAR
 	logMs = n.arange(6.5,12.5,0.01)
@@ -54,6 +54,7 @@ def create_catalogs(env='MD04', file_type="out", aexp='0.74230', out_dir = os.pa
 		active_gn = n.array([ percentage_active(stellar_mass) > randomX ])
 		
 		indexes = n.searchsorted(logMs,stellar_mass)
+		indexes[selection] = n.zeros_like(indexes[selection])
 		lambda_sar_Bo16 = n.array([ cdfs_interpolations[indexes[ii]](randomX[ii]) for ii in range(Nhalo) ])
 		
 		# columns related to Xray AGN
