@@ -18,9 +18,9 @@ import StellarMass
 import XrayLuminosity
 xr = XrayLuminosity.XrayLuminosity()
 
-def create_catalogs(env='MD04', volume=400.**3.,  file_type="hlist", aexp='0.74230', out_dir = os.path.join("../../data/")):
+def create_catalogs(env='MD04', file_type="out", aexp='0.74230', out_dir = os.path.join("../../data/")):
 	# gets the file list to add the Xray luminosity
-	fileList = n.array(glob.glob(os.path.join(os.environ[env], "catalogs", file_type+"*"+aexp+"*stellar_mass.fits" )))
+	fileList = n.array(glob.glob(os.path.join(os.environ[env], "catalogs", file_type+"_"+aexp+"_*stellar_mass.fits" )))
 	fileList.sort()
 	z = 1./0.74230 -1.
 	print fileList
@@ -94,10 +94,7 @@ def create_catalogs(env='MD04', volume=400.**3.,  file_type="hlist", aexp='0.742
 		thdulist.writeto(outFile)
 		print time.time()-t0
 
-create_catalogs(aexp = 0.74230, env='MD04', file_type="out")
-create_catalogs(aexp = 0.74980, env='MD10', file_type="out")
-create_catalogs(aexp = 0.75440, env='MD25', file_type="out")
-#create_catalogs(aexp = 0.74230, env='MD04', file_type="hlist")
-#create_catalogs(aexp = 0.74980, env='MD10', file_type="hlist")
-#create_catalogs(aexp = 0.75440, env='MD25', file_type="hlist")
+create_catalogs(env='MD04', file_type="out"  , aexp='0.74230', out_dir = os.path.join("../../data/"))
+create_catalogs(env='MD10', file_type="out"  , aexp='0.74980', out_dir = os.path.join("../../data/"))
+create_catalogs(env='MD25', file_type="out"  , aexp='0.75440', out_dir = os.path.join("../../data/"))
 
