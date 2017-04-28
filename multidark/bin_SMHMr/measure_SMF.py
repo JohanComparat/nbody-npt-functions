@@ -38,7 +38,7 @@ def measureSMF(env='MD04', volume=400.**3., file_type="out", aexp='0.74230', out
 	
 	counts = n.sum(Hall, axis=0)
 	dN_dVdlogM = counts*0.6777**3./(bins[1:]-bins[:-1])/volume/n.log(10)
-	data = n.transpose([bins[:-1], bins[1:], counts, dN_dVdLogM ])
+	data = n.transpose([bins[:-1], bins[1:], counts, dN_dVdlogM ])
 	n.savetxt(os.path.join(out_dir, env+"_"+file_type+"_"+aexp+"_SMF.txt"), data, header = "logMs_low logMs_up counts dN_dVdlogM")
 
 
