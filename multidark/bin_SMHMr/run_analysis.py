@@ -19,6 +19,7 @@ python MD25-write-smallFile.py
 # writes in the catalog dir
 ---------------------------
 # this code it to be double checked and merged into a class ...
+
 # add stellar masses according to Moster et al. 2013
 python add_Ms.py
 
@@ -27,6 +28,7 @@ python measure_SMF.py
 
 # tabulate the duty cyle as a function of stellar mass
 python tabulate_duty_cycle.py
+python plot_AGN_HGMF_duty_cycle.py
 
 # add Xray luminosities for AGNs
 python add_Xray.py

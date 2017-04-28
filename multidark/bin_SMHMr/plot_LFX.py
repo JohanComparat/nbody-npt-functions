@@ -33,6 +33,9 @@ bins = n.arange(38,45,dlogX)
 xb = (bins[1:] + bins[:-1]) / 2.
 volume_dict={'MD04': 400.**3., 'MD10': 1000.**3., 'MD25': 2500.**3.}
 
+
+
+
 def create_LF_plot(env='MD04', file_type="out"):
 	
 	fileList = n.array(glob.glob(os.path.join(os.environ[env], "catalogs", file_type+"*.Ms.fits")))

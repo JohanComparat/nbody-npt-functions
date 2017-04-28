@@ -20,6 +20,36 @@ xr = XrayLuminosity.XrayLuminosity()
 
 import matplotlib.pyplot as p
 
+# compare the stellar mass function measured to the Ilbert function
+# take the AGN HGMF model
+
+def tabulate_duty_cycle(env='MD04', volume=400.**3.,  file_type="hlist", aexp='0.74230', out_dir = os.path.join("../../data/")):
+    # path for the output file
+    path_to_duty_cycle = os.path.join(out_dir, env+"_"+file_type+"_"+aexp+"_duty_cycle.txt")
+    # opens stellar mass function
+    path_to_SMF = os.path.join(out_dir, env+"_"+file_type+"_"+aexp+"_SMF.txt")
+    logMs_low, logMs_up, counts, dN_dVdlogM = n.loadtxt(path_to_SMF, unpack=True)
+    # interpolates the model of the AGN host galaxy mass function
+    AGN_HGMF = interp1d(n.arange(5.5,13.5,0.01), n.array([n.log10(xr.Phi_stellar_mass(logMs_i, 1/float(aexp)-1.)) for logMs_i in n.arange(5.5,13.5,0.01)]))
+    # interpolates the duty cycle in the interesting region
+    maxMS = n.max(logMs_up[(counts>1)])
+    minMS = n.min(logMs_low[(counts>1)])
+    x_SMF = (logMs_low+ logMs_up)/2.
+    sel=(x_SMF>minMS)&(x_SMF<maxMS)
+    duty_cycle = 10**AGN_HGMF(x_SMF[sel]) / dN_dVdlogM[sel]
+    n.savetxt(path_to_duty_cycle, n.transpose([x_SMF[sel], duty_cycle]), header = "log_stellar_mass duty_cycle")
+    
+
+tabulate_duty_cycle(env='MD04', volume=400.**3.,  file_type="hlist", aexp='0.74230', out_dir = os.path.join("../../data/"))
+tabulate_duty_cycle(env='MD04', volume=400.**3.,  file_type="out"  , aexp='0.74230', out_dir = os.path.join("../../data/"))
+tabulate_duty_cycle(env='MD10', volume=1000.**3., file_type="hlist", aexp='0.74980', out_dir = os.path.join("../../data/"))
+tabulate_duty_cycle(env='MD10', volume=1000.**3., file_type="out"  , aexp='0.74980', out_dir = os.path.join("../../data/"))
+tabulate_duty_cycle(env='MD25', volume=2500.**3., file_type="hlist", aexp='0.75440', out_dir = os.path.join("../../data/"))
+tabulate_duty_cycle(env='MD25', volume=2500.**3., file_type="out"  , aexp='0.75440', out_dir = os.path.join("../../data/"))
+
+
+sys.exit()
+
 
 smf_ilbert13 = lambda M, M_star, phi_1s, alpha_1s, phi_2s, alpha_2s : ( phi_1s * (M/M_star) ** alpha_1s + phi_2s * (M/M_star) ** alpha_2s ) * n.e ** (-M/M_star) * (M/ M_star)
 ll_dir = os.path.join(os.environ['DATA_DIR'], 'spm', 'literature')
@@ -29,17 +59,6 @@ zmin, zmax, N, M_comp, M_star, phi_1s, alpha_1s, phi_2s, alpha_2s, log_rho_s = n
 smf01 = lambda mass : smf_ilbert13( mass , 10**M_star[0], phi_1s[0]*10**(-3), alpha_1s[0], phi_2s[0]*10**(-3), alpha_2s[0] )
 smf08 = lambda mass : smf_ilbert13( mass , 10**M_star[2], phi_1s[2]*10**(-3), alpha_1s[2], phi_2s[2]*10**(-3), alpha_2s[2] )
 
-
-bins = n.arange(6,13,0.1)
-xb = (bins[1:] + bins[:-1]) / 2.
-
-# compare the stellar mass function measured to the Ilbert function
-# take the AGN HGMF model
-
-
-
-
-logMs = n.arange(5.5,13.5,0.01)
 mbins = n.arange(8,12.5,0.25)
 
 p.figure(1, (6,6))
@@ -65,8 +84,6 @@ p.legend(loc=0, frameon=False)
 p.savefig('/home/comparat/data/eRoMok/BO12_MO13_duty_cycle.png')
 p.clf()
 
-AGN_HGMF = interp1d(logMs, n.array([n.log10(xr.Phi_stellar_mass(logMs_i, 1/0.74230-1.)) for logMs_i in logMs]))
-  
 def get_dc(path_to_SMF = glob.glob(os.path.join("..", "..", "data", "out*0.4Gpc*_SMF.txt"))[0]):
     logMs_low, logMs_up, counts, dN_dVdlogM = n.loadtxt(path_to_SMF, unpack=True)
     maxMS = n.max(logMs_up[(counts>1)])-n.log10(0.6777)
@@ -76,13 +93,6 @@ def get_dc(path_to_SMF = glob.glob(os.path.join("..", "..", "data", "out*0.4Gpc*
     y_SMF = n.log10(dN_dVdlogM[sel]*0.6777**3./n.log(10))
     duty_cycle = 10**AGN_HGMF(x_SMF[sel]) / 10**y_SMF
     return x_SMF[sel], duty_cycle
-
--rw-rw-r-- 1 comparat comparat 6,8K Apr 27 22:49 ../../data/hlist_0.74230_MD_0.4Gpc_SMF.txt
--rw-rw-r-- 1 comparat comparat 6,8K Apr 27 22:49 ../../data/hlist_0.74980_MD_1.0Gpc_SMF.txt
--rw-rw-r-- 1 comparat comparat 6,8K Apr 28 08:52 ../../data/hlist_0.75440_MD_2.5Gpc_SMF.txt
--rw-rw-r-- 1 comparat comparat 6,8K Apr 27 22:49 ../../data/out_0.74230_MD_0.4Gpc_SMF.txt
--rw-rw-r-- 1 comparat comparat 6,8K Apr 27 22:49 ../../data/out_0.74980_MD_1.0Gpc_SMF.txt
--rw-rw-r-- 1 comparat comparat 6,8K Apr 28 08:52 ../../data/out_0.75440_MD_2.5Gpc_SMF.txt
 
 
 logMS_DC_10, duty_cycle_10 = get_dc(glob.glob(os.path.join("..", "..", "data", "out*1.0*Gpc*_SMF.txt"))[0])
