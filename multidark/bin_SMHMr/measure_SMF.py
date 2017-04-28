@@ -25,7 +25,7 @@ print " set up box, and redshift "
 bins = n.arange(6,13,0.1)
 xb = (bins[1:] + bins[:-1]) / 2.
 
-def measureSMF(env='MD04', volume=400.**3., file_type="out", outfile=".."):
+def measureSMF(env='MD04', volume=400.**3., file_type="out", aexp='0.74230', outfile=".."):
 	fileList = n.array(glob.glob(os.path.join(os.environ[env], "catalogs", file_type+"*_stellar_mass.fits")))
 	fileList.sort()
 	print fileList
@@ -44,7 +44,7 @@ def measureSMF(env='MD04', volume=400.**3., file_type="out", outfile=".."):
 
 measureSMF(env='MD04', volume=400.**3.,  file_type="hlist", aexp='0.74230', out_dir = os.path.join("../../data/"))
 measureSMF(env='MD04', volume=400.**3.,  file_type="out"  , aexp='0.74230', out_dir = os.path.join("../../data/"))
-measureSMF(env='MD10', volume=1000.**3., file_type="hlist", aexp='0.74230', out_dir = os.path.join("../../data/"))
-measureSMF(env='MD10', volume=1000.**3., file_type="out"  , aexp='0.74230', out_dir = os.path.join("../../data/"))
-measureSMF(env='MD25', volume=2500.**3., file_type="hlist", aexp='0.74230', out_dir = os.path.join("../../data/"))
-measureSMF(env='MD25', volume=2500.**3., file_type="out"  , aexp='0.74230', out_dir = os.path.join("../../data/"))
+measureSMF(env='MD10', volume=1000.**3., file_type="hlist", aexp='0.74980', out_dir = os.path.join("../../data/"))
+measureSMF(env='MD10', volume=1000.**3., file_type="out"  , aexp='0.74980', out_dir = os.path.join("../../data/"))
+measureSMF(env='MD25', volume=2500.**3., file_type="hlist", aexp='0.75440', out_dir = os.path.join("../../data/"))
+measureSMF(env='MD25', volume=2500.**3., file_type="out"  , aexp='0.75440', out_dir = os.path.join("../../data/"))
