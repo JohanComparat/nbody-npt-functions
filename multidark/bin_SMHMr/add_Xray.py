@@ -51,7 +51,7 @@ def create_catalogs(env='MD04', file_type="out", aexp='0.74230', out_dir = os.pa
 		Nhalo=len(stellar_mass)
 		
 		randomX = n.random.rand(Nhalo)
-		active_gn = n.array([ duty_cycle(stellar_mass) > randomX ])
+		active_gn = n.array([ percentage_active(stellar_mass) > randomX ])
 		
 		indexes = n.searchsorted(logMs,stellar_mass)
 		lambda_sar_Bo16 = n.array([ cdfs_interpolations[indexes[ii]](randomX[ii]) for ii in range(Nhalo) ])
