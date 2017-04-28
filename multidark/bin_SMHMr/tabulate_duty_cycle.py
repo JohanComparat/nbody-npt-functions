@@ -77,17 +77,34 @@ def get_dc(path_to_SMF = glob.glob(os.path.join("..", "..", "data", "out*0.4Gpc*
     duty_cycle = 10**AGN_HGMF(x_SMF[sel]) / 10**y_SMF
     return x_SMF[sel], duty_cycle
 
+-rw-rw-r-- 1 comparat comparat 6,8K Apr 27 22:49 ../../data/hlist_0.74230_MD_0.4Gpc_SMF.txt
+-rw-rw-r-- 1 comparat comparat 6,8K Apr 27 22:49 ../../data/hlist_0.74980_MD_1.0Gpc_SMF.txt
+-rw-rw-r-- 1 comparat comparat 6,8K Apr 28 08:52 ../../data/hlist_0.75440_MD_2.5Gpc_SMF.txt
+-rw-rw-r-- 1 comparat comparat 6,8K Apr 27 22:49 ../../data/out_0.74230_MD_0.4Gpc_SMF.txt
+-rw-rw-r-- 1 comparat comparat 6,8K Apr 27 22:49 ../../data/out_0.74980_MD_1.0Gpc_SMF.txt
+-rw-rw-r-- 1 comparat comparat 6,8K Apr 28 08:52 ../../data/out_0.75440_MD_2.5Gpc_SMF.txt
+
+
 logMS_DC_10, duty_cycle_10 = get_dc(glob.glob(os.path.join("..", "..", "data", "out*1.0*Gpc*_SMF.txt"))[0])
 logMS_DC_04,duty_cycle_04 = get_dc(glob.glob(os.path.join("..", "..", "data", "out*0.4Gpc*_SMF.txt"))[0])
 logMS_DC_25,duty_cycle_25 = get_dc(glob.glob(os.path.join("..", "..", "data", "out*2.5Gpc*_SMF.txt"))[0])
 
+logMS_DC_10_h, duty_cycle_10_h = get_dc(glob.glob(os.path.join("..", "..", "data", "hlist*1.0*Gpc*_SMF.txt"))[0])
+logMS_DC_04_h, duty_cycle_04_h = get_dc(glob.glob(os.path.join("..", "..", "data", "hlist*0.4Gpc*_SMF.txt"))[0])
+logMS_DC_25_h, duty_cycle_25_h = get_dc(glob.glob(os.path.join("..", "..", "data", "hlist*2.5Gpc*_SMF.txt"))[0])
+
 p.figure(1, (6,6))
-p.plot(logMS_DC_04, duty_cycle_04)
-p.plot(logMS_DC_10, duty_cycle_10)
-p.plot(logMS_DC_25, duty_cycle_25)
-p.axvline(7., 'k--')
-p.axvline(9.5, 'k--')
-p.axvline(11.2, 'k--')
+p.plot(logMS_DC_04, duty_cycle_04, label='MD 04')
+p.plot(logMS_DC_10, duty_cycle_10, label='MD 10')
+p.plot(logMS_DC_25, duty_cycle_25, label='MD 25')
+
+p.plot(logMS_DC_04_h, duty_cycle_04_h, label='MD h 04')
+p.plot(logMS_DC_10_h, duty_cycle_10_h, label='MD h 10')
+p.plot(logMS_DC_25_h, duty_cycle_25_h, label='MD h 25')
+
+p.axvline(7.2, c='k'  , ls='dashed')
+p.axvline(9.7, c='k' , ls='dashed')
+p.axvline(11.3, c='k', ls='dashed')
 p.xlabel('active fraction')
 p.ylabel('log stellar mass')
 p.xlim((6.5,12.2))
@@ -98,8 +115,11 @@ p.legend(loc=0, frameon=False)
 p.savefig('/home/comparat/data/eRoMok/BO12_duty_cycle.png')
 p.clf()
 
+#minMS_MD04 = 7.2
+#minMS_MD10 = 9.7
+#minMS_MD25 = 11.3
 
-n.savetxt(os.path.join("..", "..", "data", "duty_cycle_0.4Gpc_0.74230.txt"), n.transpose([logMS_DC_04, duty_cycle_04]), header="stellar_mass duty_cycle")
+n.savetxt(os.path.join("..", "..", "data", "duty_cycle_out_0.4Gpc_0.74230.txt"), n.transpose([logMS_DC_04,duty_cycle_04]), header="stellar_mass duty_cycle")
 
 sys.exit()
 

@@ -25,25 +25,26 @@ print " set up box, and redshift "
 bins = n.arange(6,13,0.1)
 xb = (bins[1:] + bins[:-1]) / 2.
 
-def measureSMF(env='MD04', volume=400.**3., file_type="out"):
+def measureSMF(env='MD04', volume=400.**3., file_type="out", outfile):
 	fileList = n.array(glob.glob(os.path.join(os.environ[env], "catalogs", file_type+"*_stellar_mass.fits")))
 	fileList.sort()
 	print fileList
 	Hall = n.zeros((len(fileList), len(bins)-1))
 	for ii, fileN in enumerate(fileList):
 		print fileN
-		hd = fits.open(fileN)[1].data	
-		Hall[ii], bb = n.histogram(hd['Mgal_mvir_Mo13'], bins=bins)
+		mass = fits.open(fileN)[1].data['stellar_mass_Mo13_mvir']
+		selection = fits.open(fileN)[1].data['stellar_mass_reliable']
+		Hall[ii], bb = n.histogram(mass[selection], bins=bins)
 	
-	counts =n.sum(Hall, axis=0)
-	n.savetxt(os.path.join(os.environ[env], "results", os.path.basename(fileN)[:-5]+'_SMF.txt'),  n.transpose([bins[:-1], bins[1:], counts, counts/(bins[1:]-bins[:-1])/volume]), header = "logMs_low logMs_up counts dN_dVdlogM")
+	counts = n.sum(Hall, axis=0)
+	dN_dVdlogM = counts*0.6777**3./(bins[1:]-bins[:-1])/volume/n.log(10)
+	data = n.transpose([bins[:-1], bins[1:], counts, dN_dVdLogM ])
+	n.savetxt(os.path.join(out_dir, env+"_"+file_type+"_"+aexp+"_SMF.txt"), data, header = "logMs_low logMs_up counts dN_dVdlogM")
 
 
-measureSMF(env='MD04', volume=400.**3.,  file_type="hlist")
-measureSMF(env='MD04', volume=400.**3.,  file_type="out")
-
-measureSMF(env='MD10', volume=1000.**3., file_type="hlist")
-measureSMF(env='MD10', volume=1000.**3., file_type="out")
-
-measureSMF(env='MD25', volume=2500.**3., file_type="hlist")
-measureSMF(env='MD25', volume=2500.**3., file_type="out")
+measureSMF(env='MD04', volume=400.**3.,  file_type="hlist", aexp='0.74230', out_dir = os.path.join("../../data/"))
+measureSMF(env='MD04', volume=400.**3.,  file_type="out"  , aexp='0.74230', out_dir = os.path.join("../../data/"))
+measureSMF(env='MD10', volume=1000.**3., file_type="hlist", aexp='0.74230', out_dir = os.path.join("../../data/"))
+measureSMF(env='MD10', volume=1000.**3., file_type="out"  , aexp='0.74230', out_dir = os.path.join("../../data/"))
+measureSMF(env='MD25', volume=2500.**3., file_type="hlist", aexp='0.74230', out_dir = os.path.join("../../data/"))
+measureSMF(env='MD25', volume=2500.**3., file_type="out"  , aexp='0.74230', out_dir = os.path.join("../../data/"))
