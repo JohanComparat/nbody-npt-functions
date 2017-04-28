@@ -77,6 +77,18 @@ duty_cycle[nans] = max_dc*n.ones_like(duty_cycle[nans])
 
 n.savetxt(os.path.join("..", "..", "data", "duty_cycle_0.74230_.txt"), n.transpose([logMS_DC, duty_cycle]), header="stellar_mass duty_cycle")
 
+p.figure(1, (6,6))
+p.plot(logMS_DC, duty_cycle)
+p.xlabel('active fraction')
+p.ylabel('log stellar mass')
+p.xlim((7., 12.2))
+p.yscale('log')
+p.ylim((0.005, .9))
+p.grid()
+p.legend(loc=0, frameon=False)
+p.savefig('/home/comparat/data/eRoMok/BO12_duty_cycle.png')
+p.clf()
+
 sys.exit()
 
 def measureSMF(env='MD04', volume=400.**3., file_type="out"):
