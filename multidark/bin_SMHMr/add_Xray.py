@@ -27,7 +27,7 @@ def create_catalogs(env='MD04', file_type="out", aexp='0.74230', out_dir = os.pa
 	# opens the duty cycle file_type
 	path_to_duty_cycle = os.path.join(out_dir, env+"_"+file_type+"_"+aexp+"_duty_cycle.txt")
 	log_stellar_mass, duty_cycle = n.loadtxt(path_to_duty_cycle, unpack="True")
-	percentage_active = interp1d(log_stellar_mass, duty_cycle)
+	percentage_active = interp1d(n.hstack((0,n.min(log_stellar_mass)-0.01,log_stellar_mass,n.max(log_stellar_mass)+0.01,15)), n.hstack((0., 0., duty_cycle, 0., 0.)))
 
 	# set up the x ray lambda SAR
 	logMs = n.arange(6.5,12.5,0.01)
