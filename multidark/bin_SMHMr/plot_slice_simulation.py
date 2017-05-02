@@ -79,7 +79,7 @@ def get_slice(env='MD04', file_type="out", aexp='0.74230'):
 		p.figure(1, (9,9))
 		p.plot(x[mass_selection], y[mass_selection], 'k,', rasterized=True, alpha=0.3, label='log(M)>9')
 		p.scatter(x[cluster_selection], y[cluster_selection], c=mass[cluster_selection] , s=LX_cluster[cluster_selection]-30 , label="Cluster LX>"+str(LX_cut), rasterized=True)
-		p.plot(x[agn_selection], y[agn_selection], c=mass[agn_selection] , s=LX_cluster[agn_selection]-30, label="AGN LX>"+str(LX_cut), rasterized=True)
+		p.scatter(x[agn_selection], y[agn_selection], c=mass[agn_selection] , s=LX_cluster[agn_selection]-30, label="AGN LX>"+str(LX_cut), rasterized=True)
 		cb = p.colorbar(shrink=0.7)
 		cb.set_label('stellar mass')
 		p.xlabel(r'$x [Mpc/h]$')
