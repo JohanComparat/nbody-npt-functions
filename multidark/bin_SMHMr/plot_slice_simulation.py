@@ -77,7 +77,7 @@ def get_slice(env='MD04', file_type="out", aexp='0.74230'):
 		print "N cluster in plot=", len(y[cluster_selection])
 		p.figure(1, (9,9))
 		p.plot(x[agn_selection], y[agn_selection], 'b+', label="AGN LX>"+str(LX_cut), rasterized=True)
-		p.plot(x[cluster_selection], y[cluster_selection], 'ro', label="Cluster LX>"+str(LX_cut), rasterized=True, edgecolor='r')
+		p.plot(x[cluster_selection], y[cluster_selection], 'ro', label="Cluster LX>"+str(LX_cut), rasterized=True, markeredgecolor='r')
 		p.xlabel(r'$x [Mpc/h]$')
 		p.ylabel(r'$y [Mpc/h]$')
 		p.grid()
