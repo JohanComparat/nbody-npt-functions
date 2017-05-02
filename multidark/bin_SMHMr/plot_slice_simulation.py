@@ -54,7 +54,7 @@ def get_slice(env='MD04', file_type="out", aexp='0.74230'):
 		print "N points = ", len(xd[zone])
 		return xd[zone], yd[zone], zd[zone], stellar_mass[zone], LX_AGN[zone], LX_cluster[zone], active[zone]
 
-	y, x, z, mass, LX_AGN, LX_cluster, active = get_plot_data(fileN[0])
+	y, x, z, mass, LX_AGN, LX_cluster, active = get_plot_data(fileList[0])
 	
 	for fileN in fileList[1:]:
 		print fileN
