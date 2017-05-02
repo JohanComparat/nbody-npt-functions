@@ -78,7 +78,7 @@ def get_slice(env='MD04', file_type="out", aexp='0.74230'):
 		print "N cluster in plot=", len(y[cluster_selection])
 		
 		p.figure(1, (11,9))
-		p.plot(x[mass_selection], y[mass_selection], 'k,', rasterized=True, alpha=0.5, label='log(M)>9')
+		p.plot(x[mass_selection], y[mass_selection], 'ko', rasterized=True, alpha=0.4, label='log(M)>9')
 		p.scatter(x[cluster_selection], y[cluster_selection], c=mass[cluster_selection] , s=mass[cluster_selection] , label="Cluster LX>"+str(LX_cut), rasterized=True, edgecolor='face', marker='s')
 		p.scatter(x[agn_selection], y[agn_selection], c=mass[agn_selection] , s=mass[agn_selection], label="AGN LX>"+str(LX_cut), rasterized=True, edgecolor='face', marker='*')
 		cb = p.colorbar(shrink=0.7)
