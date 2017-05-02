@@ -51,60 +51,40 @@ def get_plot_data(fileN):
 	#hd[1].data['Lx_ce_cluster']
 
 	selection_spatial = (selection) & (xd > xmin) & (xd < xmax) & (yd > ymin) & (yd < ymax) & (zd > zmin) & (zd < zmax)
-	agn_selection = (active)&(LX_AGN>42)
-	cluster_selection = (LX_cluster>42)
+	#agn_selection = (active)&(LX_AGN>42)
+	#cluster_selection = (LX_cluster>42)
 	
 	zone = (selection_spatial) # & ( agn_selection | cluster_selection )
 
-	return xd[zone], yd[zone], zd[zone], stellar_mass[zone], LX_AGN[zone], LX_cluster[zone]
+	return xd[zone], yd[zone], zd[zone], stellar_mass[zone], LX_AGN[zone], LX_cluster[zone], active[zone]
 
+y, x, z, mass, LX_AGN, LX_cluster, active = get_plot_data(fileN[0])
 for fileN in fileList[1:]:
 	print fileN
-	hd = fits.open(fileN)[1].data	
+	y_i, x_i, z_i, mass_i, LX_AGN_i, LX_cluster_i, active_i = get_plot_data(fileN)
+	x = n.hstack((x, x_i))
+	y = n.hstack((y, y_i))
+	z = n.hstack((z, z_i))
+	mass = n.hstack((mass, mass_i))
+	LX_AGN = n.hstack((LX_AGN, LX_AGN_i))
+	LX_cluster = n.hstack((LX_cluster, LX_cluster_i))
+	active = n.hstack((active, active_i))
 
-	
 
-def create_LF_plot(env='MD04', file_type="out"):
-	
-	fileList = n.array(glob.glob(os.path.join(os.environ[env], "catalogs", file_type+"*.Ms.fits")))
-	fileList.sort()
-	print fileList
-	Hall = n.zeros((len(fileList), len(bins)-1))
-	H420 = n.zeros((len(fileList), len(bins)-1))
-	H425 = n.zeros((len(fileList), len(bins)-1))
-	H430 = n.zeros((len(fileList), len(bins)-1))
-	H435 = n.zeros((len(fileList), len(bins)-1))
-	for ii, fileN in enumerate(fileList):
-		print fileN
-		hd = fits.open(fileN)[1].data	
-		defined = (hd['pid']==-1) #& (hd['AGN']) 
-		Hall[ii], bb = n.histogram(hd['lambda_sar_Bo16'][defined]+hd['Mgal_mvir_Mo13'][defined], bins=bins)
-		defined = (hd['pid']==-1) & (hd['AGN']) 
-		H420[ii], bb = n.histogram(hd['lambda_sar_Bo16'][defined]+hd['Mgal_mvir_Mo13'][defined], bins=bins)
-	
-	
-	print env, volume_dict[env]                                                              
+def plot_slice(y, x, z, mass, LX_AGN, LX_cluster):
+	agn_selection = (active)&(LX_AGN>42)
+	cluster_selection = (LX_cluster>42)
 	p.figure(1, (6,6))
-	p.fill_between(lglx[lf_sel], 10**phi_low[lf_sel], 10**phi_hi[lf_sel], color='b', alpha=0.5, label='Ueda 14' )
-	
-	all_halos_i = n.sum(Hall, axis=0)
-	sel = (all_halos_i>0)
-	all_halos = all_halos_i[sel].astype('float')
-	p.plot(xb[sel], all_halos/volume_dict[env]/dlogX*n.log(10), label= 'simulation disctinct')
-	
-	all_halos_i = n.sum(H420, axis=0)
-	sel = (all_halos_i>0)
-	all_halos = all_halos_i[sel].astype('float')
-	p.plot(xb[sel], all_halos/volume_dict[env]/dlogX*n.log(10), label= 'simulation AGN')
-	
-	p.xlabel(r'$\log_{10} (L_X/[erg/s])$')
-	p.ylabel(r'luminosity function')
+	p.plot(x[agn_selection], y[agn_selection], 'b+', label="AGN LX>42")
+	p.plot(x[cluster_selection], y[cluster_selection], 'ro', label="Cluster LX>42")
+	p.xlabel(r'$x /[Mpc/h]$')
+	p.ylabel(r'$y /[Mpc/h]$')
 	p.grid()
 	p.yscale('log')
 	p.ylim((0.000001,1.01))
 	p.legend(frameon=False)
 	#p.title('Duty cycle 1%')
-	p.savefig(os.path.join(os.environ[env], "results", os.path.basename(fileN)[:-5]+'_XLF.pdf'))
+	p.savefig(os.path.join(os.environ[env], "results", os.path.basename(fileN)[:-5]+'_sim_slice.pdf'))
 	p.clf()
 	
 create_LF_plot(env='MD04', file_type="hlist")
