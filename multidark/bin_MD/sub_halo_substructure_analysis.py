@@ -62,7 +62,7 @@ def get_hd_inside(fileName=sat_in_cen_d1, sflg='_sat'):
 	da = fits.open(fileName)[1].data
 	print len(da)
 	dist = ((da['x'+sflg]-da['x_cen'])**2. + (da['y'+sflg]-da['y_cen'])**2. + (da['z'+sflg]-da['z_cen'])**2.)**0.5
-	inside =(dist < 55555555588888885)#da['rvir_cen']/1000.)
+	inside =(dist < 2. * da['rvir_cen']/1000.)
 	return da[inside]
 
 hd10_1 = get_hd_inside(sat_in_cen_d1, sflg="_sat")
@@ -165,8 +165,8 @@ def plot_SHMFR(mmin, mmax):
 	p.ylim((-7, -2))
 	p.xlim(( -3, 0 )) 
 	p.grid()
-	p.savefig(join(os.environ['MD10'], 'substructure', 'shmfr_'+str(mmin)+"_M_"+str(mmax)+"_all.png"))
-	n.savetxt(join(os.environ['MD10'], 'substructure', 'shmfr_'+str(mmin)+"_M_"+str(mmax)+"_all.txt"), n.transpose([x_data[pouet], n.log10(y_data[pouet]), 0.05+y_data_err[pouet]]))
+	p.savefig(join(os.environ['MD10'], 'substructure', 'shmfr_'+str(mmin)+"_M_"+str(mmax)+"_2rvir.png"))
+	n.savetxt(join(os.environ['MD10'], 'substructure', 'shmfr_'+str(mmin)+"_M_"+str(mmax)+"_2rvir.txt"), n.transpose([x_data[pouet], n.log10(y_data[pouet]), 0.05+y_data_err[pouet]]))
 	p.clf()
 	return out
 
