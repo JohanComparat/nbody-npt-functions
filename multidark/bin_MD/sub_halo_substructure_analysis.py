@@ -62,7 +62,7 @@ def get_hd_inside(fileName=sat_in_cen_d1, sflg='_sat'):
 	da = fits.open(fileName)[1].data
 	print len(da)
 	dist = ((da['x'+sflg]-da['x_cen'])**2. + (da['y'+sflg]-da['y_cen'])**2. + (da['z'+sflg]-da['z_cen'])**2.)**0.5
-	inside =(dist < 3. * da['rvir_cen']/1000.)
+	inside =(dist < 10. * da['rvir_cen']/1000.)
 	return da[inside]
 
 hd10_1 = get_hd_inside(sat_in_cen_d1, sflg="_sat")
@@ -106,11 +106,11 @@ def get_total(hd04_1, hd04_2, hd04_3, Lbox, mmin=14.5, mmax=15.5, MP=9):
 	print '------------------------------------------------------------------'
 	"""
 	#print '----------------- mvir_sat'
-	xb, ratio_1, NN_1,ok_1 = get_hist_MR(hd04_1, 'mvir_sat', Lbox=Lbox, mmin=mmin, mmax=mmax, MP=MP, stat=True)
+	xb, ratio_1, NN_1,ok_1 = get_hist_MR(hd04_1, 'mvir_sat', Lbox=Lbox, mmin=mmin, mmax=mmax, MP=MP)
 	#print '----------------- mvir_sat_sat'
-	xb, ratio_2, NN_2,ok_1 = get_hist_MR(hd04_2, 'mvir_sat_n_sat_n_1', Lbox= Lbox, mmin=mmin, mmax=mmax,MP=MP, stat=True)
+	xb, ratio_2, NN_2,ok_1 = get_hist_MR(hd04_2, 'mvir_sat_n_sat_n_1', Lbox= Lbox, mmin=mmin, mmax=mmax,MP=MP)
 	#print '----------------- mvir_sat_sat_sat'
-	xb, ratio_3, NN_3,ok_1 = get_hist_MR(hd04_3, 'mvir_sat_n_sat_n_1_sat_n_2', Lbox= Lbox, mmin=mmin, mmax=mmax,MP=MP, stat=True)
+	xb, ratio_3, NN_3,ok_1 = get_hist_MR(hd04_3, 'mvir_sat_n_sat_n_1_sat_n_2', Lbox= Lbox, mmin=mmin, mmax=mmax,MP=MP)
 	
 	err = (NN_1+NN_2+NN_3)**(-0.5)
 	return xb, (ratio_1+ratio_2+ratio_3)*10**-xb, err, ok_1, ratio_1*10**-xb, ratio_2*10**-xb, ratio_3*10**-xb
@@ -176,6 +176,7 @@ for mmin, mmax in zip(mms[:-1], mms[1:]):
 	#print mmin, mmax
 	outs.append( plot_SHMFR(mmin, mmax) )
 
+sys.exit()
 for out in outs:
 	print n.round(out[0][0],4), n.round(out[1].diagonal()[0]**0.5,4)
 
