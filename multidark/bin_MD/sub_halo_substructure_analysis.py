@@ -1,15 +1,8 @@
 import astropy.io.fits as fits
-import matplotlib.pyplot as p
 import numpy as n
 from os.path import join
 import os
 import sys 
-
-from os.path import join
-import numpy as n
-import astropy.io.fits as fits
-import os
-import sys
 
 from hmf import MassFunction
 from astropy.cosmology import FlatLambdaCDM
@@ -19,14 +12,12 @@ sigma_val=0.8229
 delta_c = 1.686
 from scipy.interpolate import interp1d
 from scipy.integrate import quad
-import numpy as n
-from scipy.interpolate import interp1d
 from scipy.misc import derivative
 from scipy.optimize import minimize
 from scipy.optimize import curve_fit
 
 import matplotlib
-matplotlib.use('pdf')
+matplotlib.use('Agg')
 matplotlib.rcParams['font.size']=12
 import matplotlib.pyplot as p
 
@@ -63,9 +54,9 @@ NpartMin = 50.
 p_init = (-1.85, 7., -2.3, 4.)
 
 env = os.environ['MD10']
-sat_in_cen_d1 =os.path.join(env, "substructure", "out_0.74980_subH_inDistinct_d1.fits")
-sat_in_cen_d2 =os.path.join(env, "substructure", "out_0.74980_subH_inDistinct_d2.fits")
-sat_in_cen_d3 =os.path.join(env, "substructure", "out_0.74980_subH_inDistinct_d3.fits")
+sat_in_cen_d1 =join(env, "substructure", "out_0.74980_subH_inDistinct_d1.fits")
+sat_in_cen_d2 =join(env, "substructure", "out_0.74980_subH_inDistinct_d2.fits")
+sat_in_cen_d3 =join(env, "substructure", "out_0.74980_subH_inDistinct_d3.fits")
 
 
 hd10_1 = fits.open(sat_in_cen_d1)[1].data
