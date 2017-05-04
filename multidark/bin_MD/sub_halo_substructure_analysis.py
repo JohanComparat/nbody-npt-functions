@@ -63,7 +63,7 @@ def get_hd_inside(fileName=sat_in_cen_d1, sflg='_sat'):
 	print len(da)
 	dist = ((da['x'+sflg]-da['x_cen'])**2. + (da['y'+sflg]-da['y_cen'])**2. + (da['z'+sflg]-da['z_cen'])**2.)**0.5
 	inside =(dist < da['rvir_cen']/1000.)
-	return hd10_1[inside]
+	return da[inside]
 
 hd10_1 = get_hd_inside(sat_in_cen_d1, sflg="_sat")
 print "d1",len(hd10_1)
