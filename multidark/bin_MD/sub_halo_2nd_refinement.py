@@ -6,25 +6,25 @@ import sys
 
 def create_sat_files(fileName, outFileName ):
 	#outFileName = fileName[:-5]+"_sat.fits"
-	command = """java -jar /home/comparat/software/linux/stilts.jar tpipe ifmt=fits in="""+fileName+""" cmd='select "pid>=0"' cmd='replacecol pid toInteger(pid)' cmd='replacecol id toInteger(id)' omode=out ofmt=fits out="""+outFileName
+	command = """java -jar /home/comparat/software/linux/stilts/stilts.jar tpipe ifmt=fits in="""+fileName+""" cmd='select "pid>=0"' cmd='replacecol pid toInteger(pid)' cmd='replacecol id toInteger(id)' omode=out ofmt=fits out="""+outFileName
 	os.system(command)
 
 def create_cen_files(fileName, outFileName ):
 	#outFileName = fileName[:-5]+"_cen.fits"
-	command = """java -jar /home/comparat/software/linux/stilts.jar tpipe ifmt=fits in="""+fileName+""" cmd='select "pid==-1 && mvir>13.5"' cmd='delcols "pid"' cmd='replacecol id toInteger(id)'  omode=out ofmt=fits out="""+outFileName
+	command = """java -jar /home/comparat/software/linux/stilts/stilts.jar tpipe ifmt=fits in="""+fileName+""" cmd='select "pid==-1 && mvir>13.5"' cmd='delcols "pid"' cmd='replacecol id toInteger(id)'  omode=out ofmt=fits out="""+outFileName
 	os.system(command)
 
 def concat_sat_files(fileList, outFileName):
 	os.system("ls "+fileList+" > list2Concat")
 	#outFileName = fileName[:-5] + "_sat_all.fits"
-	command = """java -jar /home/comparat/software/linux/stilts.jar tcat ifmt=fits in=@list2Concat omode=out ofmt=fits out="""+outFileName
+	command = """java -jar /home/comparat/software/linux/stilts/stilts.jar tcat ifmt=fits in=@list2Concat omode=out ofmt=fits out="""+outFileName
 	os.system(command)
 	os.system("rm list2Concat")
 	
 def concat_cen_files(fileList, outFileName):
 	os.system("ls "+fileList[:-5]+"*_cen.fits > list2Concat")
 	#outFileName = fileName[:-5] + "_cen_all.fits"
-	command = """java -jar /home/comparat/software/linux/stilts.jar tcat ifmt=fits in=@list2Concat omode=out ofmt=fits out="""+outFileName
+	command = """java -jar /home/comparat/software/linux/stilts/stilts.jar tcat ifmt=fits in=@list2Concat omode=out ofmt=fits out="""+outFileName
 	os.system(command)
 	os.system("rm list2Concat")
 	
@@ -33,9 +33,9 @@ def match_sat_cen(satFileName, cenFileName, outFileNameA="_inDistinct_d1.fits", 
 	#cenFileName = fileName[:-5] + "_cen_all.fits"
 	#outFileNameA = fileName[:-5] + "_subhalos_inDistinct.fits"
 	#outFileNameB = fileName[:-5] + "_subhalos_inSat.fits"
-	command = """java -jar /home/comparat/software/linux/stilts.jar tmatch2 ifmt1=fits in1="""+satFileName+""" ifmt2=fits in2="""+cenFileName+""" find=all matcher=exact join=1and2 fixcols=all suffix1="_sat" suffix2="_cen" values1=pid values2=id omode=out ofmt=fits out="""+outFileNameA
+	command = """java -jar /home/comparat/software/linux/stilts/stilts.jar tmatch2 ifmt1=fits in1="""+satFileName+""" ifmt2=fits in2="""+cenFileName+""" find=all matcher=exact join=1and2 fixcols=all suffix1="_sat" suffix2="_cen" values1=pid values2=id omode=out ofmt=fits out="""+outFileNameA
 	os.system(command)
-	command = """java -jar /home/comparat/software/linux/stilts.jar tmatch2 ifmt1=fits in1="""+satFileName+""" ifmt2=fits in2="""+satFileName+""" find=all matcher=exact join=1and2 fixcols=all suffix1="_sat_n" suffix2="_sat_n_1" values1=pid values2=id omode=out ofmt=fits out="""+outFileNameB
+	command = """java -jar /home/comparat/software/linux/stilts/stilts.jar tmatch2 ifmt1=fits in1="""+satFileName+""" ifmt2=fits in2="""+satFileName+""" find=all matcher=exact join=1and2 fixcols=all suffix1="_sat_n" suffix2="_sat_n_1" values1=pid values2=id omode=out ofmt=fits out="""+outFileNameB
 	os.system(command)
 
 def match_sat_cen_d2(satFileName, cenFileName, sat_in_sat_file, outFileNameA="inDistinct_d2.fits", outFileNameB="inSub_d2.fits"):
@@ -44,9 +44,9 @@ def match_sat_cen_d2(satFileName, cenFileName, sat_in_sat_file, outFileNameA="in
 	sat_in_sat_file = fileName[:-5] + "_subhalos_inSat.fits"
 	outFileNameB = fileName[:-5] + "_subhalos_inSat2.fits"
 	outFileNameA = fileName[:-5] + "_subhalos_inDistinct2.fits"
-	command = """java -jar /home/comparat/software/linux/stilts.jar tmatch2 ifmt1=fits in1="""+sat_in_sat_file+""" ifmt2=fits in2="""+cenFileName+""" find=all matcher=exact join=1and2 fixcols=all suffix1="_sat_n_1" suffix2="_cen" values1=pid_sat_n_1 values2=id omode=out ofmt=fits out="""+outFileNameA
+	command = """java -jar /home/comparat/software/linux/stilts/stilts.jar tmatch2 ifmt1=fits in1="""+sat_in_sat_file+""" ifmt2=fits in2="""+cenFileName+""" find=all matcher=exact join=1and2 fixcols=all suffix1="_sat_n_1" suffix2="_cen" values1=pid_sat_n_1 values2=id omode=out ofmt=fits out="""+outFileNameA
 	os.system(command)
-	command = """java -jar /home/comparat/software/linux/stilts.jar tmatch2 ifmt1=fits in1="""+sat_in_sat_file+""" ifmt2=fits in2="""+satFileName+""" find=all matcher=exact join=1and2 fixcols=all suffix1="_sat_n_1" suffix2="_sat_n_2" values1=pid_sat_n_1 values2=id omode=out ofmt=fits out="""+outFileNameB
+	command = """java -jar /home/comparat/software/linux/stilts/stilts.jar tmatch2 ifmt1=fits in1="""+sat_in_sat_file+""" ifmt2=fits in2="""+satFileName+""" find=all matcher=exact join=1and2 fixcols=all suffix1="_sat_n_1" suffix2="_sat_n_2" values1=pid_sat_n_1 values2=id omode=out ofmt=fits out="""+outFileNameB
 	os.system(command)
 
 
@@ -57,9 +57,9 @@ def match_sat_cen_d3(fileName):
 	sat_in_sat_file = fileName[:-5] + "_subhalos_inSat2.fits"
 	outFileNameB = fileName[:-5] + "_subhalos_inSat3.fits"
 	outFileNameA = fileName[:-5] + "_subhalos_inDistinct3.fits"
-	command = """java -jar /home/comparat/software/linux/stilts.jar tmatch2 ifmt1=fits in1="""+sat_in_sat_file+""" ifmt2=fits in2="""+cenFileName+""" find=all matcher=exact join=1and2 fixcols=all suffix1="_sat_n_2" suffix2="_cen" values1=pid_sat_n_2 values2=id omode=out ofmt=fits out="""+outFileNameA
+	command = """java -jar /home/comparat/software/linux/stilts/stilts.jar tmatch2 ifmt1=fits in1="""+sat_in_sat_file+""" ifmt2=fits in2="""+cenFileName+""" find=all matcher=exact join=1and2 fixcols=all suffix1="_sat_n_2" suffix2="_cen" values1=pid_sat_n_2 values2=id omode=out ofmt=fits out="""+outFileNameA
 	os.system(command)
-	command = """java -jar /home/comparat/software/linux/stilts.jar tmatch2 ifmt1=fits in1="""+sat_in_sat_file+""" ifmt2=fits in2="""+satFileName+""" find=all matcher=exact join=1and2 fixcols=all suffix1="_sat_n_2" suffix2="_sat_n_3" values1=pid_sat_n_2 values2=id omode=out ofmt=fits out="""+outFileNameB
+	command = """java -jar /home/comparat/software/linux/stilts/stilts.jar tmatch2 ifmt1=fits in1="""+sat_in_sat_file+""" ifmt2=fits in2="""+satFileName+""" find=all matcher=exact join=1and2 fixcols=all suffix1="_sat_n_2" suffix2="_sat_n_3" values1=pid_sat_n_2 values2=id omode=out ofmt=fits out="""+outFileNameB
 	os.system(command)
 
 def process_MD(files, outs):
