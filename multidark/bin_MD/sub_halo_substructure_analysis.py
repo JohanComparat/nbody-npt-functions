@@ -77,14 +77,6 @@ def get_ids(hd04_1, mmin=14.5, mmax=15.5):
 	msel = (hd04_1['mvir_cen']>mmin) & (hd04_1['mvir_cen']<mmax)
 	return set(hd04_1['id_cen'][msel])
 	
-#id_1=get_ids(hd04_1)
-#id_2=get_ids(hd04_2)
-#id_3=get_ids(hd04_3)
-
-#hd04_1['GroupSize'][msel]
-#hd04_1['GroupID'][msel]
-
-allidsat = set(hd04_1['id_sat'])
 exponent = 4.
 fsat_unev = lambda xi, a, b, N0 :  N0 * xi**a * n.e**(-b*xi**3.)
 fsat = lambda xi, a, b, N0, exponent :  N0 * xi**a * n.e**(-b*xi**exponent)
