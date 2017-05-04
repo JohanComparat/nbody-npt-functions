@@ -32,7 +32,7 @@ python plot_AGN_HGMF_duty_cycle.py
 
 # add Xray luminosities for AGNs
 python add_Xray.py
-
+python plot_slice_simulation.py
 
 #-------------------------------------------------------------------------
 python plot_cluster_scaling_relations.py
