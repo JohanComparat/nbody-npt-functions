@@ -64,15 +64,15 @@ MF_MD = interp1d(mass, ftC16*rhom*abs(dlnsigmadlnm)/mass)
 NpartMin = 50.
 p_init = (-1.85, 7., -2.3, 4.)
 
-
+env = os.environ['MD10']
 sat_in_cen_d1 =os.path.join(env, "substructure", "out_0.74980_subH_inDistinct_d1.fits")
 sat_in_cen_d2 =os.path.join(env, "substructure", "out_0.74980_subH_inDistinct_d2.fits")
 sat_in_cen_d3 =os.path.join(env, "substructure", "out_0.74980_subH_inDistinct_d3.fits")
 
 
 hd10_1 = fits.open(sat_in_cen_d1)[1].data
-hd10_2 = fits.open(sat_in_cen_d2))[1].data
-hd10_3 = fits.open(sat_in_cen_d3))[1].data
+hd10_2 = fits.open(sat_in_cen_d2)[1].data
+hd10_3 = fits.open(sat_in_cen_d3)[1].data
 mp10 = n.log10(NpartMin*1.51 * 10**9)
 
 def get_ids(hd04_1, mmin=14.5, mmax=15.5):
