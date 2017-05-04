@@ -109,16 +109,14 @@ for fil in files:
 """
 # concatenates the sat and central files into single files
 fileList = os.path.join(env,"substructure", "*_disT.fits")
-outFileName =  os.path.join(env,"substructure", "out_0.74980_disT_mvir_gt_135.fits")
-concat_cen_files(fileList, outFileName)
-"""
+cenFileName =  os.path.join(env,"substructure", "out_0.74980_disT_mvir_gt_135.fits")
+concat_cen_files(fileList, cenFileName)
+
 fileList = os.path.join(env,"substructure", "*_subH.fits")
-outFileName =  os.path.join(env,"substructure", "out_0.74980_subH.fits")
-concat_sat_files(fileList, outFileName)
-"""
+satFileName =  os.path.join(env,"substructure", "out_0.74980_subH_all.fits")
+concat_sat_files(fileList, satFileName)
+
 # 1st level match
-satFileName = os.path.join(env,"substructure", "out_0.74980_subH.fits")
-cenFileName =  os.path.join(env,"substructure", "out_0.74980_disT_mvir.gt.135.fits")
 sat_in_cen_d1 =os.path.join(env, "substructure", "out_0.74980_subH_inDistinct_d1.fits")
 sat_in_sat_d1 =os.path.join(env, "substructure", "out_0.74980_subH_inSub_d1.fits")
 
