@@ -132,19 +132,19 @@ def plot_SHMFR(mmin, mmax):
 	if len(x_data[pouet])>10:
 		out = curve_fit(logfsat, x_data[pouet], n.log10(y_data_1[pouet]), sigma = 0.05+y_data_err[pouet], p0 = p_init, maxfev = 500000000) 
 		print "fit:", out[0], out[1].diagonal()**0.5
-		p.plot(xx, logfsat(xx, out[0][0], out[0][1])+xx, label='fit d1 '+str(n.round(out[0][0]),2), ls='dashed', color='k')
+		p.plot(xx, logfsat(xx, out[0][0], out[0][1])+xx, label='fit d1 '+str(n.round(out[0][0],2)), ls='dashed', color='k')
 		
 	pouet = (y_data_2>0)
 	if len(x_data[pouet])>10:
 		out = curve_fit(logfsat, x_data[pouet], n.log10(y_data_2[pouet]), sigma = 0.05+y_data_err[pouet], p0 = p_init, maxfev = 500000000) 
 		print "fit:", out[0], out[1].diagonal()**0.5
-		p.plot(xx, logfsat(xx, out[0][0], out[0][1])+xx, label='fit d2 '+str(n.round(out[0][0]),2), ls='dashed', color='k')
+		p.plot(xx, logfsat(xx, out[0][0], out[0][1])+xx, label='fit d2 '+str(n.round(out[0][0],2)), ls='dashed', color='k')
 	
 	pouet = (y_data_3>0)
 	if len(x_data[pouet])>10:
 		out = curve_fit(logfsat, x_data[pouet], n.log10(y_data_3[pouet]), sigma = 0.05+y_data_err[pouet], p0 = p_init, maxfev = 500000000) 
 		print "fit:", out[0], out[1].diagonal()**0.5
-		p.plot(xx, logfsat(xx, out[0][0], out[0][1])+xx, label='fit d3 '+str(n.round(out[0][0]),2), ls='dashed', color='k')
+		p.plot(xx, logfsat(xx, out[0][0], out[0][1])+xx, label='fit d3 '+str(n.round(out[0][0],2)), ls='dashed', color='k')
 	
 	
 	p.ylabel(r'$\log_{10}\left[ \frac{M_d M_s}{\rho_m} \frac{dn}{dM_s} \right] $') 
