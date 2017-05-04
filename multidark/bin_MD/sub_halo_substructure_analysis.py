@@ -11,8 +11,6 @@ import astropy.io.fits as fits
 import os
 import sys
 
-import lib_functions_1pt as lib
-
 from hmf import MassFunction
 from astropy.cosmology import FlatLambdaCDM
 import astropy.units as u
