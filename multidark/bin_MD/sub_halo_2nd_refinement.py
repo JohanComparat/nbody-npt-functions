@@ -134,3 +134,11 @@ sat_in_sat_d3 = os.path.join(env, "substructure", "out_0.74980_subH_inSub_d3.fit
 
 match_sat_cen_d3(satFileName, cenFileName, sat_in_sat_d2, sat_in_cen_d3, sat_in_sat_d3)
 
+import astropy.io.fits as fits
+import numpy as n
+
+da = fits.open(sat_in_cen_d1)[1].data
+
+dist = ((da['x_sat']-da['x_cen'])**2. + (da['y_sat']-da['y_cen'])**2. + (da['z_sat']-da['z_cen'])**2.)**0.5
+
+inside =(dist < da['rvir_cen']/1000.)

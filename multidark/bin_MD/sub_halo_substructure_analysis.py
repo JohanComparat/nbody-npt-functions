@@ -58,10 +58,16 @@ sat_in_cen_d1 =join(env, "substructure", "out_0.74980_subH_inDistinct_d1.fits")
 sat_in_cen_d2 =join(env, "substructure", "out_0.74980_subH_inDistinct_d2.fits")
 sat_in_cen_d3 =join(env, "substructure", "out_0.74980_subH_inDistinct_d3.fits")
 
+get_hd_inside(fileName=sat_in_cen_d1, sflg):
+	da = fits.open(fileName)[1].data
+	dist = ((da['x'+sflg]-da['x_cen'])**2. + (da['y'+sflg]-da['y_cen'])**2. + (da['z'+sflg]-da['z_cen'])**2.)**0.5
+	inside =(dist < da['rvir_cen']/1000.)
+	return hd10_1[inside]
 
-hd10_1 = fits.open(sat_in_cen_d1)[1].data
-hd10_2 = fits.open(sat_in_cen_d2)[1].data
-hd10_3 = fits.open(sat_in_cen_d3)[1].data
+hd10_1 = get_hd_inside(sat_in_cen_d1, sflg="_sat")
+hd10_2 = get_hd_inside(sat_in_cen_d2, sflg="_sat_n_sat_n_1")
+hd10_3 = get_hd_inside(sat_in_cen_d3, sflg="_sat_n_sat_n_1_sat_n_2")
+
 mp10 = n.log10(NpartMin*1.51 * 10**9)
 
 def get_ids(hd04_1, mmin=14.5, mmax=15.5):
@@ -172,24 +178,3 @@ for out in outs:
 for out in outs:
 	print n.round(out[0][1],4), n.round(out[1].diagonal()[1]**0.5,4)
 
-for out in outs:
-	print n.round(out[0][2],4), n.round(out[1].diagonal()[2]**0.5,4)
-
-for out in outs:
-	print n.round(out[0][3],4), n.round(out[1].diagonal()[3]**0.5,4)
-
-import glob
-
-datalist=n.array(glob.glob(join(os.environ['MD10'], 'substructure', "shmfr_*_M_*.txt")))
-x_fit=[]
-y_fit=[]
-yerr_fit=[]
-for file in datalist:
-	xx, yy, ye = n.loadtxt(file, unpack = True)
-	x_fit.append(xx)
-	y_fit.append(yy)
-	yerr_fit.append(ye)
-	
-out = curve_fit(logfsat, n.hstack((x_fit)), n.hstack((y_fit)), sigma = n.hstack((yerr_fit)), p0 = p_init, maxfev = 500000000)
-
-print out[0], out[1].diagonal()**0.5
