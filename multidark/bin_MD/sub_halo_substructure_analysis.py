@@ -62,7 +62,7 @@ def get_hd_inside(fileName=sat_in_cen_d1, sflg='_sat'):
 	da = fits.open(fileName)[1].data
 	print len(da)
 	dist = ((da['x'+sflg]-da['x_cen'])**2. + (da['y'+sflg]-da['y_cen'])**2. + (da['z'+sflg]-da['z_cen'])**2.)**0.5
-	inside =(dist < 2. * da['rvir_cen']/1000.)
+	inside =(dist < 3. * da['rvir_cen']/1000.)
 	return da[inside]
 
 hd10_1 = get_hd_inside(sat_in_cen_d1, sflg="_sat")
@@ -105,11 +105,11 @@ def get_total(hd04_1, hd04_2, hd04_3, Lbox, mmin=14.5, mmax=15.5, MP=9):
 	print '------------------------------------------------------------------'
 	print '------------------------------------------------------------------'
 	"""
-	print '----------------- mvir_sat'
+	#print '----------------- mvir_sat'
 	xb, ratio_1, NN_1,ok_1 = get_hist_MR(hd04_1, 'mvir_sat', Lbox=Lbox, mmin=mmin, mmax=mmax, MP=MP, stat=True)
-	print '----------------- mvir_sat_sat'
+	#print '----------------- mvir_sat_sat'
 	xb, ratio_2, NN_2,ok_1 = get_hist_MR(hd04_2, 'mvir_sat_n_sat_n_1', Lbox= Lbox, mmin=mmin, mmax=mmax,MP=MP, stat=True)
-	print '----------------- mvir_sat_sat_sat'
+	#print '----------------- mvir_sat_sat_sat'
 	xb, ratio_3, NN_3,ok_1 = get_hist_MR(hd04_3, 'mvir_sat_n_sat_n_1_sat_n_2', Lbox= Lbox, mmin=mmin, mmax=mmax,MP=MP, stat=True)
 	
 	err = (NN_1+NN_2+NN_3)**(-0.5)
@@ -118,11 +118,11 @@ def get_total(hd04_1, hd04_2, hd04_3, Lbox, mmin=14.5, mmax=15.5, MP=9):
 def plot_SHMFR(mmin, mmax):
 	p.figure(0, (5,5))
 	p.axes([0.17, 0.17, 0.75, 0.75])
-	print '------------------------------------------------------------------'
-	print 'MD10'
-	print '------------------------------------------------------------------'
+	#print '------------------------------------------------------------------'
+	#print 'MD10'
+	#print '------------------------------------------------------------------'
 	xb, y, err, ok, y_1, y_2, y_3 = get_total(hd10_1, hd10_2, hd10_3, 1000., mmin, mmax, mp10)
-	print ok
+	#print ok
 	x_data = xb[ok]
 	y_data = y[ok]
 	y_data_1 = y_1[ok]
@@ -141,19 +141,19 @@ def plot_SHMFR(mmin, mmax):
 	pouet = (y_data_1>0)
 	if len(x_data[pouet])>10:
 		out = curve_fit(logfsat, x_data[pouet], n.log10(y_data_1[pouet]), sigma = 0.05+y_data_err[pouet], p0 = p_init, maxfev = 500000000) 
-		print "fit:", out[0], out[1].diagonal()**0.5
+		#print "fit:", out[0], out[1].diagonal()**0.5
 		p.plot(xx, logfsat(xx, out[0][0], out[0][1])+xx, label='fit d1 '+str(n.round(out[0][0],2)), ls='dashed', color='k')
 		
 	pouet = (y_data_2>0)
 	if len(x_data[pouet])>10:
 		out = curve_fit(logfsat, x_data[pouet], n.log10(y_data_2[pouet]), sigma = 0.05+y_data_err[pouet], p0 = p_init, maxfev = 500000000) 
-		print "fit:", out[0], out[1].diagonal()**0.5
+		#print "fit:", out[0], out[1].diagonal()**0.5
 		p.plot(xx, logfsat(xx, out[0][0], out[0][1])+xx, label='fit d2 '+str(n.round(out[0][0],2)), ls='dashed', color='k')
 	
 	pouet = (y_data_3>0)
 	if len(x_data[pouet])>10:
 		out = curve_fit(logfsat, x_data[pouet], n.log10(y_data_3[pouet]), sigma = 0.05+y_data_err[pouet], p0 = p_init, maxfev = 500000000) 
-		print "fit:", out[0], out[1].diagonal()**0.5
+		#print "fit:", out[0], out[1].diagonal()**0.5
 		p.plot(xx, logfsat(xx, out[0][0], out[0][1])+xx, label='fit d3 '+str(n.round(out[0][0],2)), ls='dashed', color='k')
 	
 	
@@ -173,7 +173,7 @@ def plot_SHMFR(mmin, mmax):
 outs = []
 mms = n.arange(13.5, 14.6, 0.5)
 for mmin, mmax in zip(mms[:-1], mms[1:]):
-	print mmin, mmax
+	#print mmin, mmax
 	outs.append( plot_SHMFR(mmin, mmax) )
 
 for out in outs:
