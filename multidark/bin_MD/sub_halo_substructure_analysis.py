@@ -58,7 +58,7 @@ sat_in_cen_d1 =join(env, "substructure", "out_0.74980_subH_inDistinct_d1.fits")
 sat_in_cen_d2 =join(env, "substructure", "out_0.74980_subH_inDistinct_d2.fits")
 sat_in_cen_d3 =join(env, "substructure", "out_0.74980_subH_inDistinct_d3.fits")
 
-def get_hd_inside(fileName=sat_in_cen_d1, sflg):
+def get_hd_inside(fileName=sat_in_cen_d1, sflg='_sat'):
 	da = fits.open(fileName)[1].data
 	print len(da)
 	dist = ((da['x'+sflg]-da['x_cen'])**2. + (da['y'+sflg]-da['y_cen'])**2. + (da['z'+sflg]-da['z_cen'])**2.)**0.5
