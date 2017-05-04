@@ -134,7 +134,3 @@ sat_in_sat_d3 = os.path.join(env, "substructure", "out_0.74980_subH_inSub_d3.fit
 
 match_sat_cen_d3(satFileName, cenFileName, sat_in_sat_d2, sat_in_cen_d3, sat_in_sat_d3)
 
-#match_sat_cen(outs[-1])
-#match_sat_cen_d2(outs[-1])
-#match_sat_cen_d3(outs[-1])
-
