@@ -39,11 +39,11 @@ def match_sat_cen(satFileName, cenFileName, outFileNameA="_inDistinct_d1.fits", 
 	os.system(command)
 
 def match_sat_cen_d2(satFileName, cenFileName, sat_in_sat_file, outFileNameA="inDistinct_d2.fits", outFileNameB="inSub_d2.fits"):
-	satFileName = fileName[:-5] + "_sat_all.fits"
-	cenFileName = fileName[:-5] + "_cen_all.fits"
-	sat_in_sat_file = fileName[:-5] + "_subhalos_inSat.fits"
-	outFileNameB = fileName[:-5] + "_subhalos_inSat2.fits"
-	outFileNameA = fileName[:-5] + "_subhalos_inDistinct2.fits"
+	#satFileName = fileName[:-5] + "_sat_all.fits"
+	#cenFileName = fileName[:-5] + "_cen_all.fits"
+	#sat_in_sat_file = fileName[:-5] + "_subhalos_inSat.fits"
+	#outFileNameB = fileName[:-5] + "_subhalos_inSat2.fits"
+	#outFileNameA = fileName[:-5] + "_subhalos_inDistinct2.fits"
 	command = """java -jar /home/comparat/software/linux/stilts/stilts.jar tmatch2 ifmt1=fits in1="""+sat_in_sat_file+""" ifmt2=fits in2="""+cenFileName+""" find=all matcher=exact join=1and2 fixcols=all suffix1="_sat_n_1" suffix2="_cen" values1=pid_sat_n_1 values2=id omode=out ofmt=fits out="""+outFileNameA
 	os.system(command)
 	command = """java -jar /home/comparat/software/linux/stilts/stilts.jar tmatch2 ifmt1=fits in1="""+sat_in_sat_file+""" ifmt2=fits in2="""+satFileName+""" find=all matcher=exact join=1and2 fixcols=all suffix1="_sat_n_1" suffix2="_sat_n_2" values1=pid_sat_n_1 values2=id omode=out ofmt=fits out="""+outFileNameB
@@ -104,23 +104,23 @@ for fil in files:
 	bn = os.path.basename(fil)
 	out_s = os.path.join(env,"substructure", bn[:-5]+"_subH.fits")
 	out_d = os.path.join(env,"substructure", bn[:-5]+"_disT.fits")
-	create_sat_files(fil, out_s)
-	create_cen_files(fil, out_d)
+	#create_sat_files(fil, out_s)
+	#create_cen_files(fil, out_d)
 
 # concatenates the sat and central files into single files
 fileList = os.path.join(env,"substructure", "*_disT.fits")
 cenFileName =  os.path.join(env,"substructure", "out_0.74980_disT_mvir_gt_135.fits")
-concat_cen_files(fileList, cenFileName)
+#concat_cen_files(fileList, cenFileName)
 
 fileList = os.path.join(env,"substructure", "*_subH.fits")
 satFileName =  os.path.join(env,"substructure", "out_0.74980_subH_all.fits")
-concat_sat_files(fileList, satFileName)
+#concat_sat_files(fileList, satFileName)
 
 # 1st level match
 sat_in_cen_d1 =os.path.join(env, "substructure", "out_0.74980_subH_inDistinct_d1.fits")
 sat_in_sat_d1 =os.path.join(env, "substructure", "out_0.74980_subH_inSub_d1.fits")
 
-match_sat_cen(satFileName, cenFileName, sat_in_cen_d1 , sat_in_sat_d1)
+#match_sat_cen(satFileName, cenFileName, sat_in_cen_d1 , sat_in_sat_d1)
 
 # 2nd level match
 sat_in_cen_d2 = os.path.join(env, "substructure", "out_0.74980_subH_inDistinct_d2.fits")
