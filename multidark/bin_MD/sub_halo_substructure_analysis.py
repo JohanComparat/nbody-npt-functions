@@ -51,7 +51,7 @@ ftC16 = f_BH(hf.sigma[100:-100], 0.279, 0.908, 0.671, 1.737)
 MF_MD = interp1d(mass, ftC16*rhom*abs(dlnsigmadlnm)/mass)
 
 NpartMin = 50.
-p_init = (-1.85, 7., -2.3, 4.)
+p_init = (-1.85, -2.3)
 
 env = os.environ['MD10']
 sat_in_cen_d1 =join(env, "substructure", "out_0.74980_subH_inDistinct_d1.fits")
@@ -71,7 +71,7 @@ def get_ids(hd04_1, mmin=14.5, mmax=15.5):
 exponent = 4.
 fsat_unev = lambda xi, a, b, N0 :  N0 * xi**a * n.e**(-b*xi**3.)
 fsat = lambda xi, a, b, N0, exponent :  N0 * xi**a * n.e**(-b*xi**exponent)
-logfsat= lambda logxi, a, b, logN0, exponent : n.log10( 10**logN0 * (10**logxi)**a * n.e**(-b*(10**logxi)**exponent))
+logfsat= lambda logxi, a, logN0 : n.log10( 10**logN0 * (10**logxi)**a )#* n.e**(-b*(10**logxi)**exponent))
 
 def get_hist_MR(hd04_1, Msat = 'mvir_sat', mmin=14.5, mmax=15.5, Lbox=400.,dlogBins = 0.05, MP = 9, stat=False):
 	"""return  dNsat / volume / dln(Msub/Mdistinct)
@@ -121,33 +121,44 @@ def plot_SHMFR(mmin, mmax):
 	y_data_err = err[ok]
 	if len(xb[ok])>2:
 		#print len(xb[ok])
-		p.errorbar(xb[ok], n.log10(y[ok])+xb[ok], yerr= err[ok], label='all')
+		#p.errorbar(xb[ok], n.log10(y[ok])+xb[ok], yerr= err[ok], label='all')
 		p.errorbar(xb[ok], n.log10(y_1[ok])+xb[ok], yerr= err[ok], label='d1')
 		p.errorbar(xb[ok], n.log10(y_2[ok])+xb[ok], yerr= err[ok], label='d2')
 		p.errorbar(xb[ok], n.log10(y_3[ok])+xb[ok], yerr= err[ok], label='d3')
 	
-	pouet = (y_data>0)
-	print "fitting", len(x_data[pouet]), "points"
+	xx = n.arange(-6,0, 0.01)
+	
+	pouet = (y_data_1>0)
 	if len(x_data[pouet])>10:
-		out = curve_fit(logfsat, x_data[pouet], n.log10(y_data[pouet]), sigma = 0.05+y_data_err[pouet], p0 = p_init, maxfev = 500000000) 
+		out = curve_fit(logfsat, x_data[pouet], n.log10(y_data_1[pouet]), sigma = 0.05+y_data_err[pouet], p0 = p_init, maxfev = 500000000) 
 		print "fit:", out[0], out[1].diagonal()**0.5
-		xx = n.arange(-6,0, 0.01)
-		#p.plot(xx, n.log10(fsat_unev(10**xx, -1.8, 6.283, 0.21)/(10**(mmin/2.+mmax/2.)/rhom))+xx, label='unevolved', ls='solid', color='k')
-		p.plot(xx, logfsat(xx, out[0][0], out[0][1], out[0][2], out[0][3])+xx, label='fit', ls='solid', color='k')
-		p.ylabel(r'$\log_{10}\left[ \frac{M_d M_s}{\rho_m} \frac{dn}{dM_s} \right] $') 
-		p.xlabel(r'$\log_{10}(M_{s}/M_{d})$')
-		p.title(r"$"+str(mmin)+"<M_{d}<"+str(mmax)+"$")
-		p.legend(loc=0, frameon=False)
-		#p.yscale('log')
-		p.ylim((-7, -2))
-		p.xlim(( -3, 0 )) 
-		p.grid()
-		p.savefig(join(os.environ['MD10'], 'substructure', 'shmfr_'+str(mmin)+"_M_"+str(mmax)+".png"))
-		n.savetxt(join(os.environ['MD10'], 'substructure', 'shmfr_'+str(mmin)+"_M_"+str(mmax)+".txt"), n.transpose([x_data[pouet], n.log10(y_data[pouet]), 0.05+y_data_err[pouet]]))
-		p.clf()
-		return out
-	else:
-		return -99.99*n.ones_like(p_init)
+		p.plot(xx, logfsat(xx, out[0][0], out[0][1])+xx, label='fit d1 '+str(n.round(out[0][0]),2), ls='dashed', color='k')
+		
+	pouet = (y_data_2>0)
+	if len(x_data[pouet])>10:
+		out = curve_fit(logfsat, x_data[pouet], n.log10(y_data_2[pouet]), sigma = 0.05+y_data_err[pouet], p0 = p_init, maxfev = 500000000) 
+		print "fit:", out[0], out[1].diagonal()**0.5
+		p.plot(xx, logfsat(xx, out[0][0], out[0][1])+xx, label='fit d2 '+str(n.round(out[0][0]),2), ls='dashed', color='k')
+	
+	pouet = (y_data_3>0)
+	if len(x_data[pouet])>10:
+		out = curve_fit(logfsat, x_data[pouet], n.log10(y_data_3[pouet]), sigma = 0.05+y_data_err[pouet], p0 = p_init, maxfev = 500000000) 
+		print "fit:", out[0], out[1].diagonal()**0.5
+		p.plot(xx, logfsat(xx, out[0][0], out[0][1])+xx, label='fit d3 '+str(n.round(out[0][0]),2), ls='dashed', color='k')
+	
+	
+	p.ylabel(r'$\log_{10}\left[ \frac{M_d M_s}{\rho_m} \frac{dn}{dM_s} \right] $') 
+	p.xlabel(r'$\log_{10}(M_{s}/M_{d})$')
+	p.title(r"$"+str(mmin)+"<M_{d}<"+str(mmax)+"$")
+	p.legend(loc=0, frameon=False)
+	#p.yscale('log')
+	p.ylim((-7, -2))
+	p.xlim(( -3, 0 )) 
+	p.grid()
+	p.savefig(join(os.environ['MD10'], 'substructure', 'shmfr_'+str(mmin)+"_M_"+str(mmax)+".png"))
+	n.savetxt(join(os.environ['MD10'], 'substructure', 'shmfr_'+str(mmin)+"_M_"+str(mmax)+".txt"), n.transpose([x_data[pouet], n.log10(y_data[pouet]), 0.05+y_data_err[pouet]]))
+	p.clf()
+	return out
 
 outs = []
 mms = n.arange(13.5, 14.6, 0.5)
