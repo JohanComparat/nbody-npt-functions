@@ -98,7 +98,7 @@ env = os.environ['MD10']
 
 files = n.array(glob.glob(os.path.join(env,"snapshots", "out_0.74980_SAM_Nb_*.fits")))
 files.sort()
-"""
+
 #first separate distinct and subhalos
 for fil in files:
 	bn = os.path.basename(fil)
@@ -106,7 +106,7 @@ for fil in files:
 	out_d = os.path.join(env,"substructure", bn[:-5]+"_disT.fits")
 	create_sat_files(fil, out_s)
 	create_cen_files(fil, out_d)
-"""
+
 # concatenates the sat and central files into single files
 fileList = os.path.join(env,"substructure", "*_disT.fits")
 cenFileName =  os.path.join(env,"substructure", "out_0.74980_disT_mvir_gt_135.fits")
