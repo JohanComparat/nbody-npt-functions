@@ -22,7 +22,7 @@ def concat_sat_files(fileList, outFileName):
 	os.system("rm list2Concat")
 	
 def concat_cen_files(fileList, outFileName):
-	os.system("ls "+fileList[:-5]+"*_cen.fits > list2Concat")
+	os.system("ls "+fileList+" > list2Concat")
 	#outFileName = fileName[:-5] + "_cen_all.fits"
 	command = """java -jar /home/comparat/software/linux/stilts/stilts.jar tcat ifmt=fits in=@list2Concat omode=out ofmt=fits out="""+outFileName
 	os.system(command)
@@ -98,6 +98,7 @@ env = os.environ['MD10']
 
 files = n.array(glob.glob(os.path.join(env,"snapshots", "out_0.74980_SAM_Nb_*.fits")))
 files.sort()
+"""
 #first separate distinct and subhalos
 for fil in files:
 	bn = os.path.basename(fil)
@@ -105,16 +106,16 @@ for fil in files:
 	out_d = os.path.join(env,"substructure", bn[:-5]+"_disT.fits")
 	create_sat_files(fil, out_s)
 	create_cen_files(fil, out_d)
-
+"""
 # concatenates the sat and central files into single files
 fileList = os.path.join(env,"substructure", "*_disT.fits")
 outFileName =  os.path.join(env,"substructure", "out_0.74980_disT_mvir.gt.135.fits")
 concat_cen_files(fileList, outFileName)
-
+"""
 fileList = os.path.join(env,"substructure", "*_subH.fits")
 outFileName =  os.path.join(env,"substructure", "out_0.74980_subH.fits")
 concat_sat_files(fileList, outFileName)
-
+"""
 satFileName = os.path.join(env,"substructure", "out_0.74980_subH.fits")
 cenFileName =  os.path.join(env,"substructure", "out_0.74980_disT_mvir.gt.135.fits")
 
