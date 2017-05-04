@@ -109,7 +109,7 @@ for fil in files:
 """
 # concatenates the sat and central files into single files
 fileList = os.path.join(env,"substructure", "*_disT.fits")
-outFileName =  os.path.join(env,"substructure", "out_0.74980_disT_mvir_gt_	135.fits")
+outFileName =  os.path.join(env,"substructure", "out_0.74980_disT_mvir_gt_135.fits")
 concat_cen_files(fileList, outFileName)
 """
 fileList = os.path.join(env,"substructure", "*_subH.fits")
