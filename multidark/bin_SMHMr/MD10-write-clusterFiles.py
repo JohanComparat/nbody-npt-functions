@@ -12,6 +12,6 @@ box = MultiDarkSimulation(Lbox=1000.0 * uu.Mpc, boxDir = "MD_1Gpc",snl =snList  
 t0=time.time()
 
 for ii in n.arange(len(box.snl)):
-	box.writeSAMcatalog(ii, mmin=6e13, file_identifier = "_cluster_Nb_")
+	box.writeCLUSTERcatalog(ii, mmin=6e13)
 
 print time.time()-t0
