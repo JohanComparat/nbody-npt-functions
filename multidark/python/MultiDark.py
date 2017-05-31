@@ -181,7 +181,7 @@ class MultiDarkSimulation :
 		os.system("rm "+self.snl[ii][:-5]+"_cornerLC_Nb_"+str(Nb)+".fits")
 		thdulist.writeto(self.snl[ii][:-5]+"_cornerLC_Nb_"+str(Nb)+".fits")
 
-	def writeSAMcatalog(self, ii, mmin=10**8, NperBatch = 2000000):
+	def writeSAMcatalog(self, ii, mmin=10**8, NperBatch = 2000000, file_identifier = "_SAM_Nb_"):
 		"""
 		Extracts the positions and mass out of a snapshot of the Multidark simulation.        
 		:param ii: index of the snapshot in the list self.snl
@@ -264,8 +264,8 @@ class MultiDarkSimulation :
 				prihdu = fits.PrimaryHDU(header=prihdr)
 				#writes the file
 				thdulist = fits.HDUList([prihdu, tb_hdu])
-				os.system("rm "+self.snl[ii][:-5]+"_SAM_Nb_"+str(Nb)+".fits")
-				thdulist.writeto(self.snl[ii][:-5]+"_SAM_Nb_"+str(Nb)+".fits")
+				os.system("rm "+self.snl[ii][:-5]+file_identifier+str(Nb)+".fits")
+				thdulist.writeto(self.snl[ii][:-5]+file_identifier+str(Nb)+".fits")
 				Nb+=1
 				count=0
 				#resest the output matrix
@@ -322,8 +322,8 @@ class MultiDarkSimulation :
 		prihdu = fits.PrimaryHDU(header=prihdr)
 		#writes the file
 		thdulist = fits.HDUList([prihdu, tb_hdu])
-		os.system("rm "+self.snl[ii][:-5]+"_SAM_Nb_"+str(Nb)+".fits")
-		thdulist.writeto(self.snl[ii][:-5]+"_SAM_Nb_"+str(Nb)+".fits")
+		os.system("rm "+self.snl[ii][:-5]+file_identifier+str(Nb)+".fits")
+		thdulist.writeto(self.snl[ii][:-5]+file_identifier+str(Nb)+".fits")
 	
 	def writePositionCatalogPM(self, ii, vmin=30., mmin=10**8, NperBatch = 20000000):
 		"""
