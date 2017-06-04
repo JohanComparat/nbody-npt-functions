@@ -11,7 +11,7 @@ box = MultiDarkSimulation(Lbox=1000.0 * uu.Mpc, boxDir = "MD_1Gpc",snl =snList  
 
 t0=time.time()
 
-for ii in n.arange(4,len(box.snl),1):
+for ii in n.arange(10,len(box.snl),1):
         print ii, box.snl[ii]
         box.writeCLUSTERcatalog(ii, mmin=6*10**12)
 

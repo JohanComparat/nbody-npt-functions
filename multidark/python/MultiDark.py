@@ -195,13 +195,13 @@ class MultiDarkSimulation :
 		count = 0
 		output = n.zeros((NperBatch,37))
 		for line in fl:
-			print line
+			#print line
 			if line[0] == "#" :
 				continue
 
 			line = line.split()
-			print line
-			print len(line)
+			#print line
+			#print len(line)
 			newline =n.array([int(line[self.columnDict['id']]), float(line[self.columnDict['vmax']]), float(line[self.columnDict['vrms']]), float(line[self.columnDict['rvir']]), float(line[self.columnDict['rs']]), float(line[self.columnDict['pid']]), float(line[self.columnDict['x']]), float(line[self.columnDict['y']]), float(line[self.columnDict['z']]), float(line[self.columnDict['vx']]), float(line[self.columnDict['vy']]), float(line[self.columnDict['vz']]), float(line[self.columnDict['Jx']]), float(line[self.columnDict['Jy']]), float(line[self.columnDict['Jz']]), float(line[self.columnDict['Spin']]), float(line[self.columnDict['Rs_Klypin']]), float(line[self.columnDict['Xoff']]), float(line[self.columnDict['Voff']]), float(line[self.columnDict['Spin_Bullock']]), float(line[self.columnDict['Ax']]), float(line[self.columnDict['Ay']]), float(line[self.columnDict['Az']]), float(line[self.columnDict['b_to_a']]), float(line[self.columnDict['c_to_a']]), float(line[self.columnDict['b_to_a_500c']]), float(line[self.columnDict['c_to_a_500c']]), float(line[self.columnDict['Ax_500c']]), float(line[self.columnDict['Ay_500c']]), float(line[self.columnDict['Az_500c']]), float(line[self.columnDict['TU']]),  float(line[self.columnDict['M_pe_Diemer']]), float(line[self.columnDict['M_pe_Behroozi']]), n.log10(float(line[self.columnDict['mvir']])), n.log10(float(line[self.columnDict['M200c']])), n.log10(float(line[self.columnDict['M500c']])), n.log10(float(line[self.columnDict['M2500c']])) ])
 			#print newline
 			#print newline.shape
