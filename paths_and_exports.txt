@@ -1,10 +1,8 @@
 ﻿# list of exports needed
 # to add to your ~/.bashrc
 
-export PYTHONPATH=$PYTHONPATH:/path_to/nbody-npt-functions/python/
 
-export GIT_NBODY_NPT='/data17s/darksim/software/nbody-npt-functions'
-export GIT_MD='/data17s/darksim/software/nbody-npt-functions/multidark'
+export GIT_NBODY_NPT='/dir_to_software/nbody-npt-functions'
 
-export PYTHONPATH=$PYTHONPATH:/users/username/.local/
+export PYTHONPATH=$PYTHONPATH:/dir_to_software/nbody-npt-functions/python/
 
