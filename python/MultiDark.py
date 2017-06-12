@@ -321,7 +321,7 @@ class MultiDarkSimulation :
 		nameSnapshot = os.path.basename(self.snl[ii])[:-5]
 		Nb = 0
 		count = 0
-		output = n.zeros((NperBatch,37))
+		output = n.zeros((NperBatch,29))
 		for line in fl:
 			#print line
 			if line[0] == "#" :
@@ -330,7 +330,7 @@ class MultiDarkSimulation :
 			line = line.split()
 			#print line
 			#print len(line)
-			newline =n.array([int(line[self.columnDict['id']]), float(line[self.columnDict['vmax']]), float(line[self.columnDict['vrms']]), float(line[self.columnDict['rvir']]), float(line[self.columnDict['rs']]), float(line[self.columnDict['pid']]), float(line[self.columnDict['x']]), float(line[self.columnDict['y']]), float(line[self.columnDict['z']]), float(line[self.columnDict['vx']]), float(line[self.columnDict['vy']]), float(line[self.columnDict['vz']]), float(line[self.columnDict['Jx']]), float(line[self.columnDict['Jy']]), float(line[self.columnDict['Jz']]), float(line[self.columnDict['Spin']]), float(line[self.columnDict['Rs_Klypin']]), float(line[self.columnDict['Xoff']]), float(line[self.columnDict['Voff']]), float(line[self.columnDict['Spin_Bullock']]), float(line[self.columnDict['Ax']]), float(line[self.columnDict['Ay']]), float(line[self.columnDict['Az']]), float(line[self.columnDict['b_to_a']]), float(line[self.columnDict['c_to_a']]), float(line[self.columnDict['b_to_a_500c']]), float(line[self.columnDict['c_to_a_500c']]), float(line[self.columnDict['Ax_500c']]), float(line[self.columnDict['Ay_500c']]), float(line[self.columnDict['Az_500c']]), float(line[self.columnDict['TU']]),  float(line[self.columnDict['M_pe_Diemer']]), float(line[self.columnDict['M_pe_Behroozi']]), n.log10(float(line[self.columnDict['mvir']])), n.log10(float(line[self.columnDict['M200c']])), n.log10(float(line[self.columnDict['M500c']])), n.log10(float(line[self.columnDict['M2500c']])) ])
+			newline =n.array([int(line[self.columnDict['id']]), float(line[self.columnDict['vmax']]), float(line[self.columnDict['vrms']]), float(line[self.columnDict['rvir']]), float(line[self.columnDict['rs']]), float(line[self.columnDict['pid']]), float(line[self.columnDict['x']]), float(line[self.columnDict['y']]), float(line[self.columnDict['z']]), float(line[self.columnDict['vx']]), float(line[self.columnDict['vy']]), float(line[self.columnDict['vz']]), float(line[self.columnDict['Jx']]), float(line[self.columnDict['Jy']]), float(line[self.columnDict['Jz']]), float(line[self.columnDict['Spin']]), float(line[self.columnDict['Rs_Klypin']]), float(line[self.columnDict['Xoff']]), float(line[self.columnDict['Voff']]), float(line[self.columnDict['Spin_Bullock']]), float(line[self.columnDict['Ax']]), float(line[self.columnDict['Ay']]), float(line[self.columnDict['Az']]), float(line[self.columnDict['b_to_a']]), float(line[self.columnDict['c_to_a']]), n.log10(float(line[self.columnDict['mvir']])), n.log10(float(line[self.columnDict['M200c']])), n.log10(float(line[self.columnDict['M500c']])), n.log10(float(line[self.columnDict['M2500c']])) ])
 			#print newline
 			#print newline.shape
 			if float(line[self.columnDict['mvir']])>mmin :
@@ -338,49 +338,43 @@ class MultiDarkSimulation :
 				count+=1
 				
 			if count == NperBatch  :
+				out_filename = os.path.join(os.environ["MD10"],"work_agn",os.path.basename(self.snl[ii])[:-5]+file_identifier+str(Nb)+".fits")
+				print( out_filename )
 				#print "count",count
 				#print output
 				#print output.shape
 				#print output.T[0].shape
 				#define the columns
 				hdu_cols  = fits.ColDefs([
-				fits.Column(name='id',format='I', array= output.T[0] )
-				,fits.Column(name='vmax',format='D', array= output.T[1] ) 
-				,fits.Column(name='vrms',format='D', array= output.T[2] ) 
-				,fits.Column(name='rvir',format='D', array= output.T[3] ) 
-				,fits.Column(name='rs',format='D', array= output.T[4] ) 
-				,fits.Column(name='pid',format='D', array= output.T[5] ) 
-				,fits.Column(name='x',format='D', array= output.T[6] ) 
-				,fits.Column(name='y',format='D', array= output.T[7] ) 
-				,fits.Column(name='z',format='D', array= output.T[8] ) 
-				,fits.Column(name='vx',format='D', array= output.T[9] ) 
-				,fits.Column(name='vy',format='D', array= output.T[10] ) 
-				,fits.Column(name='vz',format='D', array= output.T[11] ) 
-				,fits.Column(name='Jx',format='D', array= output.T[12] ) 
-				,fits.Column(name='Jy',format='D', array= output.T[13] ) 
-				,fits.Column(name='Jz',format='D', array= output.T[14] ) 
-				,fits.Column(name='Spin',format='D', array= output.T[15] ) 
-				,fits.Column(name='Rs_Klypin',format='D', array= output.T[16] ) 
-				,fits.Column(name='Xoff',format='D', array= output.T[17] ) 
-				,fits.Column(name='Voff',format='D', array= output.T[18] ) 
+				fits.Column(name='id',format='I',            array= output.T[0] )
+				,fits.Column(name='vmax',format='D',         array= output.T[1] ) 
+				,fits.Column(name='vrms',format='D',         array= output.T[2] ) 
+				,fits.Column(name='rvir',format='D',         array= output.T[3] ) 
+				,fits.Column(name='rs',format='D',           array= output.T[4] ) 
+				,fits.Column(name='pid',format='D',          array= output.T[5] ) 
+				,fits.Column(name='x',format='D',            array= output.T[6] ) 
+				,fits.Column(name='y',format='D',            array= output.T[7] ) 
+				,fits.Column(name='z',format='D',            array= output.T[8] ) 
+				,fits.Column(name='vx',format='D',           array= output.T[9] ) 
+				,fits.Column(name='vy',format='D',           array= output.T[10] ) 
+				,fits.Column(name='vz',format='D',           array= output.T[11] ) 
+				,fits.Column(name='Jx',format='D',           array= output.T[12] ) 
+				,fits.Column(name='Jy',format='D',           array= output.T[13] ) 
+				,fits.Column(name='Jz',format='D',           array= output.T[14] ) 
+				,fits.Column(name='Spin',format='D',         array= output.T[15] ) 
+				,fits.Column(name='Rs_Klypin',format='D',    array= output.T[16] ) 
+				,fits.Column(name='Xoff',format='D',         array= output.T[17] ) 
+				,fits.Column(name='Voff',format='D',         array= output.T[18] ) 
 				,fits.Column(name='Spin_Bullock',format='D', array= output.T[19] ) 
-				,fits.Column(name='Ax',format='D', array= output.T[20] ) 
-				,fits.Column(name='Ay',format='D', array= output.T[21] ) 
-				,fits.Column(name='Az',format='D', array= output.T[22] ) 
-				,fits.Column(name='b_to_a',format='D', array= output.T[23] ) 
-				,fits.Column(name='c_to_a',format='D', array= output.T[24] ) 
-				,fits.Column(name='b_to_a_500c',format='D', array= output.T[25] ) 
-				,fits.Column(name='c_to_a_500c',format='D', array= output.T[26] ) 
-				,fits.Column(name='Ax_500c',format='D', array= output.T[27] ) 
-				,fits.Column(name='Ay_500c',format='D', array= output.T[28] ) 
-				,fits.Column(name='Az_500c',format='D', array= output.T[29] ) 
-				,fits.Column(name='TU',format='D', array= output.T[30] )  
-				,fits.Column(name='M_pe_Diemer',format='D', array= output.T[31] ) 
-				,fits.Column(name='M_pe_Behroozi',format='D', array= output.T[32] ) 
-				,fits.Column(name='mvir',format='D', array= output.T[33] ) 
-				,fits.Column(name='M200c',format='D', array= output.T[34] ) 
-				,fits.Column(name='M500c',format='D', array= output.T[35] ) 
-				,fits.Column(name='M2500c',format='D', array= output.T[36] )
+				,fits.Column(name='Ax',format='D',           array= output.T[20] ) 
+				,fits.Column(name='Ay',format='D',           array= output.T[21] ) 
+				,fits.Column(name='Az',format='D',           array= output.T[22] ) 
+				,fits.Column(name='b_to_a',format='D',       array= output.T[23] ) 
+				,fits.Column(name='c_to_a',format='D',       array= output.T[24] ) 
+				,fits.Column(name='mvir',format='D',         array= output.T[25] ) 
+				,fits.Column(name='M200c',format='D',        array= output.T[26] ) 
+				,fits.Column(name='M500c',format='D',        array= output.T[27] ) 
+				,fits.Column(name='M2500c',format='D',       array= output.T[28] )
 				])
 				tb_hdu = fits.BinTableHDU.from_columns( hdu_cols )
 				#define the header
@@ -392,53 +386,47 @@ class MultiDarkSimulation :
 				prihdu = fits.PrimaryHDU(header=prihdr)
 				#writes the file
 				thdulist = fits.HDUList([prihdu, tb_hdu])
-				os.system("rm "+self.snl[ii][:-5]+file_identifier+str(Nb)+".fits")
-				thdulist.writeto(self.snl[ii][:-5]+file_identifier+str(Nb)+".fits")
+				out_filename = os.path.join(os.environ["MD10"],"work_agn",os.path.basename(self.snl[ii])[:-5]+file_identifier+str(Nb)+".fits")
+				print( out_filename )
+				os.system("rm "+out_filename)
+				thdulist.writeto(out_filename)
 				Nb+=1
 				count=0
 				#resest the output matrix
-				output = n.zeros((NperBatch,37))
+				output = n.zeros((NperBatch,29))
 		
 		
 		# and for the last batch :		
 		hdu_cols  = fits.ColDefs([
-		fits.Column(name='id',format='I', array= output.T[0][:count] )
-		,fits.Column(name='vmax',format='D', array= output.T[1][:count]) 
-		,fits.Column(name='vrms',format='D', array= output.T[2][:count]) 
-		,fits.Column(name='rvir',format='D', array= output.T[3][:count]) 
-		,fits.Column(name='rs',format='D', array= output.T[4][:count]) 
-		,fits.Column(name='pid',format='D', array= output.T[5][:count]) 
-		,fits.Column(name='x',format='D', array= output.T[6][:count]) 
-		,fits.Column(name='y',format='D', array= output.T[7][:count]) 
-		,fits.Column(name='z',format='D', array= output.T[8][:count]) 
-		,fits.Column(name='vx',format='D', array= output.T[9][:count]) 
-		,fits.Column(name='vy',format='D', array= output.T[10][:count]) 
-		,fits.Column(name='vz',format='D', array= output.T[11][:count]) 
-		,fits.Column(name='Jx',format='D', array= output.T[12][:count]) 
-		,fits.Column(name='Jy',format='D', array= output.T[13][:count]) 
-		,fits.Column(name='Jz',format='D', array= output.T[14][:count]) 
-		,fits.Column(name='Spin',format='D', array= output.T[15][:count]) 
-		,fits.Column(name='Rs_Klypin',format='D', array= output.T[16][:count]) 
-		,fits.Column(name='Xoff',format='D', array= output.T[17][:count]) 
-		,fits.Column(name='Voff',format='D', array= output.T[18][:count]) 
-		,fits.Column(name='Spin_Bullock',format='D', array= output.T[19][:count]) 
-		,fits.Column(name='Ax',format='D', array= output.T[20][:count]) 
-		,fits.Column(name='Ay',format='D', array= output.T[21][:count]) 
-		,fits.Column(name='Az',format='D', array= output.T[22][:count]) 
-		,fits.Column(name='b_to_a',format='D', array= output.T[23][:count]) 
-		,fits.Column(name='c_to_a',format='D', array= output.T[24][:count]) 
-		,fits.Column(name='b_to_a_500c',format='D', array= output.T[25][:count]) 
-		,fits.Column(name='c_to_a_500c',format='D', array= output.T[26][:count]) 
-		,fits.Column(name='Ax_500c',format='D', array= output.T[27][:count]) 
-		,fits.Column(name='Ay_500c',format='D', array= output.T[28][:count]) 
-		,fits.Column(name='Az_500c',format='D', array= output.T[29][:count]) 
-		,fits.Column(name='TU',format='D', array= output.T[30][:count])  
-		,fits.Column(name='M_pe_Diemer',format='D', array= output.T[31][:count]) 
-		,fits.Column(name='M_pe_Behroozi',format='D', array= output.T[32][:count]) 
-		,fits.Column(name='mvir',format='D', array= output.T[33][:count]) 
-		,fits.Column(name='M200c',format='D', array= output.T[34][:count]) 
-		,fits.Column(name='M500c',format='D', array= output.T[35][:count]) 
-		,fits.Column(name='M2500c',format='D', array= output.T[36][:count])
+		fits.Column(name='id',format='I',            array= output.T[0] )
+		,fits.Column(name='vmax',format='D',         array= output.T[1] ) 
+		,fits.Column(name='vrms',format='D',         array= output.T[2] ) 
+		,fits.Column(name='rvir',format='D',         array= output.T[3] ) 
+		,fits.Column(name='rs',format='D',           array= output.T[4] ) 
+		,fits.Column(name='pid',format='D',          array= output.T[5] ) 
+		,fits.Column(name='x',format='D',            array= output.T[6] ) 
+		,fits.Column(name='y',format='D',            array= output.T[7] ) 
+		,fits.Column(name='z',format='D',            array= output.T[8] ) 
+		,fits.Column(name='vx',format='D',           array= output.T[9] ) 
+		,fits.Column(name='vy',format='D',           array= output.T[10] ) 
+		,fits.Column(name='vz',format='D',           array= output.T[11] ) 
+		,fits.Column(name='Jx',format='D',           array= output.T[12] ) 
+		,fits.Column(name='Jy',format='D',           array= output.T[13] ) 
+		,fits.Column(name='Jz',format='D',           array= output.T[14] ) 
+		,fits.Column(name='Spin',format='D',         array= output.T[15] ) 
+		,fits.Column(name='Rs_Klypin',format='D',    array= output.T[16] ) 
+		,fits.Column(name='Xoff',format='D',         array= output.T[17] ) 
+		,fits.Column(name='Voff',format='D',         array= output.T[18] ) 
+		,fits.Column(name='Spin_Bullock',format='D', array= output.T[19] ) 
+		,fits.Column(name='Ax',format='D',           array= output.T[20] ) 
+		,fits.Column(name='Ay',format='D',           array= output.T[21] ) 
+		,fits.Column(name='Az',format='D',           array= output.T[22] ) 
+		,fits.Column(name='b_to_a',format='D',       array= output.T[23] ) 
+		,fits.Column(name='c_to_a',format='D',       array= output.T[24] ) 
+		,fits.Column(name='mvir',format='D',         array= output.T[25] ) 
+		,fits.Column(name='M200c',format='D',        array= output.T[26] ) 
+		,fits.Column(name='M500c',format='D',        array= output.T[27] ) 
+		,fits.Column(name='M2500c',format='D',       array= output.T[28] )
 		])
 		tb_hdu = fits.BinTableHDU.from_columns( hdu_cols )
 		#define the header
@@ -450,9 +438,11 @@ class MultiDarkSimulation :
 		prihdu = fits.PrimaryHDU(header=prihdr)
 		#writes the file
 		thdulist = fits.HDUList([prihdu, tb_hdu])
-		os.system("rm "+self.snl[ii][:-5]+file_identifier+str(Nb)+".fits")
-		thdulist.writeto(self.snl[ii][:-5]+file_identifier+str(Nb)+".fits")
-	
+		out_filename = os.path.join(os.environ["MD10"],"work_agn",os.path.basename(self.snl[ii])[:-5]+file_identifier+str(Nb)+".fits")
+		print( out_filename )
+		os.system("rm "+out_filename)
+		thdulist.writeto(out_filename)
+		
 	def writePositionCatalogPM(self, ii, vmin=30., mmin=10**8, NperBatch = 20000000):
 		"""
 		Extracts the positions and velocity out of a snapshot of the Multidark simulation.        
