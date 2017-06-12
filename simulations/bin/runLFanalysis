@@ -1,6 +1,0 @@
-#!/bin/bash/
-
-cd $PYSU_DIR/pySimulations/trunk/bin
-
-./convertCatalogFits
-./compute_line_luminosities_Galform./compute_line_luminosities_GalformNext./estimate_line_LF./estimate_line_LF_variance./estimate_line_LF_variance-step2./plotLFs

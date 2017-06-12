@@ -1,14 +1,7 @@
 ﻿# list of exports needed
 # to add to your ~/.bashrc
 
-export PYTHONPATH=$PYTHONPATH:/path_to/pySU/galaxy/python/
-export PYTHONPATH=$PYTHONPATH:/path_to/pySU/simulations/python/
-export PYTHONPATH=$PYTHONPATH:/path_to/pySU/multidark/python/
-export PYTHONPATH=$PYTHONPATH:/path_to/pySU/spm/python/
-export PYTHONPATH=$PYTHONPATH:/path_to/pySU/targetselection/python/
-
-export DATA_DIR='/path_to_data/’
-export PYSU_DIR='/path_to/pySU/'
+export PYTHONPATH=$PYTHONPATH:/path_to/nbody-npt-functions/python/
 
 export GIT_NBODY_NPT='/data17s/darksim/software/nbody-npt-functions'
 export GIT_MD='/data17s/darksim/software/nbody-npt-functions/multidark'
