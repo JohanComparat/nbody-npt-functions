@@ -1,0 +1,79 @@
+#! /usr/bin/env python
+
+import cPickle
+import astroconvert as ac
+import h5py as hp
+import glob
+import numpy as n
+fa="../data/Gonzalez13.DB.MillGas.field1.core.0.hdf5"
+fb="../data/Gonzalez13.DB.MillGas.field1.emlines.0.hdf5"
+fc="../data/Gonzalez13.DB.MillGas.field1.kinematics.0.hdf5"
+fd="../data/Gonzalez13.DB.MillGas.field1.misc.0.hdf5"
+fe="../data/Gonzalez13.DB.MillGas.field1.photometry.0.hdf5"
+
+
+
+f = hp.File(fa,'r')
+#f.items()
+data=f['Data']
+#data.items()
+dec=data['dec'].value
+ra=data['ra'].value
+zCos=data['z_cos'].value
+zObs=data['z_obs'].value
+#DHaloID=data['DHaloID'].value
+#mcold=data['mcold'].value
+#mhhalo=data['mhhalo'].value
+#mstardot=data['mstardot'].value
+#mstardot_burst=data['mstardot_burst'].value
+#mstars_bulge=data['mstars_bulge'].value
+#mstars_disk=data['mstars_disk'].value
+f.close()
+
+f = hp.File(fe,'r')
+#f.items()
+data=f['Data']
+print data.items()
+g=data['appDgo_tot_ext'].value
+r=data['appDro_tot_ext'].value
+i=data['appDio_tot_ext'].value
+z=data['appDzo_tot_ext'].value
+f.close()
+
+f = hp.File(fb,'r')
+#f.items()
+data=f['Data']
+print data.items()
+
+n.savetxt("../galform.elg.nExt.data", n.transpose([ra,dec,zObs,g,r,i,z, data['EW_tot_Hbeta'].value,data['EW_tot_OII3727'].value, data['EW_tot_OIII5007'].value, data['L_tot_OII3727'].value, data['L_tot_OIII5007'].value, data['L_tot_Hbeta'].value ]) ,header=" ra dec zObs g r i z H1_4862_EW O2_3728_EW O3_5007_EW O2_3728_flux O3_5007_flux H1_4862_flux ")
+
+f.close()
+
+import os
+os.system("""java -jar /applications/stilts.jar tpipe in=../galform.elg.nExt.data ifmt=ascii  omode=out ofmt=fits out=../galform.elg.next.fits""")
+
+import sys
+sys.exit()
+
+f = hp.File(fe,'r')
+#f.items()
+data=f['Data']
+print data.items()
+g=data['appDgo_tot_ext'].value
+r=data['appDro_tot_ext'].value
+i=data['appDio_tot_ext'].value
+z=data['appDzo_tot_ext'].value
+f.close()
+
+f = hp.File(fb,'r')
+#f.items()
+data=f['Data']
+print data.items()
+
+n.savetxt("../galform.elg.data", n.transpose([ra,dec,zObs,g,r,i,z, data['EW_tot_Hbeta_ext'].value,data['EW_tot_OII3727_ext'].value, data['EW_tot_OIII5007_ext'].value, data['L_tot_OII3727_ext'].value, data['L_tot_OIII5007_ext'].value, data['L_tot_Hbeta_ext'].value ]) ,header=" ra dec zObs g r i z H1_4862_EW O2_3728_EW O3_5007_EW O2_3728_flux O3_5007_flux H1_4862_flux ")
+
+f.close()
+
+import os
+os.system("""java -jar /applications/stilts.jar tpipe in=../galform.elg.data ifmt=ascii  omode=out ofmt=fits out=../galform.elg.fits""")
+

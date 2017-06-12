@@ -1,0 +1,21 @@
+# run delta function on taurus
+
+# read the density fields provided by Gustavo 
+# at snapshots 104,  101, 097, 087
+# and outputs the histogram of the density field.
+python DF_read_density_field_compute_deltaHistogram.py
+
+# read the density fields
+# outputs the histogram of the density field and of the average density field in one shell around
+# outputs the velocity field
+python DF_read_density_field_compute_deltaDoD1Histogram.py
+
+# read the mocks from Sergio and the DF from Gustavo and assignes a value of the DF for each tracer
+python DF_read_density_field.py
+
+# plots the position within the meshsize to see if there is a loss of information in a random assignment
+python DF_plot_density_field_residuals.py
+
+# degrades the resolution of a mesh by a factor of 2
+python DF_degrade_resolution.py
+
