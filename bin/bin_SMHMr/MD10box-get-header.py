@@ -38,7 +38,7 @@ out_name = os.path.join(os.environ["MD10"], 'output_MD_1.0Gpc.fits')
 redshift = 1./n.array(aexps)-1.
 dCom = cosmoMD.comoving_distance(redshift)
 ids = n.argsort(redshift)
-col0 = fits.Column(name='snap_name'	,format='A', array = n.array(names)[ids] )
+col0 = fits.Column(name='snap_name'	,format='A4', array = n.array(names)[ids] )
 col1 = fits.Column(name='N_columns'	,format='I', array = n.array(colN )[ids] )
 col2 = fits.Column(name='aexp'		,format='D', array = n.array(aexps)[ids] )
 col3 = fits.Column(name='redshift'	,format='D', array = redshift[ids] )
@@ -54,7 +54,7 @@ hdu_cols  = fits.ColDefs([col0, col1, col2, col3, col4, col5, col6])#, col7, col
 tb_hdu = fits.BinTableHDU.from_columns( hdu_cols )
 #define the header
 prihdr = fits.Header()
-prihdr['simulation'] = 'MDPL'
+prihdr['sim'] = 'MDPL2'
 prihdr['author'] = 'JC'
 prihdu = fits.PrimaryHDU(header=prihdr)
 #writes the file
