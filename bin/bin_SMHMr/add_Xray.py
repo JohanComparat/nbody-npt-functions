@@ -17,17 +17,14 @@ cl = ClusterScalingRelations.ClusterScalingRelations_Mantz2016()
 import StellarMass
 import XrayLuminosity
 xr = XrayLuminosity.XrayLuminosity()
-dV = -99.99
+dV = -9999
 
-def create_catalogs(env='MD04', file_type="out", aexp='0.74230', out_dir = os.path.join("../../data/")):
+# read the Xray AGN luminosity function and add a condition to reproduce it
+
+def create_catalogs_out(fileList, z): #env='MD04', file_type="out", aexp='0.74230', out_dir = os.path.join("../../data/")):
 	out_dir = os.path.join("../../data/")
-	# gets the file list to add the Xray luminosity
-	fileList = n.array(glob.glob(os.path.join(os.environ[env], "catalogs", file_type+"_"+aexp+"_*stellar_mass.fits" )))
-	fileList.sort()
-	z = 1./0.74230 -1.
-	print fileList
 	# opens the duty cycle file_type
-	path_to_duty_cycle = os.path.join(out_dir, env+"_"+file_type+"_"+aexp+"_duty_cycle.txt")
+	path_to_duty_cycle = os.path.join(out_dir, env+"_"+file_type+"_"+str(z)+"_duty_cycle.txt")
 	log_stellar_mass, duty_cycle = n.loadtxt(path_to_duty_cycle, unpack="True")
 	percentage_active = interp1d(n.hstack((-200., 0,n.min(log_stellar_mass)-0.01,log_stellar_mass,n.max(log_stellar_mass)+0.01,15)), n.hstack(( 0., 0., 0., duty_cycle, 0., 0.)))
 
@@ -104,3 +101,13 @@ create_catalogs(env='MD04', file_type="out"  , aexp='0.74230', out_dir = os.path
 create_catalogs(env='MD10', file_type="out"  , aexp='0.74980', out_dir = os.path.join("../../data/"))
 create_catalogs(env='MD25', file_type="out"  , aexp='0.75440', out_dir = os.path.join("../../data/"))
 
+# open the output file_type
+summ = fits.open(os.path.join(os.environ["MD10"], 'output_MD_1.0Gpc.fits'))[1].data	
+
+for ii in range(len(summ)):
+	print summ[ii]
+	fileList = n.array(glob.glob(os.path.join(os.environ["MD10"], 'work_agn', 'out_'+summ['snap_name'][ii]+'_SAM_Nb_?.fits')))
+	#outFile = fileName[:-5]+"_Ms.fits"
+	z = summ['redshift'][ii]
+	print fileList
+	create_catalogs_out(fileList, z)
