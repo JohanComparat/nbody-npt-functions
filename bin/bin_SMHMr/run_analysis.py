@@ -7,31 +7,42 @@
 python reproduce_bongiorno_2010.py
 
 
-#writes in the snapshot dir
----------------------------
+BOX = MD10 or NUGC
 
-# rewrite catalogs in fits files
-python MD04-write-smallFile.py
-python MD10-write-smallFile.py
-python MD25-write-smallFile.py
+#writes a summary file containing all information for each snapshot
+#---------------------------
+python $BOX_box-get-header.py
 
+# rewrite rockstar ascii catalogs in smaller fits files with 20e6 lines each + halo mass cut.
+python $BOX-write-clusterFiles.py # for the cluster calculations
+python $BOX-write-smallFile.py # for the AGN calculations
+# outputs in $BOX_DIR/work_agn or work_cluster
+# rewriting agaim the ones with less column numbers
 
 # writes in the catalog dir
----------------------------
-# this code it to be double checked and merged into a class ...
-
+#---------------------------
 # add stellar masses according to Moster et al. 2013
-python add_Ms.py
+# to be updated to the Moster et al. 2017 model EMERGE
+python $BOX_add_Ms.py
+# outputs in $BOX_DIR/work_agn 
 
-# measure the stellar mass function obtained
-python measure_SMF.py
+# measure the stellar mass function obtained per snapshot
+# and tabulates the duty cyle as a function of stellar mass
+# forces the snapshot to reproduce the luminosity function from Bongiorno 2016
+python $BOX_tabulate_duty_cycle.py
+# outputs in $BOX_DIR/duty_cycle
 
-# tabulate the duty cyle as a function of stellar mass
-python tabulate_duty_cycle.py
+# add Xray luminosities for AGNs using Bongiorno et al. 2016 and Xray for clusters using Mantz et al. 2016
+python $BOX_add_Xray.py
+# outputs in $BOX_DIR/work_agn 
+
+#selects active AGNS and write the AGN snapshot in the catalog dir
+python $BOX_create_AGN_summary_file.py
+# outputs in $BOX_DIR/catalogs/
+
+# TB UPDATE FROM HERE ON
+# plots and results 
 python plot_AGN_HGMF_duty_cycle.py
-
-# add Xray luminosities for AGNs
-python add_Xray.py
 python plot_slice_simulation.py
 
 #-------------------------------------------------------------------------
