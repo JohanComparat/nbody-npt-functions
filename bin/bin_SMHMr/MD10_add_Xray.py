@@ -70,12 +70,12 @@ def create_catalogs_out(fileList, z, snap_name):
 		col6 = fits.Column(name='Lx_ce_cluster' ,format='D', array =n.log10(cl.logM500_to_Lce(hd[1].data['M500c'], z)))
 
 		#define the table hdu 
-		colArray = []
-		for col in hd[1].columns :
-			colArray.append(col)
+		colArray = [col1]
+		#for col in hd[1].columns :
+			#colArray.append(col)
 
 		# AGN Mvir cols
-		colArray.append(col1)
+		#colArray.append(col1)
 		colArray.append(col2)
 		# Clusters columns
 		colArray.append(col3)

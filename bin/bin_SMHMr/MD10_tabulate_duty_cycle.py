@@ -67,8 +67,8 @@ summ = fits.open(os.path.join(os.environ["MD10"], 'output_MD_1.0Gpc.fits'))[1].d
 
 for el in summ:
 	print el
-	if len(fileList_snap = n.array(glob.glob(os.path.join(os.environ["MD10"], 'work_agn', 'out_'+el['snap_name']+'_SAM_Nb_?_Ms.fits'))))>0 :
-		tabulate_duty_cycle(el['snap_name'], el['redshift'])
+	#if len(fileList_snap = n.array(glob.glob(os.path.join(os.environ["MD10"], 'work_agn', 'out_'+el['snap_name']+'_SAM_Nb_?_Ms.fits'))))>0 :
+	tabulate_duty_cycle(el['snap_name'], el['redshift'])
 
 
 
