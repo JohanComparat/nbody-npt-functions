@@ -35,7 +35,7 @@ def tau_quenching(tdyn, tau_0, tau_s, m_star):
 	else :
 		return tdyn * tau_0 * (m_star * 10.**(-10.))**(tau_s)
 
-f_loss = lambda t : 0.05*n.ln( 1 + t / (1.4*10**6))
+f_loss = lambda t : 0.05*n.log( 1 + t / (1.4*10**6))
 
 
 class MultiDarkSimulation :
@@ -140,7 +140,7 @@ class MultiDarkSimulation :
 			# compute density at rvir
 			rs = float(line[self.columnDict['rs']])
 			conc = rvir / rs
-			rho_at_rvir = rho_crit * delta_vir * conc**2. / ((1+conc)*((1+conc)*n.ln(1+conc)-conc))
+			rho_at_rvir = rho_crit * delta_vir * conc**2. / ((1+conc)*((1+conc)*n.log(1+conc)-conc))
 			
 			newline =n.array([ int(line[self.columnDict['id']]), int(line[self.columnDict['pid']]), int(line[self.columnDict['Snap_num']]), rvir, n.log10(mvir), n.log10(float(line[self.columnDict['Mpeak']])), float(line[self.columnDict['Mpeak_Scale']]), float(line[self.columnDict['Acc_Rate_1Tdyn']]), float(line[self.columnDict['Time_to_future_merger']]), float(line[self.columnDict['Future_merger_MMP_ID']]), tdyn, rho_at_rvir])
 			

@@ -35,7 +35,7 @@ out_name = os.path.join(os.environ["MD10"], 'hlists_MD_1.0Gpc.fits')
 redshift = 1./n.array(aexps)-1.
 dCom = cosmoMD.comoving_distance(redshift)
 ids = n.argsort(redshift)
-col0 = fits.Column(name='snap_name'	,format='A4', array = n.array(names)[ids] )
+col0 = fits.Column(name='snap_name'	,format='D', array = n.array(names)[ids] )
 col1 = fits.Column(name='N_columns'	,format='I', array = n.array(colN )[ids] )
 col2 = fits.Column(name='aexp'		,format='D', array = n.array(aexps)[ids] )
 col3 = fits.Column(name='redshift'	,format='D', array = redshift[ids] )
