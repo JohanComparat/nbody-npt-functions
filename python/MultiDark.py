@@ -7,20 +7,36 @@
 The class MultiDark is a wrapper to handle Multidark simulations results / outputs.
 
 """
+from os.path import join
+import os
+import glob
+import time
+
 import cPickle
 import fileinput
 import astropy.io.fits as fits
-import astropy.cosmology as co
-import astropy.units as u
-c2 = co.Planck13
-from scipy.interpolate import interp1d
-from os.path import join
-import os
-import astropy.units as uu
+
 import numpy as n
-import glob
+from scipy.interpolate import interp1d
 import scipy.spatial.ckdtree as t
-import time
+
+from astropy.cosmology import FlatLambdaCDM
+import astropy.units as u
+cosmoMD = FlatLambdaCDM(H0=67.77*u.km/u.s/u.Mpc, Om0=0.307115, Ob0=0.048206)
+cosmoDS = FlatLambdaCDM(H0=68.46*u.km/u.s/u.Mpc, Om0=0.298734, Ob0=0.046961)
+import astropy.constants as constants
+
+G =  constants.G.to(u.kpc**3/(u.solMass * u.yr**2)).value
+
+t_dynamical = lambda rvir, mvir : (rvir**3./(G*mvir))**0.5
+def tau_quenching(tdyn, tau_0, tau_s, m_star):
+	if m_star < 1e10 :
+		return tdyn * tau_0
+	else :
+		return tdyn * tau_0 * (m_star * 10.**(-10.))**(tau_s)
+
+f_loss = lambda t : 0.05*n.ln( 1 + t / (1.4*10**6))
+
 
 class MultiDarkSimulation :
 	"""
@@ -37,7 +53,7 @@ class MultiDarkSimulation :
 	:param columnDict: dictionnary to convert column name into the index to find it in the snapshots
 	"""
 
-	def __init__(self,Lbox=2500.0 * uu.Mpc, wdir="/data2/DATA/eBOSS/Multidark-lightcones/", boxDir="MD_2.5Gpc", snl=n.array(glob.glob("/data2/DATA/eBOSS/Multidark-lightcones/MD_2.5Gpc/snapshots/hlist_?.?????.list")), zsl=None, zArray=n.arange(0.2,2.4,1e-1), Hbox = 67.77 * uu.km / (uu.s * uu.Mpc), Melement = 23593750000.0 ):
+	def __init__(self,Lbox=2500.0 * u.Mpc, wdir="/data2/DATA/eBOSS/Multidark-lightcones/", boxDir="MD_2.5Gpc", snl=n.array(glob.glob("/data2/DATA/eBOSS/Multidark-lightcones/MD_2.5Gpc/snapshots/hlist_?.?????.list")), zsl=None, zArray=n.arange(0.2,2.4,1e-1), Hbox = 67.77 * u.km / (u.s * u.Mpc), Melement = 23593750000.0 ):
 		self.Lbox = Lbox # box length
 		self.Hbox = Hbox # Hubble constant at redshift 0 in the box
 		self.wdir = wdir # working directory
@@ -93,7 +109,120 @@ class MultiDarkSimulation :
 			self.Npart = 4096
 			#self.vmin = 4* (self.Melement*self.Msun*self.G/(self.force_resolution*u.kpc.to('cm')))**0.5 * u.cm.to('km')
 			
+	def writeEMERGEcatalog(self, path_2_snapshot, rho_crit, delta_vir, mmin=10**8, NperBatch = 2000000, file_identifier = "_EMERGE_Nb_"):
+		"""
+		Extracts the positions and mass out of a snapshot of the Multidark simulation.        
+		:param ii: index of the snapshot in the list self.snl
+		:param vmin: name of the quantity of interest, mass, velocity.
+		:param vmax: of the quantity of interest in the snapshots.
+		:param NperBatch: number of line per fits file, default: 1000000
+		"""
+		# sets the columns definition
+		self.columnDict = self.columnDictHlist 
+		# opens the hlist file
+		fl = fileinput.input(path_2_snapshot)
+		nameSnapshot = os.path.basename(path_2_snapshot)[:-5]
+		Nb = 0
+		count = 0
+		output = n.zeros((NperBatch,12))
+		outfile_base = os.path.join(os.environ["MD10"],"emerge",nameSnapshot + file_identifier)
+		for line in fl:
+			#print line
+			if line[0] == "#" :
+				continue
 
+			line = line.split()
+			# compute tdyn, 
+			rvir = float(line[self.columnDict['rvir']])
+			mvir = float(line[self.columnDict['mvir']])
+			tdyn = t_dynamical(rvir, mvir)
+			
+			# compute density at rvir
+			rs = float(line[self.columnDict['rs']])
+			conc = rvir / rs
+			rho_at_rvir = rho_crit * delta_vir * conc**2. / ((1+conc)*((1+conc)*n.ln(1+conc)-conc))
+			
+			newline =n.array([ int(line[self.columnDict['id']]), int(line[self.columnDict['pid']]), int(line[self.columnDict['Snap_num']]), rvir, n.log10(mvir), n.log10(float(line[self.columnDict['Mpeak']])), float(line[self.columnDict['Mpeak_Scale']]), float(line[self.columnDict['Acc_Rate_1Tdyn']]), float(line[self.columnDict['Time_to_future_merger']]), float(line[self.columnDict['Future_merger_MMP_ID']]), tdyn, rho_at_rvir])
+			
+			
+			#print newline
+			#print newline.shape
+			if float(line[self.columnDict['mvir']])>mmin :
+				output[count] = newline
+				count+=1
+				
+			if count == NperBatch  :
+				out_filename = outfile_base+str(Nb)+".fits")
+				print( out_filename )
+				#print "count",count
+				#print output
+				#print output.shape
+				#print output.T[0].shape
+				#define the columns
+				hdu_cols  = fits.ColDefs([
+				fits.Column(name='id',format='I',            array= output.T[0] )
+				,fits.Column(name='pid',format='I',         array= output.T[1] ) 
+				,fits.Column(name='Snap_num',format='I',         array= output.T[2] ) 
+				,fits.Column(name='rvir',format='D',         array= output.T[3] ) 
+				,fits.Column(name='mvir',format='D',           array= output.T[4] ) 
+				,fits.Column(name='Mpeak',format='D',          array= output.T[5] ) 
+				,fits.Column(name='Mpeak_scale',format='D',            array= output.T[6] ) 
+				,fits.Column(name='Acc_Rate_1Tdyn',format='D',            array= output.T[7] ) 
+				,fits.Column(name='Time_to_future_merger',format='D',            array= output.T[8] ) 
+				,fits.Column(name='Future_merger_MMP_ID',format='D',           array= output.T[9] ) 
+				,fits.Column(name='tdyn',format='D',           array= output.T[10] ) 
+				,fits.Column(name='rho_at_rvir',format='D',           array= output.T[11] ) 
+				])
+				tb_hdu = fits.BinTableHDU.from_columns( hdu_cols )
+				#define the header
+				prihdr = fits.Header()
+				prihdr['HIERARCH nameSnapshot'] = nameSnapshot
+				prihdr['count'] = count
+				prihdr['batchN'] = Nb
+				prihdr['author'] = 'JC'
+				prihdu = fits.PrimaryHDU(header=prihdr)
+				#writes the file
+				thdulist = fits.HDUList([prihdu, tb_hdu])
+				out_filename = outfile_base + str(Nb).zfill(3)+".fits"
+				print( out_filename )
+				os.system("rm "+out_filename)
+				thdulist.writeto(out_filename)
+				Nb+=1
+				count=0
+				#resest the output matrix
+				output = n.zeros((NperBatch,12))
+		
+		
+		# and for the last batch :		
+		hdu_cols  = fits.ColDefs([
+		fits.Column(name='id',format='I',            array= output.T[0] )
+		,fits.Column(name='pid',format='I',         array= output.T[1] ) 
+		,fits.Column(name='Snap_num',format='I',         array= output.T[2] ) 
+		,fits.Column(name='rvir',format='D',         array= output.T[3] ) 
+		,fits.Column(name='mvir',format='D',           array= output.T[4] ) 
+		,fits.Column(name='Mpeak',format='D',          array= output.T[5] ) 
+		,fits.Column(name='Mpeak_scale',format='D',            array= output.T[6] ) 
+		,fits.Column(name='Acc_Rate_1Tdyn',format='D',            array= output.T[7] ) 
+		,fits.Column(name='Time_to_future_merger',format='D',            array= output.T[8] ) 
+		,fits.Column(name='Future_merger_MMP_ID',format='D',           array= output.T[9] ) 
+		,fits.Column(name='tdyn',format='D',           array= output.T[10] ) 
+		,fits.Column(name='rho_at_rvir',format='D',           array= output.T[11] ) 
+		])
+		tb_hdu = fits.BinTableHDU.from_columns( hdu_cols )
+		#define the header
+		prihdr = fits.Header()
+		prihdr['HIERARCH nameSnapshot'] = nameSnapshot
+		prihdr['count'] = count
+		prihdr['batchN'] = Nb
+		prihdr['author'] = 'JC'
+		prihdu = fits.PrimaryHDU(header=prihdr)
+		#writes the file
+		thdulist = fits.HDUList([prihdu, tb_hdu])
+		out_filename = outfile_base+str(Nb).zfill(3)+".fits"
+		print( out_filename )
+		os.system("rm "+out_filename)
+		thdulist.writeto(out_filename)
+		
 	def cornerLCpositionCatalog(self, ii, DMIN=0., DMAX=1000., vmin=190, vmax=100000, NperBatch = 10000000):
 		"""
 		Extracts the positions and velocity out of a snapshot of the Multidark simulation.   		

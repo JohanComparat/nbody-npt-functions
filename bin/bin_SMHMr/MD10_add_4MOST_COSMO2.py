@@ -1,6 +1,52 @@
-from populateHaloCatalogsLib import *
+import glob
+import astropy.io.fits as fits
+import os
+import time
+import numpy as n
+import sys
 
-ps=[[1e12,5e11,0.1],[1e12,5e11,0.2],[1e12,5e11,0.3],[1e12,5e11,0.4],[1e12,5e11,0.5],[1e12,5e11,0.6]]
+# specific functions
+from scipy.stats import norm
+from scipy.integrate import quad
+from scipy.interpolate import interp1d
+
+summ = fits.open(os.path.join(os.environ["MD10"], 'output_MD_1.0Gpc.fits'))[1].data	
+volume = (1000/0.6777)**3.
+
+zmin, zmax, zmean, dN_dVdz_lrg, dN_dVdz_elg, dN_dVdz_qso = n.loadtxt(os.path.join(os.environ['GIT_NBODY_NPT'], "data/NZ/nz_8.txt"), unpack=True)
+dN_dz_elg = interp1d(n.hstack((-1., zmin[0], zmean, zmax[-1], 3.)), volume * n.hstack((0., 0., dN_dVdz_elg, 0., 0.)) )
+dN_dz_lrg = interp1d(n.hstack((-1., zmin[0], zmean, zmax[-1], 3.)), volume * n.hstack((0., 0., dN_dVdz_lrg, 0., 0.)) )
+dN_dz_qso = interp1d(n.hstack((-1., zmin[0], zmean, zmax[-1], 3.)), volume * n.hstack((0., 0., dN_dVdz_qso, 0., 0.)) )
+
+# determine dz
+z_middle = (summ['redshift'][1:]+summ['redshift'][:-1])*0.5
+z_mins = n.hstack((summ['redshift'][0], z_middle))
+z_maxs = n.hstack((z_middle, summ['redshift'][-1]))
+z_snap = summ['redshift']
+dz = z_maxs - z_mins
+
+def SHAM_4MOST(fileList_snap, z, dz, nTargets =[1., 1., 1.]):
+
+for ii, el in enumerate(summ):
+	nTargets = dz[ii]*n.array([dN_dz_lrg(z), dN_dz_elg(z), dN_dz_qso(z)])
+	fileList_snap = n.array(glob.glob(os.path.join(os.environ["MD10"], 'work_agn', 'out_'+el['snap_name']+'_SAM_Nb_?.fits')))
+	fileList_snap.sort()
+	print( el )
+	print( fileList_snap )
+	print( nTargets )
+	SHAM_4MOST(fileList_snap, z, dz[ii], nTargets =[1., 1., 1.])
+
+
+from populateHaloCatalogsLib import *
+import os
+
+
+interp1d()
+
+p_elg=[10**(12.2),0.25]
+p_qso=[10**(12.7),0.25]
+p_lrg=[10**(12.2),0.25]
+
 ids=[[],[],[], [],[],[]]
 oN=["","","", "","",""]
 for ii in range(len(zmin)):

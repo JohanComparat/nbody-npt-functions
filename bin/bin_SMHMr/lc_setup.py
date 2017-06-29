@@ -3,8 +3,6 @@ import sys
 import astropy.io.fits as fits
 import os
 from os.path import join
-import cPickle
-import time
 # numerical modules
 import numpy as n
 from scipy.interpolate import interp1d
@@ -28,5 +26,13 @@ d_2_z = interp1d(summ['comoving_distance'],summ['redshift'])
 shells = L_box * n.arange(1,4,1)
 
 idz = n.searchsorted(summ['redshift'],d_2_z(shells))
-print d_2_z(shells),summ['redshift'][idz]
+print( d_2_z(shells),summ['redshift'][idz])
 
+z_middle = (summ['redshift'][1:]+summ['redshift'][:-1])*0.5
+
+z_mins = n.hstack((summ['redshift'][0], z_middle))
+z_maxs = n.hstack((z_middle, summ['redshift'][-1]))
+z_snap = summ['redshift']
+dz = z_maxs - z_mins
+
+# determine dz 
