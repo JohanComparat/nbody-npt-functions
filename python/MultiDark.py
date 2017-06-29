@@ -152,7 +152,7 @@ class MultiDarkSimulation :
 				count+=1
 				
 			if count == NperBatch  :
-				out_filename = outfile_base+str(Nb)+".fits")
+				out_filename = outfile_base + str(Nb).zfill(3) + ".fits"
 				print( out_filename )
 				#print "count",count
 				#print output
