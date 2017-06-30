@@ -65,7 +65,7 @@ for ii, el in enumerate(summ):
 			elgs = id_1[ (id_0==num) ]
 			print( file_out, elgs)
 			hdu_cols  = fits.ColDefs([
-			fits.Column(name='line_number',format='I', array= elgs )])
+			fits.Column(name='line_number',format='K', array= elgs )])
 			tb_hdu = fits.BinTableHDU.from_columns( hdu_cols )
 			prihdr = fits.Header()
 			prihdr['HIERARCH nameSnapshot'] = el['snap_name']

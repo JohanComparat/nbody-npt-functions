@@ -58,7 +58,7 @@ for ii, el in enumerate(summ):
 			lrgs = id_superset[1][ (id_superset[0]==num) & (rds>0.5) ]
 			print( file_out, lrgs)
 			hdu_cols  = fits.ColDefs([
-			fits.Column(name='line_number',format='I', array= lrgs )])
+			fits.Column(name='line_number',format='K', array= lrgs )])
 			tb_hdu = fits.BinTableHDU.from_columns( hdu_cols )
 			prihdr = fits.Header()
 			prihdr['HIERARCH nameSnapshot'] = el['snap_name']
@@ -103,7 +103,7 @@ for ii, el in enumerate(summ):
 				elgs = id_1[ (id_0==num) ]
 				print( file_out, elgs)
 				hdu_cols  = fits.ColDefs([
-				fits.Column(name='line_number',format='I', array= elgs )])
+				fits.Column(name='line_number',format='K', array= elgs )])
 				tb_hdu = fits.BinTableHDU.from_columns( hdu_cols )
 				prihdr = fits.Header()
 				prihdr['HIERARCH nameSnapshot'] = el['snap_name']
@@ -145,7 +145,7 @@ for ii, el in enumerate(summ):
 				qsos = id_1[ (id_0==num) ]
 				print( file_out, qsos)
 				hdu_cols  = fits.ColDefs([
-				fits.Column(name='line_number',format='I', array= qsos )])
+				fits.Column(name='line_number',format='K', array= qsos )])
 				tb_hdu = fits.BinTableHDU.from_columns( hdu_cols )
 				prihdr = fits.Header()
 				prihdr['HIERARCH nameSnapshot'] = el['snap_name']
