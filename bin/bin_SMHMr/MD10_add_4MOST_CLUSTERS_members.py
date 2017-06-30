@@ -43,7 +43,7 @@ for ii, el in enumerate(summ):
 	file_snaps = n.array(glob.glob(os.path.join(os.environ["MD10"], 'work_agn', 'out_'+el['snap_name']+'_SAM_Nb_?.fits')))
 	file_snaps.sort()
 	print fileList_bcg
-		if len(fileList_bcg)>0 :
+	if len(fileList_bcg)>0 :
 		pairs, pairs_N = [], []
 
 		for file_bcg in fileList_bcg:
