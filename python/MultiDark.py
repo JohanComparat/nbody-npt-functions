@@ -160,9 +160,9 @@ class MultiDarkSimulation :
 				#print output.T[0].shape
 				#define the columns
 				hdu_cols  = fits.ColDefs([
-				fits.Column(name='id',format='I',            array= output.T[0] )
-				,fits.Column(name='pid',format='I',         array= output.T[1] ) 
-				,fits.Column(name='Snap_num',format='I',         array= output.T[2] ) 
+				fits.Column(name='id',format='K',            array= output.T[0] )
+				,fits.Column(name='pid',format='K',         array= output.T[1] ) 
+				,fits.Column(name='Snap_num',format='K',         array= output.T[2] ) 
 				,fits.Column(name='rvir',format='D',         array= output.T[3] ) 
 				,fits.Column(name='mvir',format='D',           array= output.T[4] ) 
 				,fits.Column(name='Mpeak',format='D',          array= output.T[5] ) 
@@ -195,9 +195,9 @@ class MultiDarkSimulation :
 		
 		# and for the last batch :		
 		hdu_cols  = fits.ColDefs([
-		fits.Column(name='id',format='I',            array= output.T[0] )
-		,fits.Column(name='pid',format='I',         array= output.T[1] ) 
-		,fits.Column(name='Snap_num',format='I',         array= output.T[2] ) 
+		fits.Column(name='id',format='K',            array= output.T[0] )
+		,fits.Column(name='pid',format='K',         array= output.T[1] ) 
+		,fits.Column(name='Snap_num',format='K',         array= output.T[2] ) 
 		,fits.Column(name='rvir',format='D',         array= output.T[3] ) 
 		,fits.Column(name='mvir',format='D',           array= output.T[4] ) 
 		,fits.Column(name='Mpeak',format='D',          array= output.T[5] ) 
@@ -345,7 +345,7 @@ class MultiDarkSimulation :
 				#print output.T[0].shape
 				#define the columns
 				hdu_cols  = fits.ColDefs([
-				fits.Column(name='id',format='I',            array= output.T[0] )
+				fits.Column(name='id',format='K',            array= output.T[0] )
 				,fits.Column(name='vmax',format='D',         array= output.T[1] ) 
 				,fits.Column(name='vrms',format='D',         array= output.T[2] ) 
 				,fits.Column(name='rvir',format='D',         array= output.T[3] ) 
@@ -395,7 +395,7 @@ class MultiDarkSimulation :
 		
 		# and for the last batch :		
 		hdu_cols  = fits.ColDefs([
-		fits.Column(name='id',format='I',            array= output.T[0] )
+		fits.Column(name='id',format='K',            array= output.T[0] )
 		,fits.Column(name='vmax',format='D',         array= output.T[1] ) 
 		,fits.Column(name='vrms',format='D',         array= output.T[2] ) 
 		,fits.Column(name='rvir',format='D',         array= output.T[3] ) 
@@ -475,7 +475,7 @@ class MultiDarkSimulation :
 				#print output.T[0].shape
 				#define the columns
 				hdu_cols  = fits.ColDefs([
-				fits.Column(name='id',format='I',            array= output.T[0] )
+				fits.Column(name='id',format='K',            array= output.T[0] )
 				,fits.Column(name='vmax',format='D',         array= output.T[1] ) 
 				,fits.Column(name='vrms',format='D',         array= output.T[2] ) 
 				,fits.Column(name='rvir',format='D',         array= output.T[3] ) 
@@ -527,7 +527,7 @@ class MultiDarkSimulation :
 		
 		# and for the last batch :		
 		hdu_cols  = fits.ColDefs([
-		fits.Column(name='id',format='I',            array= output.T[0] )
+		fits.Column(name='id',format='K',            array= output.T[0] )
 		,fits.Column(name='vmax',format='D',         array= output.T[1] ) 
 		,fits.Column(name='vrms',format='D',         array= output.T[2] ) 
 		,fits.Column(name='rvir',format='D',         array= output.T[3] ) 
