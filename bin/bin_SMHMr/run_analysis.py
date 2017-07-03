@@ -40,6 +40,15 @@ python $BOX_add_Xray.py
 python $BOX_create_AGN_summary_file.py
 # outputs in $BOX_DIR/catalogs/
 
+# add 4MOST targets on top
+python MD10_add_4MOST_AGN.py
+python MD10_add_4MOST_CLUSTERS_bcg.py
+python MD10_add_4MOST_CLUSTERS_members.py
+python MD10_add_4MOST_COSMO.py
+
+# 4MOST light cone
+# eRosita light cone
+
 # TB UPDATE FROM HERE ON
 # plots and results 
 python plot_AGN_HGMF_duty_cycle.py
