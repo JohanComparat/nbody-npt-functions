@@ -61,7 +61,7 @@ def create_catalogs_out(fileList, z, snap_name):
 		indexes[selection] = n.zeros_like(indexes[selection])
 		lambda_sar_Bo16 = n.array([ cdfs_interpolations[indexes[ii]](randomX[ii]) for ii in range(Nhalo) ])
 
-		obscured = (obscured_fraction_optical_Merloni2015(lambda_sar_Bo16 + stellar_mass) < randomObscuration )
+		obscured = (xr.obscured_fraction_optical_Merloni2015(lambda_sar_Bo16 + stellar_mass) < randomObscuration )
 		
 		# columns related to Xray AGN
 		col1 = fits.Column(name='lambda_sar_Bo16',format='D', array = lambda_sar_Bo16 )
