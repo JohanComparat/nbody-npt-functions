@@ -53,21 +53,26 @@ def create_catalogs_out(fileList, z, snap_name):
 		selection = hm[1].data['stellar_mass_reliable']
 		Nhalo=len(stellar_mass)
 		randomX = n.random.rand(Nhalo)
+		randomObscuration = n.random.rand(Nhalo)
+		
 		active_gn = ( percentage_active(stellar_mass) > randomX )
 
 		indexes = n.searchsorted(logMs,stellar_mass)
 		indexes[selection] = n.zeros_like(indexes[selection])
 		lambda_sar_Bo16 = n.array([ cdfs_interpolations[indexes[ii]](randomX[ii]) for ii in range(Nhalo) ])
 
+		obscured = (obscured_fraction_optical_Merloni2015(lambda_sar_Bo16 + stellar_mass) < randomObscuration )
+		
 		# columns related to Xray AGN
 		col1 = fits.Column(name='lambda_sar_Bo16',format='D', array = lambda_sar_Bo16 )
 		col2 = fits.Column(name='activity',format='L', array = active_gn )
+		col3 = fits.Column(name='obscured',format='L', array = obscured )
 
 		# columns related to clusters
-		col3 = fits.Column(name='Mgas_cluster'  ,format='D', array =n.log10(cl.logM500_to_logMgas(hd[1].data['M500c'], z)))
-		col4 = fits.Column(name='kT_cluster'    ,format='D', unit='keV', array =cl.logM500_to_kT(hd[1].data['M500c'], z))
-		col5 = fits.Column(name='Lx_bol_cluster',format='D', array =n.log10(cl.logM500_to_L(hd[1].data['M500c'], z)))
-		col6 = fits.Column(name='Lx_ce_cluster' ,format='D', array =n.log10(cl.logM500_to_Lce(hd[1].data['M500c'], z)))
+		col4 = fits.Column(name='Mgas_cluster'  ,format='D', array =n.log10(cl.logM500_to_logMgas(hd[1].data['M500c'], z)))
+		col5 = fits.Column(name='kT_cluster'    ,format='D', unit='keV', array =cl.logM500_to_kT(hd[1].data['M500c'], z))
+		col6 = fits.Column(name='Lx_bol_cluster',format='D', array =n.log10(cl.logM500_to_L(hd[1].data['M500c'], z)))
+		col7 = fits.Column(name='Lx_ce_cluster' ,format='D', array =n.log10(cl.logM500_to_Lce(hd[1].data['M500c'], z)))
 
 		#define the table hdu 
 		colArray = [col1]
@@ -75,13 +80,13 @@ def create_catalogs_out(fileList, z, snap_name):
 			#colArray.append(col)
 
 		# AGN Mvir cols
-		#colArray.append(col1)
 		colArray.append(col2)
-		# Clusters columns
 		colArray.append(col3)
+		# Clusters columns
 		colArray.append(col4)
 		colArray.append(col5)
 		colArray.append(col6)
+		colArray.append(col7)
 
 		hdu_cols  = fits.ColDefs(colArray)
 		tb_hdu = fits.BinTableHDU.from_columns( hdu_cols )

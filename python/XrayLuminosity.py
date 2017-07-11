@@ -153,3 +153,19 @@ class XrayLuminosity() :
 			return quad(integrand, 10**32, 10**33, args=(stellar_mass, redshift))[0] + quad(integrand, 10**33, 10**X, args=(stellar_mass, redshift))[0]
 		else :
 			return quad(integrand, 10**32, 10**X, args=(stellar_mass, redshift))[0]
+	
+	def obscured_fraction_optical_Merloni2015(self, logLX):
+		"""
+		Observed obscured fraction as a function of luminosity shown in Fig. 6 of Merloni et al. 2014 'the incidence of obscuration in active galactic nuclei'.
+		Equation 1 wih the parameters given in page 3556
+		"""
+		return 0.56 + n.arctan((43.89 - logLX)/0.46)/n.pi
+	
+	def obscured_fraction_HRz_Merloni2015(self, logLX):
+		"""
+		Observed obscured fraction as a function of luminosity shown in Fig. 7 of Merloni et al. 2014 'the incidence of obscuration in active galactic nuclei'.
+		
+		No evolution with X ray luminosity, data consistent with a constant fraction.
+		"""
+		return 0.56
+	
