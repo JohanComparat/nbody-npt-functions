@@ -6,12 +6,12 @@ import sys
 
 def create_sat_files(fileName, outFileName ):
 	#outFileName = fileName[:-5]+"_sat.fits"
-	command = """java -jar /home/comparat/software/linux/stilts/stilts.jar tpipe ifmt=fits in="""+fileName+""" cmd='select "pid>=0"' cmd='replacecol pid toInteger(pid)' cmd='replacecol id toInteger(id)' omode=out ofmt=fits out="""+outFileName
+	command = """java -jar /home/comparat/software/linux/stilts/stilts.jar tpipe ifmt=fits in="""+fileName+""" cmd='select "x>0 && pid>=0"' omode=out ofmt=fits out="""+outFileName
 	os.system(command)
 
 def create_cen_files(fileName, outFileName ):
 	#outFileName = fileName[:-5]+"_cen.fits"
-	command = """java -jar /home/comparat/software/linux/stilts/stilts.jar tpipe ifmt=fits in="""+fileName+""" cmd='select "pid==-1 && mvir>13.0"' cmd='delcols "pid"' cmd='replacecol id toInteger(id)'  omode=out ofmt=fits out="""+outFileName
+	command = """java -jar /home/comparat/software/linux/stilts/stilts.jar tpipe ifmt=fits in="""+fileName+""" cmd='select "x>0 && pid==-1 && mvir>13.5"' omode=out ofmt=fits out="""+outFileName
 	os.system(command)
 
 def concat_sat_files(fileList, outFileName):
@@ -66,7 +66,7 @@ def match_sat_cen_d3(satFileName, cenFileName, sat_in_sat_file, outFileNameA="in
 def process_MD(snap_num = "128p"):
 	t0=time.time()
 	env = os.environ['MD10']
-	files = n.array(glob.glob(os.path.join(env,"work_agn", "out_"+snap_num+"_SAM_Nb_*.fits")))
+	files = n.array(glob.glob(os.path.join(env,"work_agn", "out_"+snap_num+"_SAM_Nb_?.fits")))
 	files.sort()
 	if len(files)==0:
 		print "no input files"
@@ -87,7 +87,7 @@ def process_MD(snap_num = "128p"):
 		
 		# concatenates the sat and central files into single files
 		fileList = os.path.join(env,"substructure", "*_disT.fits")
-		cenFileName =  os.path.join(env,"substructure", "out_"+snap_num+"_disT_mvir_gt_130.fits")
+		cenFileName =  os.path.join(env,"substructure", "out_"+snap_num+"_disT_mvir_gt_135.fits")
 		concat_cen_files(fileList, cenFileName)
 		print "cat", time.time()-t0
 
