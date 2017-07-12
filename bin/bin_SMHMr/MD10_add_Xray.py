@@ -23,9 +23,9 @@ from numpy import exp, random
 
 logmbh = lambda logm200c : 8.18 + 1.55 * ( logm200c - 13. )
 
-LX_Z_lo, FRACTION_Z_lo = n.loadtxt(os.path.join(os.environ['GIT_NBODY_DIR'],'data','fraction_zgt0_zlt10.txt' ), unpack=True)
-LX_Z_me, FRACTION_Z_me = n.loadtxt(os.path.join(os.environ['GIT_NBODY_DIR'],'data','fraction_zgt10_zlt25.txt'), unpack=True)
-LX_Z_hi, FRACTION_Z_hi = n.loadtxt(os.path.join(os.environ['GIT_NBODY_DIR'],'data','fraction_zgt25_zlt50.txt'), unpack=True)
+LX_Z_lo, FRACTION_Z_lo = n.loadtxt(os.path.join(os.environ['GIT_NBODY_NPT'],'data','fraction_zgt0_zlt10.txt' ), unpack=True)
+LX_Z_me, FRACTION_Z_me = n.loadtxt(os.path.join(os.environ['GIT_NBODY_NPT'],'data','fraction_zgt10_zlt25.txt'), unpack=True)
+LX_Z_hi, FRACTION_Z_hi = n.loadtxt(os.path.join(os.environ['GIT_NBODY_NPT'],'data','fraction_zgt25_zlt50.txt'), unpack=True)
 zmin_obscur = n.array([-0.01,1.0,2.5])
 zmax_obscur = n.array([1.0,2.5,10.0])
 
@@ -84,17 +84,17 @@ def create_catalogs_out(fileList, z, snap_name):
 		# add the log NH of the logNH_host
 		# 35 % have a thick obscuration 24 - 26
 		# 65 % have a thin obscuration that depends on stellar mass and Xray luminosity
-		logNH = random.uniform(20, 22,len(Nhalo))
-		obs_type = n.zeros(len(Nhalo))
+		logNH = random.uniform(20, 22,Nhalo)
+		obs_type = n.zeros(Nhalo)
 		# 35% of thick, 24-26
 		randomNH = n.random.rand(Nhalo)
 		thick_obscuration = (randomNH < 0.35)
 		thin_obscuration = (randomNH >= 0.35)
 		logNH[thick_obscuration] = random.uniform(24, 26, len(logNH[thick_obscuration]))
-		obs_type[thick_obscuration] = n.ones_like(logNH[thick_obscuration]))*2
+		obs_type[thick_obscuration] = n.ones_like(logNH[thick_obscuration])*2
 		# the thin : about 40 % are thin whatever happens: 22-24
 		logNH_host_mean = 21.7 + (stellar_mass - 9.5)*0.38
-		logNH_host = random.gauss(logNH_host_mean, 0.5)
+		logNH_host = random.normal(logNH_host_mean, 0.5)
 		logNH[(thin_obscuration)&(logNH_host>=22)] = random.uniform(22, 24, len(logNH[(thin_obscuration)&(logNH_host>=22)]))
 		obs_type[(thin_obscuration)&(logNH_host>=22)] =  n.ones_like(logNH[(thin_obscuration)&(logNH_host>=22)])
 		# a few more are thin depending on their Xray luminosity: 22-24
