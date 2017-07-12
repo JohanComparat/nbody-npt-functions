@@ -40,6 +40,8 @@ boxRedshift = summ['redshift'][index]
 omega = lambda zz: cosmo.Om0*(1+zz)**3. / cosmo.efunc(zz)**2
 DeltaVir_bn98 = lambda zz : (18.*n.pi**2. + 82.*(omega(zz)-1)- 39.*(omega(zz)-1)**2.)/omega(zz)
 hf = MassFunction(cosmo_model=cosmo, sigma_8=sigma_val, z=boxRedshift, delta_h=DeltaVir_bn98(boxRedshift), delta_wrt='mean', Mmin=7, Mmax=16.5)
+hf1 = MassFunction(cosmo_model=cosmo, sigma_8=sigma_val, z=1., delta_h=DeltaVir_bn98(boxRedshift), delta_wrt='mean', Mmin=7, Mmax=16.5)
+
 f_BH = lambda sigma, A, a, p, q: A* (2./n.pi)**(0.5) * ( 1 + (sigma**2./(a**delta_c*2.))**(p) )*(delta_c*a**0.5/sigma)**(q)*n.e**(-a*delta_c**2./(2.*sigma**2.))
 
 X = n.arange(-0.6, 0.5, 0.01) #n.log10(1./sigma)
@@ -62,6 +64,8 @@ dlnsigmadlnm = derivative(toderive, n.log(mass) )
 ftC16 = f_BH(hf.sigma[100:-100], 0.279, 0.908, 0.671, 1.737)
 rhom_units = cosmo.Om(boxRedshift)*cosmo.critical_density(boxRedshift).to(u.solMass/(u.Mpc)**3.)#/(cosmo.h)**2.
 rhom = rhom_units.value # hf.mean_density#/(hz)**2. 
+
+
 
 MF_MD = interp1d(mass, ftC16*rhom*abs(dlnsigmadlnm)/mass)
 
@@ -158,8 +162,20 @@ data = get_SHMFR(f1, f2, f3, boxRedshift, 13.5, 14.5, N_rvir=1., rhom=rhom)
 for el in summ[1:]:
 	f1, f2, f3 = get_files(el)
 	boxRedshift = el['redshift']
-	rhom_units = cosmo.Om(boxRedshift)*cosmo.critical_density(boxRedshift).to(u.solMass/(u.Mpc)**3.)#/(cosmo.h)**2.
+	# fixed to z=0 rho_m
+	rhom_units = cosmo.Om(0.)*cosmo.critical_density(0.).to(u.solMass/(u.Mpc)**3.)#/(cosmo.h)**2.
 	rhom = rhom_units.value # hf.mean_density#/(hz)**2. 
+	# choose redshift dependent halo mass bin
+	define Mstar from delta_c = sigma => halo mass bin
+	0.9 Mstar < M < 1.1 Mstar
+	0.09 Mstar < M < 0.11 Mstar
+	
+	9.9 Mstar < M < 10.1 Mstar
+	
+	# evolving rho_m
+	#rhom_units = cosmo.Om(boxRedshift)*cosmo.critical_density(boxRedshift).to(u.solMass/(u.Mpc)**3.)#/(cosmo.h)**2.
+	#rhom = rhom_units.value # hf.mean_density#/(hz)**2. 
+	
 	new = get_SHMFR(f1, f2, f3, boxRedshift, 13.5, 14.5, N_rvir=1., rhom=rhom)
         #print new.shape 
         if len(new)>0:
