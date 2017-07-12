@@ -1,3 +1,7 @@
+from astropy.cosmology import FlatLambdaCDM
+import astropy.units as u
+cosmoMD = FlatLambdaCDM(H0=67.77*u.km/u.s/u.Mpc, Om0=0.307115, Ob0=0.048206)
+
 import glob
 import astropy.io.fits as fits
 import os
@@ -15,10 +19,84 @@ summ = fits.open(os.path.join(os.environ["MD10"], 'output_MD_1.0Gpc.fits'))[1].d
 volume = (1000/0.6777)**3.
 
 zmin, zmax, zmean, dN_dV_lrg_data, dN_dV_elg_data, dN_dV_qso_data = n.loadtxt(os.path.join(os.environ['GIT_NBODY_NPT'], "data/NZ/nz_8.txt"), unpack=True)
-
-dN_dV_elg = interp1d(n.hstack((-1., zmin[0], zmean, zmax[-1], 3.)), n.hstack((0., 0., dN_dV_elg_data, 0., 0.)) )
 dN_dV_lrg = interp1d(n.hstack((-1., zmin[0], zmean, zmax[-1], 3.)), n.hstack((0., 0., dN_dV_lrg_data, 0., 0.)) )
-dN_dV_qso = interp1d(n.hstack((-1., zmin[0], zmean, zmax[-1], 3.)), n.hstack((0., 0., dN_dV_qso_data, 0., 0.)) )
+ 
+# change the ELG z distribution to the eBOSS one with a multiplicative factor to get the right density 
+zmin ,zmax ,SDSS_uri_gri, SDSS_Fisher, DECam190, DECam240 = n.loadtxt(os.path.join(os.environ['GIT_NBODY_NPT'], "data/NZ/eBOSS-ELG.txt"), unpack=True)
+dV_per_pixel = (cosmoMD.comoving_volume(zmax[2:]) - cosmoMD.comoving_volume(zmin[2:]))*n.pi/129600.
+dN_dV_elg_data = 6.4*DECam240[2:]/dV_per_pixel
+
+dN_dV_elg = interp1d(n.hstack((-1., zmin[2], (zmax[2:]+zmin[2:])*0.5, zmax[-1], 3.)), n.hstack((0., 0., dN_dV_elg_data, 0., 0.)) )
+
+# spread out the QSO as observed in eBOSS
+zmin ,zmax ,CMASS, LRG1, LRG2, QSO1, QSO2, LyaQSO, PTFQSO = n.loadtxt(os.path.join(os.environ['GIT_NBODY_NPT'], "data/NZ/eBOSS-LRG-QSO.txt"), unpack=True)
+dV_per_pixel = (cosmoMD.comoving_volume(zmax[3:]) - cosmoMD.comoving_volume(zmin[3:]))*n.pi/129600.
+all_QSO = QSO1 + QSO2 + LyaQSO + PTFQSO
+dN_dV_qso_data = 2. * all_QSO[3:] /dV_per_pixel
+dN_dV_qso = interp1d(n.hstack((-1., zmin[3], (zmax[3:]+zmin[3:])*0.5, zmax[-1], 5.)), n.hstack((0., 0., dN_dV_qso_data, 0., 0.)) )
+
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as p
+
+from hmf import MassFunction
+def get_hf(sigma_val=0.8228, boxRedshift=0., delta_wrt='mean'):
+    """
+    Halo mass function model for the MultiDark simulation.
+    """
+    #hf0 = MassFunction(cosmo_model=cosmo, sigma_8=sigma_val, z=boxRedshift)
+    omega = lambda zz: cosmoMD.Om0*(1+zz)**3. / cosmoMD.efunc(zz)**2
+    DeltaVir_bn98 = lambda zz : (18.*n.pi**2. + 82.*(omega(zz)-1)- 39.*(omega(zz)-1)**2.)/omega(zz)
+    print "DeltaVir", DeltaVir_bn98(boxRedshift), " at z",boxRedshift
+    hf1 = MassFunction(cosmo_model=cosmoMD, sigma_8=sigma_val, z=boxRedshift, delta_h=DeltaVir_bn98(boxRedshift), delta_wrt=delta_wrt, Mmin=7, Mmax=16.5)
+    return hf1
+
+hmfs = n.array([get_hf(boxRedshift=z) for z in dN_dV_qso.x[1:]])
+z_pk = dN_dV_qso.x[1:]
+pk_m1_k02=n.array([1./hmf.power[n.searchsorted(hmf.k,0.2)] for hmf in hmfs ])
+pk_m1_k006=n.array([1./hmf.power[n.searchsorted(hmf.k,0.06)] for hmf in hmfs ])
+
+
+p.figure(1, (5,5))
+p.axes([0.17,0.17,0.75,0.75])
+p.plot(dN_dV_qso.x, dN_dV_qso.y, label='qso')
+p.plot(dN_dV_lrg.x, dN_dV_lrg.y, label='lrg')
+p.plot(dN_dV_elg.x, dN_dV_elg.y, label='elg')
+p.plot(z_pk, pk_m1_k02, label=r'$1/P(0.2)$', ls='dashed')
+p.plot(z_pk, pk_m1_k006, label=r'$1/P(0.06)$', ls='dashed')
+p.plot(z_pk, 0.25*pk_m1_k02, label=r'$1/2^2 P(0.2)$', ls='dotted')
+p.plot(z_pk, 0.25*pk_m1_k006, label=r'$1/2^2 P(0.06)$', ls='dotted')
+p.xlabel('redshift')
+p.ylabel(r'$N\, h^3\, Mpc^{-3}$')
+p.xlim((0.01,4))
+p.ylim((8*10**(-7), 2*10**(-3)))
+p.xscale('log')
+p.yscale('log')
+p.legend(loc=0, frameon=False)
+p.savefig(os.path.join(os.environ['HOME'], 'wwwDir/eRoMok/nz_plots', 'nz-4most-cosmo.png'))
+p.clf()
+
+
+
+
+p.figure(1, (5,5))
+p.axes([0.17,0.17,0.75,0.75])
+p.plot(dN_dV_qso.x, dN_dV_qso.y, label='qso')
+p.plot(dN_dV_lrg.x, dN_dV_lrg.y, label='lrg')
+p.plot(dN_dV_elg.x, dN_dV_elg.y, label='elg')
+p.plot(z_pk, pk_m1_k02, label=r'$1/P(0.2)$', ls='dashed')
+p.plot(z_pk, pk_m1_k006, label=r'$1/P(0.06)$', ls='dashed')
+p.plot(z_pk, 0.25*pk_m1_k02, label=r'$1/2^2 P(0.2)$', ls='dotted')
+p.plot(z_pk, 0.25*pk_m1_k006, label=r'$1/2^2 P(0.06)$', ls='dotted')
+p.xlabel('redshift')
+p.ylabel(r'$N\, h^3\, Mpc^{-3}$')
+p.xlim((0.01,4))
+p.ylim((8*10**(-7), 2*10**(-3)))
+#p.xscale('log')
+p.yscale('log')
+p.legend(loc=0, frameon=False)
+p.savefig(os.path.join(os.environ['HOME'], 'wwwDir/eRoMok/nz_plots', 'nz-4most-cosmo-xLin.png'))
+p.clf()
 
 # number of tracer per snapshot (complete volume)
 z_snap = summ['redshift']
