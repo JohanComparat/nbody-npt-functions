@@ -114,6 +114,8 @@ plot_slice(points_2, name='slice_2_Lbox.png', lims=(1*L_box,2*L_box))
 plot_slice(points_3, name='slice_3_Lbox.png', lims=(2*L_box,3*L_box))
 plot_slice(points_4, name='slice_4_Lbox.png', lims=(3*L_box,4*L_box))
 
+sys.exit()
+
 p.figure(0, ((6,6)))
 p.axes([0.17,0.17,0.78,0.78])
 for tracer in tracer_names:

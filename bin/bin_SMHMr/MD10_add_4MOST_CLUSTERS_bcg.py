@@ -28,7 +28,7 @@ z_snap = summ['redshift']
 
 zmin, zmax, zmean, dN_dV_bcg_data, dN_dV_gal_data = n.loadtxt(os.path.join(os.environ['GIT_NBODY_NPT'], "data/NZ/nz_5.txt"), unpack=True)
 
-NZ_cumul = lambda z : 10**(5.-2.*z)
+NZ_cumul = lambda z : 10**(5. - 1.9*z)
 
 dVolume = (cosmoMD.comoving_volume(zmax) - cosmoMD.comoving_volume(zmin))
 dN_dV_bcg_data = (NZ_cumul(zmin)-NZ_cumul(zmax))/dVolume

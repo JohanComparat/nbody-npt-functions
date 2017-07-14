@@ -53,7 +53,7 @@ for ii, el in enumerate(summ):
 			file_snap = os.path.join(os.environ["MD10"], 'work_agn', 'out_'+el['snap_name']+'_SAM_Nb_'+str(num)+'.fits')
 			data = fits.open(file_snap)[1].data
 			x, y, z = data[bcg]['x'], data[bcg]['y'], data[bcg]['z']
-			radial_distance_2_member = 3. * data[bcg]['rvir'] /1000.
+			radial_distance_2_member = 2. * data[bcg]['rvir'] /1000.
 			position_BCG = n.transpose([x, y, z])
 			for snap_id, file_snap in enumerate(file_snaps):
 				print file_snap

@@ -50,12 +50,12 @@ def create_catalogs_out(fileList, z, snap_name):
 
 	cdfs_interpolations = n.array(cdfs_interpolations)
 	
-	if z > zmin_obscur[0] and z<zmax_obscur[0]:
-		obscured_fraction_interpolated = interp1d(n.hstack(( 36, LX_Z_lo, 50 )), n.hstack(( FRACTION_Z_lo[0],FRACTION_Z_lo,FRACTION_Z_lo[-1] )) )
-	elif z > zmin_obscur[1] and z<zmax_obscur[1]:
-		obscured_fraction_interpolated = interp1d(n.hstack(( 36, LX_Z_me, 50 )), n.hstack(( FRACTION_Z_me[0],FRACTION_Z_me,FRACTION_Z_me[-1] )) )
+	if z > zmin_obscur[0] and z<=zmax_obscur[0]:
+		obscured_fraction_interpolated = interp1d(n.hstack(( 0, LX_Z_lo, 60 )), n.hstack(( FRACTION_Z_lo[0],FRACTION_Z_lo,FRACTION_Z_lo[-1] )) )
+	elif z > zmin_obscur[1] and z<=zmax_obscur[1]:
+		obscured_fraction_interpolated = interp1d(n.hstack(( 0, LX_Z_me, 60 )), n.hstack(( FRACTION_Z_me[0],FRACTION_Z_me,FRACTION_Z_me[-1] )) )
 	else:
-		obscured_fraction_interpolated = interp1d(n.hstack(( 36, LX_Z_hi, 50 )),  n.hstack(( FRACTION_Z_hi[0],FRACTION_Z_hi,FRACTION_Z_hi[-1] )) )
+		obscured_fraction_interpolated = interp1d(n.hstack(( 0, LX_Z_hi, 60 )),  n.hstack(( FRACTION_Z_hi[0],FRACTION_Z_hi,FRACTION_Z_hi[-1] )) )
 		
 
 	# loops over files
