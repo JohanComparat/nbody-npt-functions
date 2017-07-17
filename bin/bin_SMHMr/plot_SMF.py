@@ -43,14 +43,23 @@ def plot_SMF_DC(snap_name, redshift):
 	# path for the output file
 	out_duty_cycle = os.path.join(os.environ['MD10'],"duty_cycle", snap_name + "_duty_cycle.txt")
 	# path for stellar mass function
-	out_SMF = os.path.join(os.environ['MD10'],"duty_cycle", snap_name + "_SMF.txt")
-	logMs_low, logMs_up, counts, dN_dVdlogM = n.loadtxt(out_SMF, unpack=true) 
+	out_SMF_agn = os.path.join(os.environ['MD10'],"duty_cycle", snap_name + "_SMF.txt")
+	
+	out_SMF = os.path.join(os.environ['MD10'],"results", "stellar_mass_function", "data", "out_" + snap_name + "_SMF.txt")
+	
+	# path for duty cycle
 	log_stellar_mass, duty_cycle = n.loadtxt(out_duty_cycle, unpack=True)
 	p.figure(1, (6,6))
 	p.plot(mbins, n.log10(smf01(10**mbins)), label='Ilbert 13, 0.2<z<0.5', ls='dashed')
 	p.plot(mbins, n.log10(smf08(10**mbins)), label='Ilbert 13, 0.8<z<1.1', ls='dashed')
-	p.plot((logMs_low+ logMs_up)/2.-n.log10(0.6777), n.log10(dN_dVdlogM*0.6777**3./n.log(10)), label='MD10', lw=2)
-	p.plot(logMs, n.array([n.log10(xr.Phi_stellar_mass(logMs_i, redshift)) for logMs_i in logMs]) , label='Bo16')
+	
+	logMs_low, logMs_up, counts, dN_dVdlogM = n.loadtxt(out_SMF_agn, unpack=True) 
+	p.plot((logMs_low+ logMs_up)/2.-n.log10(0.6777), n.log10(dN_dVdlogM*0.6777**3./n.log(10)), label='MD10 AGN', lw=2)
+	
+	logMs_low, logMs_up, counts, dN_dVdlogM = n.loadtxt(out_SMF, unpack=True) 
+	p.plot((logMs_low+ logMs_up)/2.-n.log10(0.6777), n.log10(dN_dVdlogM*0.6777**3./n.log(10)), label='MD10 GAL', lw=2)
+	
+	p.plot(mbins, n.array([n.log10(xr.Phi_stellar_mass(logMs_i, redshift)) for logMs_i in mbins]) , label='Bo16')
 	p.xlabel('stellar mass')
 	p.ylabel('log Phi stellar mass')
 	p.xlim((7., 12.2))
