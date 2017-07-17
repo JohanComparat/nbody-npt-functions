@@ -25,26 +25,30 @@ print " set up box, and redshift "
 bins = n.arange(6,13,0.1)
 xb = (bins[1:] + bins[:-1]) / 2.
 
-def measureSMF(env='MD04', volume=400.**3., file_type="out", aexp='0.74230', out_dir=".."):
-	fileList = n.array(glob.glob(os.path.join(os.environ[env], "catalogs", file_type+"*_stellar_mass.fits")))
+def measureSMF(snap_name, env='MD10', volume=1000.**3., out_dir="../"):
+	fileList = n.array(glob.glob(os.path.join(os.environ[env], "work_agn", "out_"+snap_name+"_SAM_Nb_*_Ms.fits")))
 	fileList.sort()
 	print fileList
 	Hall = n.zeros((len(fileList), len(bins)-1))
 	for ii, fileN in enumerate(fileList):
 		print fileN
-		mass = fits.open(fileN)[1].data['stellar_mass_Mo13_mvir']
-		selection = fits.open(fileN)[1].data['stellar_mass_reliable']
+		hh = fits.open(fileN)
+		mass = hh[1].data['stellar_mass_Mo13_mvir']
+		selection = (hh[1].data['stellar_mass_reliable'])&(mass>0)
 		Hall[ii], bb = n.histogram(mass[selection], bins=bins)
 	
 	counts = n.sum(Hall, axis=0)
 	dN_dVdlogM = counts*0.6777**3./(bins[1:]-bins[:-1])/volume/n.log(10)
 	data = n.transpose([bins[:-1], bins[1:], counts, dN_dVdlogM ])
-	n.savetxt(os.path.join(out_dir, env+"_"+file_type+"_"+aexp+"_SMF.txt"), data, header = "logMs_low logMs_up counts dN_dVdlogM")
+	n.savetxt(os.path.join(out_dir, "out_"+snap_name+"_SMF.txt"), data, header = "logMs_low logMs_up counts dN_dVdlogM")
 
+# open the output file_type
+summ = fits.open(os.path.join(os.environ["MD10"], 'output_MD_1.0Gpc.fits'))[1].data	
 
-measureSMF(env='MD04', volume=400.**3.,  file_type="hlist", aexp='0.74230', out_dir = os.path.join("../../data/"))
-measureSMF(env='MD04', volume=400.**3.,  file_type="out"  , aexp='0.74230', out_dir = os.path.join("../../data/"))
-measureSMF(env='MD10', volume=1000.**3., file_type="hlist", aexp='0.74980', out_dir = os.path.join("../../data/"))
-measureSMF(env='MD10', volume=1000.**3., file_type="out"  , aexp='0.74980', out_dir = os.path.join("../../data/"))
-measureSMF(env='MD25', volume=2500.**3., file_type="hlist", aexp='0.75440', out_dir = os.path.join("../../data/"))
-measureSMF(env='MD25', volume=2500.**3., file_type="out"  , aexp='0.75440', out_dir = os.path.join("../../data/"))
+out_dir = os.path.join(os.path.join(os.environ['MD10'],"results","stellar_mass_function", "data"))
+
+for el in summ:
+	print el
+	create_catalog(el['snap_name'], el['redshift'])
+	measureSMF(snap_name=el["snap_name"], env='MD10', volume=1000.**3., out_dir = out_dir)
+	

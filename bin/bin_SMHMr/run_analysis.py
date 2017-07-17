@@ -25,6 +25,9 @@ python $BOX-write-smallFile.py # for the AGN calculations
 # to be updated to the Moster et al. 2017 model EMERGE
 python $BOX_add_Ms.py
 # outputs in $BOX_DIR/work_agn 
+# measures the stellar mass function. 
+# Is now done in the tabulate duty cycle step
+# python measure_SMF.py 
 
 # measure the stellar mass function obtained per snapshot
 # and tabulates the duty cyle as a function of stellar mass
