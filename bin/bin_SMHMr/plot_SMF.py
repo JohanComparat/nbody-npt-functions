@@ -20,7 +20,7 @@ xr = XrayLuminosity.XrayLuminosity()
 
 
 smf_ilbert13 = lambda M, M_star, phi_1s, alpha_1s, phi_2s, alpha_2s : ( phi_1s * (M/M_star) ** alpha_1s + phi_2s * (M/M_star) ** alpha_2s ) * n.e ** (-M/M_star) * (M/ M_star)
-ll_dir = os.path.join(os.environ['GIT_NBODY_DIR'], 'data', 'stellar_mass_function')
+ll_dir = os.path.join(os.environ['GIT_NBODY_NPT'], 'data', 'stellar_mass_function')
 path_ilbert13_SMF = os.path.join(ll_dir, "ilbert_2013_mass_function_params.txt")
 zmin, zmax, N, M_comp, M_star, phi_1s, alpha_1s, phi_2s, alpha_2s, log_rho_s = n.loadtxt(path_ilbert13_SMF, unpack=True)
 
