@@ -49,6 +49,5 @@ out_dir = os.path.join(os.path.join(os.environ['MD10'],"results","stellar_mass_f
 
 for el in summ:
 	print el
-	create_catalog(el['snap_name'], el['redshift'])
 	measureSMF(snap_name=el["snap_name"], env='MD10', volume=1000.**3., out_dir = out_dir)
 	
