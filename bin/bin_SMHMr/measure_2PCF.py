@@ -33,29 +33,33 @@ def get_xyz(snap_name, tracer_name, env='MD10'):
 			print fileN
 			hh = fits.open(fileN)
 			lines = fits.open(fileList_T[ii])[1].data['line_number']
-			x = hh[1].data['x'][lines]
-			y = hh[1].data['y'][lines]
-			z = hh[1].data['z'][lines]
+			x.append( hh[1].data['x'][lines] )
+			y.append( hh[1].data['y'][lines] )
+			z.append( hh[1].data['z'][lines] )
 		return n.hstack((x)), n.hstack((y)), n.hstack((z))
 	else:
 		return [-1], [-1], [-1]
 
-for el in summ[1:]:
+for el in summ:
 	print el
 	out_file = lambda tracer_name : os.path.join(out_dir, "out_"+el['snap_name']+"_"+tracer_name+"_2PCF.pkl")
 	for tracer_name in tracer_names :
-		if os.path.isfile(out_file(tracer_name))==False:
+		print tracer_name
+		fileList_T = n.array(glob.glob(os.path.join(os.environ['MD10'], "work_agn", "out_"+el['snap_name']+"_SAM_Nb_*_"+tracer_name+".fits")))
+		print len(fileList_T)
+		if os.path.isfile(out_file(tracer_name))==False and len(fileList_T)>0:
 			xR, yR, zR = get_xyz(el['snap_name'], tracer_name)
 			print len(xR)
 			if len(xR)>5000. and len(xR)<1000000. :
 				box.compute2PCF_single(xR, yR, zR, outfile=out_file(tracer_name), rmax=30, dr = 0.5)
-			else:
+			elif len(xR)>1000000.:
 				downSamp = (n.random.random(len(xR))<1000000. / float(len(xR)) )
 				xR = xR[downSamp]
 				yR = yR[downSamp]
 				zR = zR[downSamp]
 				box.compute2PCF_single(xR, yR, zR, outfile=out_file(tracer_name), rmax=30, dr = 0.5)
-				
+			else :
+				pass
 
 
 
