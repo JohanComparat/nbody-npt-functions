@@ -46,7 +46,7 @@ def plot_SMF_DC(snap_name, redshift):
 	out_SMF_agn = os.path.join(os.environ['MD10'],"duty_cycle", snap_name + "_SMF.txt")
 	out_SMF = os.path.join(os.environ['MD10'],"results", "stellar_mass_function", "data", "out_" + snap_name + "_SMF.txt")
 	# path to tracer SMFs
-	out_file = lambda tracer_name : os.path.join(os.environ['MD10'],"results", "stellar_mass_function", "data",, "out_"+snap_name+"_"+tracer_name+"_SMF.txt")
+	out_file = lambda tracer_name : os.path.join(os.environ['MD10'],"results", "stellar_mass_function", "data", "out_"+snap_name+"_"+tracer_name+"_SMF.txt")
 
 	# path for duty cycle
 	log_stellar_mass, duty_cycle = n.loadtxt(out_duty_cycle, unpack=True)
