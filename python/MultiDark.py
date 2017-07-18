@@ -985,12 +985,8 @@ class MultiDarkSimulation :
 		pairCount=nD*nR#-nD*(nD-1)/2.
 		xis = DR*volume/(dV * pairCount) -1.
 		f=open(outfile,'w')
-		cPickle.dump([bin_xi3D,xis, DR, volume, dV, pairCount, pairs, Ntotal, nD, nR, vbins[jj], vbins[jj+1]],f)
+		cPickle.dump([bin_xi3D,xis, DR, volume, dV, pairCount, pairs, Ntotal, nD, nR],f)
 		f.close()
-		t4 = time.time()
-		#print "total time in s, min",t4 - t0, (t4 - t0)/60.
-		#return DR, volume, dV, pairCount, pairs, nD, nR
-
 
 	def compute2PCF_LX(self, catalogList, rmax=200, dr = 0.1, vmin=41., dlogBin=0.25, Nmax=2000000.,  name = ""):
 		"""
