@@ -58,11 +58,14 @@ def plot_SMF_DC(snap_name, redshift):
 	#print(out_SMF)
 	
 	logMs_low, logMs_up, counts, dN_dVdlogM_g = n.loadtxt(out_SMF, unpack=True) 
-	p.plot((logMs_low+ logMs_up)/2., n.log10(dN_dVdlogM_g), label='MD10 GAL', lw=2)
+	ok = (dN_dVdlogM_g>0)
+
+	p.plot((logMs_low[ok] + logMs_up[ok])/2., n.log10(dN_dVdlogM_g[ok]), label='MD10 GAL', lw=2)
+		
+	p.plot((logMs_low[ok]+ logMs_up[ok])/2., n.log10(dc((logMs_low[ok] + logMs_up[ok])/2.)*dN_dVdlogM_g[ok]), label='MD10 AGN', lw=2)
 	
-	p.plot((logMs_low+ logMs_up)/2., n.log10(dc((logMs_low+ logMs_up)/2.)*dN_dVdlogM_g), label='MD10 AGN', lw=2)
+	p.plot(mbins, n.array([n.log10(xr.Phi_stellar_mass(logMs_i, redshift)) for logMs_i in mbins]) , label='Bo16', ls='dashed')
 	
-	p.plot(mbins, n.array([n.log10(xr.Phi_stellar_mass(logMs_i, redshift)) for logMs_i in mbins]) , label='Bo16')
 	p.xlabel('stellar mass')
 	p.ylabel('log Phi stellar mass')
 	p.xlim((7., 12.2))
