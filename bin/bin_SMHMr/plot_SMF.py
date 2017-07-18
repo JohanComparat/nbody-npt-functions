@@ -48,6 +48,7 @@ def plot_SMF_DC(snap_name, redshift):
 	
 	# path for duty cycle
 	log_stellar_mass, duty_cycle = n.loadtxt(out_duty_cycle, unpack=True)
+	print "DC",n.min(log_stellar_mass), n.max(log_stellar_mass)
 	dc = interp1d(log_stellar_mass, duty_cycle)
 	p.figure(1, (6,6))
 	p.plot(mbins, n.log10(smf01(10**mbins)), label='Ilbert 13, 0.2<z<0.5', ls='dashed')
@@ -58,8 +59,8 @@ def plot_SMF_DC(snap_name, redshift):
 	#print(out_SMF)
 	
 	logMs_low, logMs_up, counts, dN_dVdlogM_g = n.loadtxt(out_SMF, unpack=True) 
-	ok = (dN_dVdlogM_g>0)
-
+	ok = (dN_dVdlogM_g>0)&(logMs_low>n.min(log_stellar_mass))&(logMs_up<n.max(log_stellar_mass))
+	print "SMF", n.min(logMs_low[ok]), n.max(logMs_up[ok]) 
 	p.plot((logMs_low[ok] + logMs_up[ok])/2., n.log10(dN_dVdlogM_g[ok]), label='MD10 GAL', lw=2)
 		
 	p.plot((logMs_low[ok]+ logMs_up[ok])/2., n.log10(dc((logMs_low[ok] + logMs_up[ok])/2.)*dN_dVdlogM_g[ok]), label='MD10 AGN', lw=2)
