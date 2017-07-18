@@ -26,15 +26,29 @@ summ = fits.open(os.path.join(os.environ["MD10"], 'output_MD_1.0Gpc.fits'))[1].d
 volume = (1000/0.6777)**3.
 z_snap = summ['redshift']
 
-zmin, zmax, zmean, dN_dV_bcg_data, dN_dV_gal_data = n.loadtxt(os.path.join(os.environ['GIT_NBODY_NPT'], "data/NZ/nz_5.txt"), unpack=True)
+hd = fits.open(os.path.join(os.environ['GIT_NBODY_NPT'], "data/NZ/dndzdom_clusters_Jul17.fits"))
+#dn_dv = hd[1].data['DNDZDOM'] / u.deg**2 / cosmoMD.differential_comoving_volume(hd[1].data['Z']).to(u.Mpc**3./u.deg**2)
+#*129600. / n.pi
+dndv_interpolation = interp1d(n.hstack((-1., 0.,hd[1].data['Z'], 2., 7.)), n.hstack((0., 0.,  hd[1].data['DNDZDOM'], 0., 0.)))
+nz_cumulative = n.array([quad(dndv_interpolation, zz, 2.)[0] for zz in zmean]) * 129600. /n.pi
+NZ_cumul = interp1d(n.hstack((-1., 0.,zmean, 5., 7.)), n.hstack((0., 0.,  nz_cumulative, 0., 0.)))
 
-NZ_cumul = lambda z : 10**(5. - 1.9*z)
+#dndv_interpolation_D = interp1d(n.hstack((-1., 0., cosmoMD.comoving_distance(hd[1].data['Z']), cosmoMD.comoving_distance(2.), cosmoMD.comoving_distance(7.))), n.hstack((0., 0., dn_dv, 0., 0.)))
+
+#quad(dndv_interpolation, 0, 2)
+#quad(dndv_interpolation_D, 0, cosmoMD.comoving_distance(2.).value)
+
+#zmin, zmax, zmean, dN_dV_bcg_data, dN_dV_gal_data = n.loadtxt(os.path.join(os.environ['GIT_NBODY_NPT'], "data/NZ/nz_5.txt"), unpack=True)
+
+#NZ_cumul = lambda z : 10**(5. - 1.9*z)
 
 dVolume = (cosmoMD.comoving_volume(zmax) - cosmoMD.comoving_volume(zmin))
 dN_dV_bcg_data = (NZ_cumul(zmin)-NZ_cumul(zmax))/dVolume
 dN_dV_bcg = interp1d(n.hstack((-1., zmin[0], zmean, zmax[-1], 3.)), n.hstack((0., 0., dN_dV_bcg_data, 0., 0.)) )
 
+
 N_bcg_per_snap = (volume * dN_dV_bcg(z_snap) ).astype('int')
+#N_bcg_per_snap2 = (volume * dndv_interpolation(z_snap) ).astype('int')
 # first the BCG files
 L_min = n.zeros(len(summ))
 for ii, el in enumerate(summ):
