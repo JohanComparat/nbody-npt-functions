@@ -63,11 +63,11 @@ def plot_SMF_DC(snap_name, redshift):
 	logMs_low, logMs_up, counts, dN_dVdlogM_g = n.loadtxt(out_SMF, unpack=True) 
 	ok = (dN_dVdlogM_g>0)&(logMs_low>n.min(log_stellar_mass))&(logMs_up<n.max(log_stellar_mass))
 	print "SMF", n.min(logMs_low[ok]), n.max(logMs_up[ok]) 
-	p.plot((logMs_low[ok] + logMs_up[ok])/2., n.log10(dN_dVdlogM_g[ok]), label='MD10 GAL', lw=2)
+	p.plot((logMs_low[ok] + logMs_up[ok])/2., n.log10(dN_dVdlogM_g[ok]), label='MD10 GAL')#, lw=2)
 		
-	p.plot((logMs_low[ok]+ logMs_up[ok])/2., n.log10(dc((logMs_low[ok] + logMs_up[ok])/2.)*dN_dVdlogM_g[ok]), label='MD10 AGN', lw=2)
+	p.plot((logMs_low[ok]+ logMs_up[ok])/2., n.log10(dc((logMs_low[ok] + logMs_up[ok])/2.)*dN_dVdlogM_g[ok]), label='MD10 AGN')#, lw=2)
 	
-	p.plot(mbins, n.array([n.log10(xr.Phi_stellar_mass(logMs_i, redshift)) for logMs_i in mbins]) , label='Bo16', ls='dashed')
+	#p.plot(mbins, n.array([n.log10(xr.Phi_stellar_mass(logMs_i, redshift)) for logMs_i in mbins]) , label='Bo16', ls='dashed')
 	
 	
 	def plot_tracer(tracer_name='4MOST_S5_BCG'):
@@ -77,7 +77,7 @@ def plot_SMF_DC(snap_name, redshift):
 			#print tracer_name
 			logMs_low, logMs_up, counts, dN_dVdlogM_g = n.loadtxt(file_name  , unpack=True )
 			ok = (dN_dVdlogM_g>0)
-			p.plot((logMs_low[ok] + logMs_up[ok])/2., n.log10(dN_dVdlogM_g[ok]), label=tracer_name, ls='dashed', lw=0.75)
+			p.plot((logMs_low[ok] + logMs_up[ok])/2., n.log10(dN_dVdlogM_g[ok]), label=tracer_name)#, ls='dashed', lw=0.75)
 
 	plot_tracer("4MOST_S5_BCG" )
 	plot_tracer("4MOST_S5_GAL" )
