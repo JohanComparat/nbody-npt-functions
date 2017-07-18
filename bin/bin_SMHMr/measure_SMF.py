@@ -64,7 +64,7 @@ def measureSMF_tracer(snap_name, tracer_name, env='MD10', volume=1000.**3., out_
 			counts = n.sum(Hall, axis=0)
 			dN_dVdlogM = counts*0.6777**3./(bins[1:]-bins[:-1])/volume/n.log(10)
 			data = n.transpose([bins[:-1], bins[1:], counts, dN_dVdlogM ])
-			n.savetxt(ouf_file, data, header = "logMs_low logMs_up counts dN_dVdlogM")
+			n.savetxt(out_file, data, header = "logMs_low logMs_up counts dN_dVdlogM")
 
 
 # open the output file_type
