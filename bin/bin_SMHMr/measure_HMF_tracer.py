@@ -25,7 +25,7 @@ print " set up box, and redshift "
 bins = n.arange(6,13,0.1)
 xb = (bins[1:] + bins[:-1]) / 2.
 
-def measureSMF(snap_name, env='MD10', volume=1000.**3., out_dir="../"):
+def measureHMF(snap_name, env='MD10', volume=1000.**3., out_dir="../"):
 	fileList = n.array(glob.glob(os.path.join(os.environ[env], "work_agn", "out_"+snap_name+"_SAM_Nb_*_Ms.fits")))
 	fileList.sort()
 	print fileList
@@ -43,7 +43,7 @@ def measureSMF(snap_name, env='MD10', volume=1000.**3., out_dir="../"):
 	n.savetxt(os.path.join(out_dir, "out_"+snap_name+"_SMF.txt"), data, header = "logMs_low logMs_up counts dN_dVdlogM")
 
 
-def measureSMF_tracer(snap_name, tracer_name, env='MD10', volume=1000.**3., out_dir="../"):
+def measureHMF_tracer(snap_name, tracer_name, env='MD10', volume=1000.**3., out_dir="../"):
 	out_file = os.path.join(out_dir, "out_"+snap_name+"_"+tracer_name+"_SMF.txt")
 	if os.path.isfile(out_file)==False:
 		fileList = n.array(glob.glob(os.path.join(os.environ[env], "work_agn", "out_"+snap_name+"_SAM_Nb_*_Ms.fits")))

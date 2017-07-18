@@ -51,6 +51,11 @@ python MD10_add_4MOST_COSMO.py
 
 # 4MOST light cone
 # eRosita light cone
+python measure_SMF.py
+python plot_SMF.py
+python MD10-pie-plot.py
+
+python measure_HMF_tracers.py
 
 # TB UPDATE FROM HERE ON
 # plots and results 
