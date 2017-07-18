@@ -178,7 +178,7 @@ for ii, el in enumerate(summ):
 
 		all_MS = n.hstack((MS))
 		all_MS_sort_id = n.argsort(all_MS)
-		min_mass = all_MS[all_MS_sort_id[-N_lrg2*2-1]]
+		min_mass = all_MS[all_MS_sort_id[-N_lrg2*4-1]]
 
 		id_superset = n.where(MS>min_mass)
 		rds = n.random.rand(len(id_superset[0]))

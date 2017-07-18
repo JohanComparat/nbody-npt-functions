@@ -16,11 +16,11 @@ from scipy.interpolate import interp1d
 
 L_box = 1000./0.6777
 
-tracer_names = n.array(['S8_ELG', 'S8_LRG', 'S5_GAL', 'S8_QSO', 'S6_AGN', 'S5_BCG'])
-marker_dict={'S5_BCG':'1', 'S5_GAL':'2', 'S6_AGN':'3', 'S8_LRG':',', 'S8_ELG':',', 'S8_QSO':'x'}
-color_dict ={'S5_BCG':'r', 'S5_GAL':'r', 'S6_AGN':'m', 'S8_LRG':'k', 'S8_ELG':'b', 'S8_QSO':'g'}
+tracer_names = n.array(['S8_ELG', 'S8_BG1', 'S8_BG2', 'S5_GAL', 'S8_QSO', 'S6_AGN', 'S5_BCG'])
+marker_dict={'S5_BCG':'1', 'S5_GAL':'2', 'S6_AGN':'3', 'S8_BG1':',', 'S8_BG2':',', 'S8_ELG':',', 'S8_QSO':'x'}
+color_dict ={'S5_BCG':'r', 'S5_GAL':'r', 'S6_AGN':'m', 'S8_BG1':'k', 'S8_BG2':'g', 'S8_ELG':'b', 'S8_QSO':'g'}
 p0 = n.array([[-1., -1.]])
-points = {'S5_BCG':p0, 'S5_GAL':p0, 'S6_AGN':p0, 'S8_LRG':p0, 'S8_ELG':p0, 'S8_QSO':p0}
+points = {'S5_BCG':p0, 'S5_GAL':p0, 'S6_AGN':p0, 'S8_BG1':p0, 'S8_BG2':p0, 'S8_ELG':p0, 'S8_QSO':p0}
 
 from astropy.cosmology import FlatLambdaCDM
 import astropy.units as u
@@ -85,8 +85,8 @@ def get_slice(cpickle_dump_file, x_observer=0., y_observer=0., z_observer = 0., 
 
 #points_1 = get_slice(os.path.join(work_dir, 'slice_1_Lbox.pkl'))
 #points_2 = get_slice(os.path.join(work_dir, 'slice_2_Lbox.pkl'), x_shift = L_box, distance_min=L_box, distance_max = 2*L_box)
-points_3 = get_slice(os.path.join(work_dir, 'slice_3_Lbox.pkl'), x_shift = 2*L_box, distance_min=2*L_box, distance_max = 3*L_box)
-points_4 = get_slice(os.path.join(work_dir, 'slice_4_Lbox.pkl'), x_shift = 3*L_box, distance_min=3*L_box, distance_max = 4*L_box)
+#points_3 = get_slice(os.path.join(work_dir, 'slice_3_Lbox.pkl'), x_shift = 2*L_box, distance_min=2*L_box, distance_max = 3*L_box)
+#points_4 = get_slice(os.path.join(work_dir, 'slice_4_Lbox.pkl'), x_shift = 3*L_box, distance_min=3*L_box, distance_max = 4*L_box)
 
 points_1 = cPickle.load(open(os.path.join(work_dir, 'slice_1_Lbox.pkl'),'r'))
 points_2 = cPickle.load(open(os.path.join(work_dir, 'slice_2_Lbox.pkl'),'r'))

@@ -81,7 +81,8 @@ def plot_SMF_DC(snap_name, redshift):
 	plot_tracer("4MOST_S5_BCG" )
 	plot_tracer("4MOST_S5_GAL" )
 	plot_tracer("4MOST_S6_AGN" )
-	plot_tracer("4MOST_S8_LRG" )
+	plot_tracer("4MOST_S8_BG1" )
+	plot_tracer("4MOST_S8_BG2" )
 	plot_tracer("4MOST_S8_ELG" )
 	plot_tracer("4MOST_S8_QSO" )
 
