@@ -12,7 +12,8 @@ import time
 import numpy as n
 import sys
 
-box = MultiDarkSimulation(Lbox=1000.0 * u.Mpc, boxDir = "MD_1Gpc")
+
+box= MultiDarkSimulation(Lbox=1000.0 * u.Mpc, boxDir = "MD_1Gpc")
 
 tracer_names = n.array(["4MOST_S5_BCG", "4MOST_S5_GAL", "4MOST_S6_AGN", "4MOST_S8_LRG", "4MOST_S8_ELG", "4MOST_S8_QSO"])
 
