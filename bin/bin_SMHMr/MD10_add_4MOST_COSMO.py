@@ -185,7 +185,7 @@ for ii, el in enumerate(summ):
 
 		for num in list(set(id_superset[0])):
 			file_out = os.path.join(os.environ["MD10"], 'work_agn', 'out_'+el['snap_name']+'_SAM_Nb_'+str(num)+'_4MOST_S8_BG2.fits')
-			lrgs = id_superset[1][ (id_superset[0]==num) & (rds>0.5) ]
+			lrgs = id_superset[1][ (id_superset[0]==num) & (rds>0.75) ]
 			print( file_out, lrgs)
 			hdu_cols  = fits.ColDefs([
 			fits.Column(name='line_number',format='K', array= lrgs )])
