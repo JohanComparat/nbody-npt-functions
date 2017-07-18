@@ -85,6 +85,7 @@ for el in summ:
 	print el
 	plot_SMF_DC(el['snap_name'], el['redshift'])
 
+os.system('cp $MD10/results/stellar_mass_function/images/*.png ~/wwwDir/eRoMok/stellar_mass_function/')
 
 
 #p.figure(1, (6,6))

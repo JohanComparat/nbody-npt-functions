@@ -72,7 +72,6 @@ for el in summ:
 
 
 
-
 sys.exit()
 
 
