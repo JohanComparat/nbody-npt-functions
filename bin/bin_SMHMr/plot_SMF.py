@@ -52,12 +52,12 @@ def plot_SMF_DC(snap_name, redshift):
 	p.figure(1, (6,6))
 	p.plot(mbins, n.log10(smf01(10**mbins)), label='Ilbert 13, 0.2<z<0.5', ls='dashed')
 	p.plot(mbins, n.log10(smf08(10**mbins)), label='Ilbert 13, 0.8<z<1.1', ls='dashed')
-	
+	print(out_SMF_agn)
 	logMs_low, logMs_up, counts, dN_dVdlogM = n.loadtxt(out_SMF_agn, unpack=True) 
-	p.plot((logMs_low+ logMs_up)/2.-n.log10(0.6777), n.log10(dN_dVdlogM*0.6777**3./n.log(10)), label='MD10 AGN', lw=2)
-	
-	logMs_low, logMs_up, counts, dN_dVdlogM = n.loadtxt(out_SMF, unpack=True) 
-	p.plot((logMs_low+ logMs_up)/2.-n.log10(0.6777), n.log10(dN_dVdlogM*0.6777**3./n.log(10)), label='MD10 GAL', lw=2)
+	p.plot((logMs_low+ logMs_up)/2.-n.log10(0.6777), n.log10(dN_dVdlogM), label='MD10 AGN', lw=2)
+	print(out_SMF)
+	logMs_low, logMs_up, counts, dN_dVdlogM_g = n.loadtxt(out_SMF, unpack=True) 
+	p.plot((logMs_low+ logMs_up)/2.-n.log10(0.6777), n.log10(dN_dVdlogM_g), label='MD10 GAL', lw=2)
 	
 	p.plot(mbins, n.array([n.log10(xr.Phi_stellar_mass(logMs_i, redshift)) for logMs_i in mbins]) , label='Bo16')
 	p.xlabel('stellar mass')
@@ -70,8 +70,7 @@ def plot_SMF_DC(snap_name, redshift):
 	p.savefig(os.path.join(out_dir, "MD10_"+snap_name.zfill(5)+"_SMF.png"))
 	p.clf()
 
-	
-		
+
 # open the output file_type
 summ = fits.open(os.path.join(os.environ["MD10"], 'output_MD_1.0Gpc.fits'))[1].data	
 
@@ -81,33 +80,25 @@ for el in summ:
 
 
 
-logMS_DC_10, duty_cycle_10 = get_dc(glob.glob(os.path.join("..", "..", "data", "out*1.0*Gpc*_SMF.txt"))[0])
-logMS_DC_04,duty_cycle_04 = get_dc(glob.glob(os.path.join("..", "..", "data", "out*0.4Gpc*_SMF.txt"))[0])
-logMS_DC_25,duty_cycle_25 = get_dc(glob.glob(os.path.join("..", "..", "data", "out*2.5Gpc*_SMF.txt"))[0])
+#p.figure(1, (6,6))
+#p.plot(logMS_DC_04, duty_cycle_04, label='MD 04')
+#p.plot(logMS_DC_10, duty_cycle_10, label='MD 10')
+#p.plot(logMS_DC_25, duty_cycle_25, label='MD 25')
 
-logMS_DC_10_h, duty_cycle_10_h = get_dc(glob.glob(os.path.join("..", "..", "data", "hlist*1.0*Gpc*_SMF.txt"))[0])
-logMS_DC_04_h, duty_cycle_04_h = get_dc(glob.glob(os.path.join("..", "..", "data", "hlist*0.4Gpc*_SMF.txt"))[0])
-logMS_DC_25_h, duty_cycle_25_h = get_dc(glob.glob(os.path.join("..", "..", "data", "hlist*2.5Gpc*_SMF.txt"))[0])
+#p.plot(logMS_DC_04_h, duty_cycle_04_h, label='MD h 04')
+#p.plot(logMS_DC_10_h, duty_cycle_10_h, label='MD h 10')
+#p.plot(logMS_DC_25_h, duty_cycle_25_h, label='MD h 25')
 
-p.figure(1, (6,6))
-p.plot(logMS_DC_04, duty_cycle_04, label='MD 04')
-p.plot(logMS_DC_10, duty_cycle_10, label='MD 10')
-p.plot(logMS_DC_25, duty_cycle_25, label='MD 25')
-
-p.plot(logMS_DC_04_h, duty_cycle_04_h, label='MD h 04')
-p.plot(logMS_DC_10_h, duty_cycle_10_h, label='MD h 10')
-p.plot(logMS_DC_25_h, duty_cycle_25_h, label='MD h 25')
-
-p.axvline(7.2, c='k'  , ls='dashed')
-p.axvline(9.7, c='k' , ls='dashed')
-p.axvline(11.3, c='k', ls='dashed')
-p.xlabel('active fraction')
-p.ylabel('log stellar mass')
-p.xlim((6.5,12.2))
-p.yscale('log')
-p.ylim((0.005, .9))
-p.grid()
-p.legend(loc=0, frameon=False)
-p.savefig('/home/comparat/data/eRoMok/BO12_duty_cycle.png')
-p.clf()
+#p.axvline(7.2, c='k'  , ls='dashed')
+#p.axvline(9.7, c='k' , ls='dashed')
+#p.axvline(11.3, c='k', ls='dashed')
+#p.xlabel('active fraction')
+#p.ylabel('log stellar mass')
+#p.xlim((6.5,12.2))
+#p.yscale('log')
+#p.ylim((0.005, .9))
+#p.grid()
+#p.legend(loc=0, frameon=False)
+#p.savefig('/home/comparat/data/eRoMok/BO12_duty_cycle.png')
+#p.clf()
 

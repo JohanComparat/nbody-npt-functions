@@ -41,7 +41,7 @@ def tabulate_duty_cycle(snap_name, z, volume=1000.**3., bins = n.arange(6,13,0.1
 		t0=time.time()
 		# opens all relevant files
 		hd = fits.open(fileName)[1].data
-		print hd['stellar_mass_Mo13_mvir'][:10], n.min(hd['stellar_mass_Mo13_mvir'])
+		#print hd['stellar_mass_Mo13_mvir'][:10], n.min(hd['stellar_mass_Mo13_mvir'])
 		Hall[ii], bb = n.histogram(hd['stellar_mass_Mo13_mvir'], bins=bins)
 
 	counts = n.sum(Hall, axis=0) 
