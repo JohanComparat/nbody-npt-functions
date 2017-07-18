@@ -44,25 +44,27 @@ def measureSMF(snap_name, env='MD10', volume=1000.**3., out_dir="../"):
 
 
 def measureSMF_tracer(snap_name, tracer_name, env='MD10', volume=1000.**3., out_dir="../"):
-	fileList = n.array(glob.glob(os.path.join(os.environ[env], "work_agn", "out_"+snap_name+"_SAM_Nb_*_Ms.fits")))
-	fileList.sort()
-	fileList_T = n.array(glob.glob(os.path.join(os.environ[env], "work_agn", "out_"+snap_name+"_SAM_Nb_*_"+tracer_name+".fits")))
-	fileList_T.sort()
-	tracer_name
-	print fileList, fileList_T
-	if len(fileList_T)>0:
-		Hall = n.zeros((len(fileList), len(bins)-1))
-		for ii, fileN in enumerate(fileList):
-			print fileN
-			hh = fits.open(fileN)
-			lines = fits.open(fileList_T[ii])[1].data['line_number']
-			mass = hh[1].data['stellar_mass_Mo13_mvir'][lines]
-			Hall[ii], bb = n.histogram(mass, bins=bins)
-		
-		counts = n.sum(Hall, axis=0)
-		dN_dVdlogM = counts*0.6777**3./(bins[1:]-bins[:-1])/volume/n.log(10)
-		data = n.transpose([bins[:-1], bins[1:], counts, dN_dVdlogM ])
-		n.savetxt(os.path.join(out_dir, "out_"+snap_name+"_"+tracer_name+"_SMF.txt"), data, header = "logMs_low logMs_up counts dN_dVdlogM")
+	out_file = os.path.join(out_dir, "out_"+snap_name+"_"+tracer_name+"_SMF.txt")
+	if os.path.isfile(out_file)==False:
+		fileList = n.array(glob.glob(os.path.join(os.environ[env], "work_agn", "out_"+snap_name+"_SAM_Nb_*_Ms.fits")))
+		fileList.sort()
+		fileList_T = n.array(glob.glob(os.path.join(os.environ[env], "work_agn", "out_"+snap_name+"_SAM_Nb_*_"+tracer_name+".fits")))
+		fileList_T.sort()
+		tracer_name
+		print fileList, fileList_T
+		if len(fileList_T)==len(fileList):
+			Hall = n.zeros((len(fileList), len(bins)-1))
+			for ii, fileN in enumerate(fileList):
+				print fileN
+				hh = fits.open(fileN)
+				lines = fits.open(fileList_T[ii])[1].data['line_number']
+				mass = hh[1].data['stellar_mass_Mo13_mvir'][lines]
+				Hall[ii], bb = n.histogram(mass, bins=bins)
+			
+			counts = n.sum(Hall, axis=0)
+			dN_dVdlogM = counts*0.6777**3./(bins[1:]-bins[:-1])/volume/n.log(10)
+			data = n.transpose([bins[:-1], bins[1:], counts, dN_dVdlogM ])
+			n.savetxt(ouf_file, data, header = "logMs_low logMs_up counts dN_dVdlogM")
 
 
 # open the output file_type
