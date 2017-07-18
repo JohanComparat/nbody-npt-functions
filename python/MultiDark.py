@@ -873,7 +873,7 @@ class MultiDarkSimulation :
 				#print "total time in s, min",t4 - t0, (t4 - t0)/60.
 				#return DR, volume, dV, pairCount, pairs, nD, nR
 
-	def compute2PCF_MASS(self, catalogList, rmax=200, dr = 0.1, vmin=9, dlogBin=0.05, Nmax=2000000.,  name = ""):
+	def compute2PCF_MASS(self, catalogList, rmax=30, dr = 0.1, vmin=9, dlogBin=0.05, Nmax=2000000.,  name = ""):
 		"""
 		Extracts the 2PCF out of a catalog of halos        
 		:param catalog: where the catalog is
@@ -956,6 +956,41 @@ class MultiDarkSimulation :
 					t4 = time.time()
 					#print "total time in s, min",t4 - t0, (t4 - t0)/60.
 					#return DR, volume, dV, pairCount, pairs, nD, nR
+
+	def compute2PCF_single(self, xR, yR, zR, outfile="out.pkl", rmax=30, dr = 0.1):
+		"""
+		Extracts the 2PCF out of a catalog of halos        
+		:param catalog: where the catalog is
+		:param vmin: minimum circular velocity.
+		:param dlogBin: bin width.
+		:param rmax: maximum distance
+		"""
+		Ntotal = len(xR)
+		#print vbins[jj], vbins[jj+1]
+		insideSel=(xR>rmax)&(xR<self.Lbox.value-rmax)&(yR>rmax)&(yR<self.Lbox.value-rmax)&(zR>rmax)&(zR<self.Lbox.value-rmax)
+		volume=(self.Lbox.value)**3
+		# defines the trees
+		#print "creates trees"
+		treeRandoms=t.cKDTree(n.transpose([xR,yR,zR]),1000.0)
+		treeData=t.cKDTree(n.transpose([xR[insideSel],yR[insideSel],zR[insideSel]]),1000.0)
+		nD=len(treeData.data)
+		nR=len(treeRandoms.data)
+		#print nD, nR
+		bin_xi3D=n.arange(0, rmax, dr)
+		# now does the pair counts :
+		pairs=treeData.count_neighbors(treeRandoms, bin_xi3D)
+		t3 = time.time()
+		DR=pairs[1:]-pairs[:-1]
+		dV= (bin_xi3D[1:]**3 - bin_xi3D[:-1]**3 )*4*n.pi/3.
+		pairCount=nD*nR#-nD*(nD-1)/2.
+		xis = DR*volume/(dV * pairCount) -1.
+		f=open(outfile,'w')
+		cPickle.dump([bin_xi3D,xis, DR, volume, dV, pairCount, pairs, Ntotal, nD, nR, vbins[jj], vbins[jj+1]],f)
+		f.close()
+		t4 = time.time()
+		#print "total time in s, min",t4 - t0, (t4 - t0)/60.
+		#return DR, volume, dV, pairCount, pairs, nD, nR
+
 
 	def compute2PCF_LX(self, catalogList, rmax=200, dr = 0.1, vmin=41., dlogBin=0.25, Nmax=2000000.,  name = ""):
 		"""
