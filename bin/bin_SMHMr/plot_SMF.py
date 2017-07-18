@@ -46,6 +46,8 @@ def plot_SMF_DC(snap_name, redshift):
 	out_SMF_agn = os.path.join(os.environ['MD10'],"duty_cycle", snap_name + "_SMF.txt")
 	out_SMF = os.path.join(os.environ['MD10'],"results", "stellar_mass_function", "data", "out_" + snap_name + "_SMF.txt")
 	
+	out_file = lambda trace_name : os.path.join(out_dir, "out_"+snap_name+"_"+tracer_name+"_SMF.txt")
+
 	# path for duty cycle
 	log_stellar_mass, duty_cycle = n.loadtxt(out_duty_cycle, unpack=True)
 	print "DC",n.min(log_stellar_mass), n.max(log_stellar_mass)
@@ -66,6 +68,19 @@ def plot_SMF_DC(snap_name, redshift):
 	p.plot((logMs_low[ok]+ logMs_up[ok])/2., n.log10(dc((logMs_low[ok] + logMs_up[ok])/2.)*dN_dVdlogM_g[ok]), label='MD10 AGN', lw=2)
 	
 	p.plot(mbins, n.array([n.log10(xr.Phi_stellar_mass(logMs_i, redshift)) for logMs_i in mbins]) , label='Bo16', ls='dashed')
+	
+	
+	def plot_tracer(tracer_name='4MOST_S5_BCG'):
+		logMs_low, logMs_up, counts, dN_dVdlogM_g = n.loadtxt(out_file(tracer_name ) , unpack=True )
+		ok = (dN_dVdlogM_g>0)
+		p.plot((logMs_low[ok] + logMs_up[ok])/2., n.log10(dN_dVdlogM_g[ok]), label=tracer_name, ls='dotted')
+
+	plot_tracer("4MOST_S5_BCG" )
+	plot_tracer("4MOST_S5_GAL" )
+	plot_tracer("4MOST_S8_LRG" )
+	plot_tracer("4MOST_S8_ELG" )
+	plot_tracer("4MOST_S8_QSO" )
+
 	
 	p.xlabel('stellar mass')
 	p.ylabel('log Phi stellar mass')
