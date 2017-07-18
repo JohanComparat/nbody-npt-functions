@@ -63,12 +63,11 @@ def plot_SMF_DC(snap_name, redshift):
 	logMs_low, logMs_up, counts, dN_dVdlogM_g = n.loadtxt(out_SMF, unpack=True) 
 	ok = (dN_dVdlogM_g>0)&(logMs_low>n.min(log_stellar_mass))&(logMs_up<n.max(log_stellar_mass))
 	print "SMF", n.min(logMs_low[ok]), n.max(logMs_up[ok]) 
+	
 	p.plot((logMs_low[ok] + logMs_up[ok])/2., n.log10(dN_dVdlogM_g[ok]), label='MD10 GAL')#, lw=2)
-		
 	p.plot((logMs_low[ok]+ logMs_up[ok])/2., n.log10(dc((logMs_low[ok] + logMs_up[ok])/2.)*dN_dVdlogM_g[ok]), label='MD10 AGN')#, lw=2)
 	
 	#p.plot(mbins, n.array([n.log10(xr.Phi_stellar_mass(logMs_i, redshift)) for logMs_i in mbins]) , label='Bo16', ls='dashed')
-	
 	
 	def plot_tracer(tracer_name='4MOST_S5_BCG'):
 		file_name = out_file(tracer_name )
@@ -81,6 +80,7 @@ def plot_SMF_DC(snap_name, redshift):
 
 	plot_tracer("4MOST_S5_BCG" )
 	plot_tracer("4MOST_S5_GAL" )
+	plot_tracer("4MOST_S6_AGN" )
 	plot_tracer("4MOST_S8_LRG" )
 	plot_tracer("4MOST_S8_ELG" )
 	plot_tracer("4MOST_S8_QSO" )
@@ -88,8 +88,8 @@ def plot_SMF_DC(snap_name, redshift):
 	
 	p.xlabel('stellar mass')
 	p.ylabel('log Phi stellar mass')
-	p.xlim((7., 12.2))
-	p.ylim((-7,-1))
+	p.xlim((9., 12.2))
+	p.ylim((-8,-2))
 	p.title('z='+str(n.round(redshift,3)))
 	p.grid()
 	p.legend(loc=0, frameon=False)
