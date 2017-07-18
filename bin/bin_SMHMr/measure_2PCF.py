@@ -18,7 +18,7 @@ tracer_names = n.array(["4MOST_S5_BCG", "4MOST_S5_GAL", "4MOST_S6_AGN", "4MOST_S
 
 summ = fits.open(os.path.join(os.environ["MD10"], 'output_MD_1.0Gpc.fits'))[1].data	
 
-out_dir = os.path.join(os.path.join(os.environ['MD10'],"results","mvir_mass_function", "data"))
+out_dir = os.path.join(os.path.join(os.environ['MD10'],"results", "correlation_functions", "real_space_data"))
 
 def get_xyz(snap_name, tracer_name, env='MD10'):
 	fileList = n.array(glob.glob(os.path.join(os.environ[env], "work_agn", "out_"+snap_name+"_SAM_Nb_?.fits")))
