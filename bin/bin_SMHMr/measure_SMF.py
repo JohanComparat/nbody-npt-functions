@@ -77,6 +77,7 @@ for el in summ:
 	#measureSMF(snap_name=el["snap_name"], env='MD10', volume=1000.**3., out_dir = out_dir)
 	measureSMF_tracer(snap_name=el["snap_name"], tracer_name="4MOST_S5_BCG", env='MD10', volume=1000.**3., out_dir = out_dir)
 	measureSMF_tracer(snap_name=el["snap_name"], tracer_name="4MOST_S5_GAL", env='MD10', volume=1000.**3., out_dir = out_dir)
+	measureSMF_tracer(snap_name=el["snap_name"], tracer_name="4MOST_S6_AGN", env='MD10', volume=1000.**3., out_dir = out_dir)
 	measureSMF_tracer(snap_name=el["snap_name"], tracer_name="4MOST_S8_LRG", env='MD10', volume=1000.**3., out_dir = out_dir)
 	measureSMF_tracer(snap_name=el["snap_name"], tracer_name="4MOST_S8_ELG", env='MD10', volume=1000.**3., out_dir = out_dir)
 	measureSMF_tracer(snap_name=el["snap_name"], tracer_name="4MOST_S8_QSO", env='MD10', volume=1000.**3., out_dir = out_dir)
