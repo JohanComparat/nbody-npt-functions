@@ -22,7 +22,7 @@ print " set up box, and redshift "
 
 #duty_cycle = 0.01
 
-bins = n.arange(6,13,0.1)
+bins = n.arange(6,14.5,0.1)
 xb = (bins[1:] + bins[:-1]) / 2.
 
 def measureHMF(snap_name, env='MD10', volume=1000.**3., out_dir="../"):
@@ -34,6 +34,7 @@ def measureHMF(snap_name, env='MD10', volume=1000.**3., out_dir="../"):
 		print fileN
 		hh = fits.open(fileN)
 		mass = hh[1].data['mvir']
+		print mass
 		selection = (mass>0)
 		Hall[ii], bb = n.histogram(mass[selection], bins=bins)
 	
