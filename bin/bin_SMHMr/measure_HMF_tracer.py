@@ -51,8 +51,8 @@ def measureHMF_tracer(snap_name, tracer_name, env='MD10', volume=1000.**3., out_
 		fileList.sort()
 		fileList_T = n.array(glob.glob(os.path.join(os.environ[env], "work_agn", "out_"+snap_name+"_SAM_Nb_*_"+tracer_name+".fits")))
 		fileList_T.sort()
-		tracer_name
-		print fileList, fileList_T
+		print( tracer_name )
+		print( fileList, fileList_T )
 		if len(fileList_T)==len(fileList):
 			Hall = n.zeros((len(fileList), len(bins)-1))
 			for ii, fileN in enumerate(fileList):
