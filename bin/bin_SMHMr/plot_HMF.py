@@ -58,8 +58,8 @@ def plot_HMF_DC(snap_name, redshift):
 	
 	p.ylabel(r'$\log_{10}(dN/dV/dlogM_{vir})$')
 	p.xlabel(r'$\log_{10}(M_{vir})$')
-	p.xlim((11., 14.5))
-	p.ylim((-8,-2))
+	p.xlim((11., 15.))
+	p.ylim((-8.5,-2))
 	p.title('z='+str(n.round(redshift,3)))
 	p.grid()
 	p.legend(loc=0, frameon=False)
