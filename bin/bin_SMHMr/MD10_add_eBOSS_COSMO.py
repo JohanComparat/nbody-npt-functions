@@ -121,7 +121,7 @@ for ii, el in enumerate(summ):
 			mh_mean, mh_scatter = 12.2, 0.25
 			mh_bins = n.arange(mh_mean -2*mh_scatter, mh_mean +2*mh_scatter+0.1, 0.1)
 			mh_bins_pos = 0.5*(mh_bins[1:]+mh_bins[:-1])
-			proba = lambda x : norm.pdf(x, loc=12.2,scale=0.25)
+			proba = lambda x : norm.pdf(x, loc=mh_mean,scale=mh_scatter)
 			proba_norm = proba(mh_bins_pos).sum()
 			N_2_select_per_bin = (N_elg*proba(mh_bins_pos)/proba_norm).astype('int')
 
@@ -163,7 +163,7 @@ for ii, el in enumerate(summ):
 			mh_mean, mh_scatter = 12.7, 0.25
 			mh_bins = n.arange(mh_mean -2*mh_scatter, mh_mean +2*mh_scatter+0.1, 0.1)
 			mh_bins_pos = 0.5*(mh_bins[1:]+mh_bins[:-1])
-			proba = lambda x : norm.pdf(x, loc=12.2,scale=0.25)
+			proba = lambda x : norm.pdf(x, loc=mh_mean,scale=mh_scatter)
 			proba_norm = proba(mh_bins_pos).sum()
 			N_2_select_per_bin = (N_qso*proba(mh_bins_pos)/proba_norm).astype('int')
 
