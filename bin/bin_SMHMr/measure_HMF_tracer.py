@@ -22,7 +22,7 @@ print " set up box, and redshift "
 
 #duty_cycle = 0.01
 
-bins = n.arange(6,14.5,0.1)
+bins = n.arange(9,15.5,0.1)
 xb = (bins[1:] + bins[:-1]) / 2.
 
 def measureHMF(snap_name, env='MD10', volume=1000.**3., out_dir="../"):
