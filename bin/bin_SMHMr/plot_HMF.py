@@ -36,7 +36,7 @@ def plot_HMF_DC(snap_name, redshift):
 	
 	logMs_low, logMs_up, counts, dN_dVdlogM_g = n.loadtxt(out_HMF, unpack=True) 
 	ok = (dN_dVdlogM_g>0)
-	p.plot((logMs_low[ok] + logMs_up[ok])/2., n.log10(dN_dVdlogM_g[ok]), label='MD10')
+	p.plot((logMs_low[ok] + logMs_up[ok])/2., n.log10(dN_dVdlogM_g[ok]), label='MD10', lw=2, ls='dotted')
 		
 	def plot_tracer(tracer_name='4MOST_S5_BCG'):
 		file_name = out_file(tracer_name )
@@ -45,7 +45,7 @@ def plot_HMF_DC(snap_name, redshift):
 			#print tracer_name
 			logMs_low, logMs_up, counts, dN_dVdlogM_g = n.loadtxt(file_name  , unpack=True )
 			ok = (dN_dVdlogM_g>0)
-			p.plot((logMs_low[ok] + logMs_up[ok])/2., n.log10(dN_dVdlogM_g[ok]), label=tracer_name)#, ls='dashed', lw=0.75)
+			p.plot((logMs_low[ok] + logMs_up[ok])/2., n.log10(dN_dVdlogM_g[ok]), label=tracer_name, ls='dashed', lw=0.75)
 
 	plot_tracer("4MOST_S5_BCG" )
 	plot_tracer("4MOST_S5_GAL" )
