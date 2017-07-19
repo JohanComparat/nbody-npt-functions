@@ -45,8 +45,8 @@ def measureHMF(snap_name, env='MD10', volume=1000.**3., out_dir="../"):
 
 
 def measureHMF_tracer(snap_name, tracer_name, env='MD10', volume=1000.**3., out_dir="../"):
-	out_file = os.path.join(out_dir, "out_"+snap_name+"_"+tracer_name+"_HMF.txt")
-	if os.path.isfile(out_file)==False:
+		out_file = os.path.join(out_dir, "out_"+snap_name+"_"+tracer_name+"_HMF.txt")
+		#if os.path.isfile(out_file)==False:
 		fileList = n.array(glob.glob(os.path.join(os.environ[env], "work_agn", "out_"+snap_name+"_SAM_Nb_?.fits")))
 		fileList.sort()
 		fileList_T = n.array(glob.glob(os.path.join(os.environ[env], "work_agn", "out_"+snap_name+"_SAM_Nb_*_"+tracer_name+".fits")))
