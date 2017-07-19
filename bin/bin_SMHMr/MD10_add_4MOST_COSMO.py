@@ -156,7 +156,7 @@ for ii, el in enumerate(summ):
 		for num in list(set(id_superset[0])):
 			file_out = os.path.join(os.environ["MD10"], 'work_agn', 'out_'+el['snap_name']+'_SAM_Nb_'+str(num)+'_4MOST_S8_BG1.fits')
 			lrgs = id_superset[1][ (id_superset[0]==num) & (rds>0.5) ]
-			print( file_out, lrgs)
+			print( file_out, lrgs, len(lrgs))
 			hdu_cols  = fits.ColDefs([
 			fits.Column(name='line_number',format='K', array= lrgs )])
 			tb_hdu = fits.BinTableHDU.from_columns( hdu_cols )
@@ -186,7 +186,7 @@ for ii, el in enumerate(summ):
 		for num in list(set(id_superset[0])):
 			file_out = os.path.join(os.environ["MD10"], 'work_agn', 'out_'+el['snap_name']+'_SAM_Nb_'+str(num)+'_4MOST_S8_BG2.fits')
 			lrgs = id_superset[1][ (id_superset[0]==num) & (rds>0.75) ]
-			print( file_out, lrgs)
+			print( file_out, lrgs, len(lrgs))
 			hdu_cols  = fits.ColDefs([
 			fits.Column(name='line_number',format='K', array= lrgs )])
 			tb_hdu = fits.BinTableHDU.from_columns( hdu_cols )
@@ -231,7 +231,7 @@ for ii, el in enumerate(summ):
 			for num in list(set(id_0)):
 				file_out = os.path.join(os.environ["MD10"], 'work_agn', 'out_'+el['snap_name']+'_SAM_Nb_'+str(num)+'_4MOST_S8_ELG.fits')
 				elgs = id_1[ (id_0==num) ]
-				print( file_out, elgs)
+				print( file_out, elgs, len(elgs))
 				hdu_cols  = fits.ColDefs([
 				fits.Column(name='line_number',format='K', array= elgs )])
 				tb_hdu = fits.BinTableHDU.from_columns( hdu_cols )
@@ -273,7 +273,7 @@ for ii, el in enumerate(summ):
 			for num in list(set(id_0)):
 				file_out = os.path.join(os.environ["MD10"], 'work_agn', 'out_'+el['snap_name']+'_SAM_Nb_'+str(num)+'_4MOST_S8_QSO.fits')
 				qsos = id_1[ (id_0==num) ]
-				print( file_out, qsos)
+				print( file_out, qsos, len(qsos))
 				hdu_cols  = fits.ColDefs([
 				fits.Column(name='line_number',format='K', array= qsos )])
 				tb_hdu = fits.BinTableHDU.from_columns( hdu_cols )
