@@ -438,7 +438,7 @@ class MultiDarkSimulation :
 		os.system("rm "+self.snl[ii][:-5]+file_identifier+str(Nb)+".fits")
 		thdulist.writeto(self.snl[ii][:-5]+file_identifier+str(Nb)+".fits")
 	
-	def writeSAMcatalog(self, ii, mmin=10**8, NperBatch = 2000000, file_identifier = "_SAM_Nb_"):
+	def writeSAMcatalog(self, ii, mmin=10**8, NperBatch = 10000000, file_identifier = "_SAM_Nb_"):
 		"""
 		Extracts the positions and mass out of a snapshot of the Multidark simulation.        
 		:param ii: index of the snapshot in the list self.snl
