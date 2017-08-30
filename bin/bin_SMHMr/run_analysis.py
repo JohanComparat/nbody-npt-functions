@@ -16,8 +16,10 @@ python $BOX_box-get-header.py
 # rewrite rockstar ascii catalogs in smaller fits files with 20e6 lines each + halo mass cut.
 python $BOX-write-clusterFiles.py # for the cluster calculations
 python $BOX-write-smallFile.py # for the AGN calculations
+### RERUNNING
+
 # outputs in $BOX_DIR/work_agn or work_cluster
-# rewriting agaim the ones with less column numbers
+
 
 # writes in the catalog dir
 #---------------------------
@@ -53,9 +55,12 @@ python MD10_add_4MOST_COSMO.py
 # eRosita light cone
 python measure_SMF.py
 python plot_SMF.py
+
+python measure_HMF_tracer.py
+python plot_HMF.py
+
 python MD10-pie-plot.py
 
-python measure_HMF_tracers.py
 
 # TB UPDATE FROM HERE ON
 # plots and results 

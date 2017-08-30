@@ -140,7 +140,7 @@ class MultiDarkSimulation :
 			# compute density at rvir
 			rs = float(line[self.columnDict['rs']])
 			conc = rvir / rs
-			rho_at_rvir = rho_crit * delta_vir * conc**2. / ((1+conc)*((1+conc)*n.log(1+conc)-conc))
+			rho_at_rvir = rho_crit * delta_vir * 4 * conc**2. / ((1+conc)*((1+conc)*n.log(1+conc)-conc))
 			
 			newline =n.array([ int(line[self.columnDict['id']]), int(line[self.columnDict['pid']]), int(line[self.columnDict['Snap_num']]), rvir, n.log10(mvir), n.log10(float(line[self.columnDict['Mpeak']])), float(line[self.columnDict['Mpeak_Scale']]), float(line[self.columnDict['Acc_Rate_1Tdyn']]), float(line[self.columnDict['Time_to_future_merger']]), float(line[self.columnDict['Future_merger_MMP_ID']]), tdyn, rho_at_rvir])
 			
@@ -222,6 +222,26 @@ class MultiDarkSimulation :
 		print( out_filename )
 		os.system("rm "+out_filename)
 		thdulist.writeto(out_filename)
+		
+	def writeEMERGEcatalog_gawk(self, path_2_snapshot, rho_crit, delta_vir, mmin=10**8, NperBatch = 2000000, file_identifier = "_EMERGE"):
+		"""
+		Extracts the positions and mass out of a snapshot of the Multidark simulation.        
+		:param ii: index of the snapshot in the list self.snl
+		:param vmin: name of the quantity of interest, mass, velocity.
+		:param vmax: of the quantity of interest in the snapshots.
+		:param NperBatch: number of line per fits file, default: 1000000
+		"""
+		# sets the columns definition
+		nameSnapshot = os.path.basename(path_2_snapshot)[:-5]
+		out_filename = os.path.join(os.environ["MD10"],"emerge",nameSnapshot + file_identifier +  ".ascii")
+
+		prefactor = str(rho_crit)+" * "+str(delta_vir)+" * "
+
+		gawk_command = """gawk 'NR>63 if ( $11 >= """ +str(mmin)+ """ ) {print $2, $6, $32, $11, $12, $13, $61, $70, $67, $78, $79, sqrt($12*$12*$12/(4.499753324353495e-24*$11)), """+prefactor+"""4 * ($12/$13)*($12/$13) / ((1+($12/$13))*((1+($12/$13))*log(1+($12/$13))-($12/$13)))}' """ + path_2_snapshot +" > " + out_filename
+		print gawk_command
+		os.system(gawk_command)
+		# id pid Snap_num rvir mvir Mpeak Mpeak_scale Acc_Rate_1Tdyn Time_to_future_merger Future_merger_MMP_ID tdyn rho_at_rvir
+		
 		
 	def cornerLCpositionCatalog(self, ii, DMIN=0., DMAX=1000., vmin=190, vmax=100000, NperBatch = 10000000):
 		"""

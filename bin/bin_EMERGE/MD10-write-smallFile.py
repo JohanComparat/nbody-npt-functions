@@ -11,9 +11,9 @@ box = MultiDarkSimulation(Lbox=1000.0 * u.Mpc, boxDir = "MD_1Gpc",snl =snList   
 
 t0=time.time()
 
-for el in sf[::-1]:
+for el in sf:
 	path_2_snap = os.path.join(os.environ["MD10"], "hlists", "hlist_"+ str(el['snap_name']).ljust(7,'0')+".list")
-	box.writeEMERGEcatalog(path_2_snap, el['rho_crit'], el['delta_vir'], mmin=100*box.Melement)
+	box.writeEMERGEcatalog_gawk(path_2_snap, el['rho_crit'], el['delta_vir'], mmin=100*box.Melement)
 
 print time.time()-t0
 
