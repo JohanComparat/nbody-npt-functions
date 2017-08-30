@@ -34,8 +34,8 @@ def measureSMF(snap_name, env='MD10', volume=1000.**3., out_dir="../"):
 		print fileN
 		hh = fits.open(fileN)
 		mass = hh[1].data['stellar_mass_Mo13_mvir']
-		selection = (mass>0)
-		Hall[ii], bb = n.histogram(hh[1].data['stellar_mass_reliable'], bins=bins)
+		selection = (hh[1].data['stellar_mass_reliable'])&(mass>0)
+		Hall[ii], bb = n.histogram(hh[1].data['stellar_mass_Mo13_mvir'], bins=bins)
 	
 	counts = n.sum(Hall, axis=0)
 	dN_dVdlogM = counts*0.6777**3./(bins[1:]-bins[:-1])/volume/n.log(10)
