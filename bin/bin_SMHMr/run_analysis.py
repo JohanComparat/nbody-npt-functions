@@ -16,9 +16,7 @@ python $BOX_box-get-header.py
 # rewrite rockstar ascii catalogs in smaller fits files with 20e6 lines each + halo mass cut.
 python $BOX-write-clusterFiles.py # for the cluster calculations
 python $BOX-write-smallFile.py # for the AGN calculations
-### RERUNNING in asingle file 
 # outputs in /work_agn or work_cluster
-
 python MD10-check-small-file-1pt-fun.py
 python MD10-check-small-file-1pt-fun-plots.py
 # outputs in wwwDir/eRoMok/
@@ -29,16 +27,20 @@ python MD10-check-small-file-1pt-fun-plots.py
 #---------------------------
 # add stellar masses according to Moster et al. 2013
 # to be updated to the Moster et al. 2017 model EMERGE
-python $BOX_add_Ms.py
+python $BOX_add_Ms.py	
+python MD10-check-MS-file-1pt-fun.py 
+python MD10-check-MS-file-1pt-fun-plots.py   
 # outputs in $BOX_DIR/work_agn 
 # measures the stellar mass function. 
-# Is now done in the tabulate duty cycle step
-# python measure_SMF.py 
+# Is now done in the tabulate duty cycle step 
+python measure_SMF.py 
 
 # measure the stellar mass function obtained per snapshot
 # and tabulates the duty cyle as a function of stellar mass
 # forces the snapshot to reproduce the luminosity function from Bongiorno 2016
 python $BOX_tabulate_duty_cycle.py
+### RERUNNING in asingle file 
+
 # outputs in $BOX_DIR/duty_cycle
 
 # add Xray luminosities for AGNs using Bongiorno et al. 2016 and Xray for clusters using Mantz et al. 2016
