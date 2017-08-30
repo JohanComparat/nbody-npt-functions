@@ -235,12 +235,12 @@ class MultiDarkSimulation :
 		nameSnapshot = os.path.basename(path_2_snapshot)[:-5]
 		out_filename = os.path.join(os.environ["MD10"],"emerge",nameSnapshot + file_identifier +  ".ascii")
 
-		prefactor = str(rho_crit)+" * "+str(delta_vir)+" * "
+		prefactor = str(4*n.pi*rho_crit*delta_vir)+" * "
 
-		gawk_command = """gawk 'NR>63 if ( $11 >= """ +str(mmin)+ """ ) {print $2, $6, $32, $11, $12, $13, $61, $70, $67, $78, $79, sqrt($12*$12*$12/(4.499753324353495e-24*$11)), """+prefactor+"""4 * ($12/$13)*($12/$13) / ((1+($12/$13))*((1+($12/$13))*log(1+($12/$13))-($12/$13)))}' """ + path_2_snapshot +" > " + out_filename
+		gawk_command = """gawk 'NR>63 {if ( $11 >= """ +str(mmin)+ """ ) print $2, $6, $32, $11, $12, $13, $61, $70, $67, $78, $79, sqrt($12*$12*$12/("""+str(G)+"""*$11)), """+prefactor+"""4 *  $12 * $12 * ($12/$13)*($12/$13) , ((1+($12/$13))*((1+($12/$13))*log(1+($12/$13))-($12/$13)))}' """ + path_2_snapshot +" > " + out_filename
 		print gawk_command
 		os.system(gawk_command)
-		# id pid Snap_num rvir mvir Mpeak Mpeak_scale Acc_Rate_1Tdyn Time_to_future_merger Future_merger_MMP_ID tdyn rho_at_rvir
+		# id pid Snap_num mvir rvir rs Mpeak Mpeak_scale Acc_Rate_1Tdyn Time_to_future_merger Future_merger_MMP_ID tdyn prefactor_rvirDot_up prefactor_rvirDot_low
 		
 		
 	def cornerLCpositionCatalog(self, ii, DMIN=0., DMAX=1000., vmin=190, vmax=100000, NperBatch = 10000000):
