@@ -38,6 +38,7 @@ for name in sf['snap_name']:
 			p.xlabel(qty_name)
 			p.ylabel('counts')
 			p.yscale('log')
+			p.xlim((9,12.5))
 			p.grid()
 			p.savefig(os.path.join(plotDir, os.path.basename(path_2_file)[:-5] + qty_name + ".jpg"))
 			p.clf()

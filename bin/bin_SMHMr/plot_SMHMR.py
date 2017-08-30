@@ -16,7 +16,11 @@ import time
 import numpy as n
 import sys
 
+import StellarMass
+sm = StellarMass.StellarMass()
+
 plotDir = os.path.join(os.environ['HOME'], 'wwwDir', "eRoMok", "snapshot_sanity_checks")
+mhalos = n.arange(10,15,0.1)
 
 def measureSMF(sf, env='MD10', volume=1000.**3., out_dir="../"):
 	fileList = n.array(glob.glob(os.path.join(os.environ[env], "work_agn", "out_"+el["snap_name"]+"_SAM_Nb_*_Ms.fits")))
@@ -35,8 +39,9 @@ def measureSMF(sf, env='MD10', volume=1000.**3., out_dir="../"):
 		
 		p.figure(1, (6,6))
 		p.plot(mvir[selection], smhmr[selection], 'k,', rasterized = True )
-		p.plot(mvir[selection], smhmr[selection]+0.15/2., 'r,', rasterized = True )
-		p.plot(mvir[selection], smhmr[selection]-0.15/2., 'r,', rasterized = True )
+		p.plot(mhalos, sm.meanSM(10**hd[1].data['mvir'], sf['redshift']) , 'r', rasterized = True )
+		p.plot(mhalos, sm.meanSM(10**hd[1].data['mvir'], sf['redshift']) - 0.15/2., 'r--', rasterized = True )
+		p.plot(mhalos, sm.meanSM(10**hd[1].data['mvir'], sf['redshift']) + 0.15/2., 'r--', rasterized = True )
 		p.xlabel('mvir')
 		p.ylabel('stellar mass - mvir')
 		#p.yscale('log')
