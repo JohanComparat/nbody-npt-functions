@@ -19,8 +19,15 @@ def create_catalogs_out(fileList, z, minMS = 9.7):
 		t0=time.time()
 		outFile = fileName[:-5]+"_Ms.fits"
 		hd = fits.open(fileName)
-		Mgal_mvir_Mo13 = norm.rvs( loc = sm.meanSM(10**hd[1].data['mvir'], z), scale = 0.15 )-n.log10(0.6777)
+		mean_SM = sm.meanSM(10**hd[1].data['mvir'], z)
+		print "mean mgal", mean_SM
+		Mgal_mvir_Mo13 = n.array([norm.rvs( loc = mmm, scale = 0.15 ) for mmm in mean_SM ])-n.log10(0.6777)
+		print "res  mgal", Mgal_mvir_Mo13
+		print "diff mgal - mvir", n.mean(mean_SM-Mgal_mvir_Mo13) 
+		print "mean, std magl - mh",n.mean(mean_SM-Mgal_mvir_Mo13), n.std(mean_SM-Mgal_mvir_Mo13)
 		sel = (Mgal_mvir_Mo13>minMS)&(hd[1].data['mvir']>0)
+		
+		Mgal_mvir_Mo13[sel==False] = n.zeros_like(Mgal_mvir_Mo13[sel==False])
 		
 		col00 = fits.Column(name='stellar_mass_Mo13_mvir',format='D', unit='logMsun', array = Mgal_mvir_Mo13 )
 		col01 = fits.Column(name='stellar_mass_reliable', format='L', array = sel )

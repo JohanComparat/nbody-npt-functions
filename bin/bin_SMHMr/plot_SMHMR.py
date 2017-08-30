@@ -35,8 +35,10 @@ def measureSMF(sf, env='MD10', volume=1000.**3., out_dir="../"):
 		
 		p.figure(1, (6,6))
 		p.plot(mvir[selection], smhmr[selection], 'k,', rasterized = True )
+		p.plot(mvir[selection], smhmr[selection]+0.15/2., 'r,', rasterized = True )
+		p.plot(mvir[selection], smhmr[selection]-0.15/2., 'r,', rasterized = True )
 		p.xlabel('mvir')
-		p.ylabel('stellar mass / mvir')
+		p.ylabel('stellar mass - mvir')
 		#p.yscale('log')
 		p.title(str(el['redshift']))
 		p.grid()
