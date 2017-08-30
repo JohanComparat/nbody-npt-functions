@@ -34,23 +34,13 @@ def tabulate_duty_cycle(snap_name, z, volume=1000.**3., bins = n.arange(6,13,0.1
 	# path for the output file
 	out_duty_cycle = os.path.join(os.environ['MD10'],"duty_cycle", snap_name + "_duty_cycle.txt")
 	# path for stellar mass function
-	out_SMF = os.path.join(os.environ['MD10'],"duty_cycle", snap_name + "_SMF.txt")
-		
-	Hall = n.zeros((len(fileList_snap), len(bins)-1))
-	for ii, fileName in enumerate(fileList_snap):
-		t0=time.time()
-		# opens all relevant files
-		hd = fits.open(fileName)[1].data
-		#print hd['stellar_mass_Mo13_mvir'][:10], n.min(hd['stellar_mass_Mo13_mvir'])
-		Hall[ii], bb = n.histogram(hd['stellar_mass_Mo13_mvir'], bins=bins)
-
-	counts = n.sum(Hall, axis=0) 
-	dN_dVdlogM = counts*0.6777**3./(bins[1:]-bins[:-1])/volume/n.log(10)
-	n.savetxt(out_SMF,  n.transpose([bins[:-1], bins[1:], counts, dN_dVdlogM]), header = "logMs_low logMs_up counts dN_dVdlogM")
-	logMs_low, logMs_up = bins[:-1], bins[1:]
-				
+	
+	out_dir = os.path.join(os.path.join(os.environ['MD10'], "results", "stellar_mass_function", "data"))
+	path_2_SMF = os.path.join(out_dir, "out_"+snap_name+"_SMF.txt")
 	# opens stellar mass function
-	#logMs_low, logMs_up, counts, dN_dVdlogM = n.loadtxt(out_SMF, unpack=True)
+	logMs_low, logMs_up, counts, dN_dVdlogM = n.loadtxt(path_2_SMF, unpack=True)
+	
+	
 	# interpolates the model of the AGN host galaxy mass function
 	AGN_HGMF = interp1d(n.arange(5.5,13.5,0.01), n.array([n.log10(xr.Phi_stellar_mass(logMs_i, z)) for logMs_i in n.arange(5.5,13.5,0.01)]))
 	# interpolates the duty cycle in the interesting region

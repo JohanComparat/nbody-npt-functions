@@ -39,9 +39,9 @@ def measureSMF(sf, env='MD10', volume=1000.**3., out_dir="../"):
 		
 		p.figure(1, (6,6))
 		p.plot(mvir[selection], smhmr[selection], 'k,', rasterized = True )
-		p.plot(mhalos, sm.meanSM(10**hd[1].data['mvir'], sf['redshift']) , 'r', rasterized = True )
-		p.plot(mhalos, sm.meanSM(10**hd[1].data['mvir'], sf['redshift']) - 0.15/2., 'r--', rasterized = True )
-		p.plot(mhalos, sm.meanSM(10**hd[1].data['mvir'], sf['redshift']) + 0.15/2., 'r--', rasterized = True )
+		p.plot(mhalos, sm.meanSM(10**mhalos, sf['redshift'])-n.log10(0.6777)-mhalos , 'r', rasterized = True )
+		p.plot(mhalos, sm.meanSM(10**mhalos, sf['redshift'])-n.log10(0.6777)-mhalos - 0.15/2., 'r--', rasterized = True )
+		p.plot(mhalos, sm.meanSM(10**mhalos, sf['redshift'])-n.log10(0.6777)-mhalos + 0.15/2., 'r--', rasterized = True )
 		p.xlabel('mvir')
 		p.ylabel('stellar mass - mvir')
 		#p.yscale('log')
