@@ -6,7 +6,7 @@ import time
 import numpy as n
 import sys 
 # specific functions
-from scipy.stats import norm, lognorm
+from scipy.stats import norm
 # dedicated packages
 import StellarMass
 sm = StellarMass.StellarMass()
@@ -22,7 +22,7 @@ def create_catalogs_out(fileList, z, minMS = 9.7):
 		Mgal_mvir_Mo13 = norm.rvs( loc = sm.meanSM(10**hd[1].data['mvir'], z), scale = 0.15 )-n.log10(0.6777)
 		sel = (Mgal_mvir_Mo13>minMS)&(hd[1].data['mvir']>0)
 		
-		col00 = fits.Column(name='stellar_mass_Mo13_mvir',format='D', unit='log(h-1 Msun)', array = Mgal_mvir_Mo13 )
+		col00 = fits.Column(name='stellar_mass_Mo13_mvir',format='D', unit='logMsun', array = Mgal_mvir_Mo13 )
 		col01 = fits.Column(name='stellar_mass_reliable', format='L', array = sel )
 
 		#define the table hdu 
