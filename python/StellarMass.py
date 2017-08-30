@@ -68,8 +68,8 @@ class StellarMass() :
 		:param Mh: halo mass array
 		:param z: redshift array
 		"""
-		aexp = z/(1+z)
-		return 2 * ( 0.0351 - 0.0247 * aexp) / ((Mh/ (10**(11.59 + 1.195 * aexp)) )**(- 1.376 + 0.826 * aexp) + ( Mh /(10**(11.59 + 1.195 * aexp)) )**(0.608 + 0.329 *aexp) ) #- 0.0225
+		aexp = z/(1.+z)
+		return 2. * ( 0.0351 - 0.0247 * aexp) / ((Mh/ (10**(11.59 + 1.195 * aexp)) )**(- 1.376 + 0.826 * aexp) + ( Mh /(10**(11.59 + 1.195 * aexp)) )**(0.608 + 0.329 *aexp) ) #- 0.0225
 
 	def meanSM(self, Mh, z):
 		"""
@@ -83,8 +83,8 @@ class StellarMass() :
 		:param Mh: halo mass array
 		:param z: redshift array
 		"""
-		aexp = z/(1+z)
-		return n.log10(Mh * 2 * ( 0.0351 - 0.0247 * aexp) / ((Mh/ (10**(11.59 + 1.195 * aexp)) )**(- 1.376 + 0.826 * aexp) + ( Mh /(10**(11.59 + 1.195 * aexp)) )**(0.608 + 0.329 *aexp) )) #- 0.0225
+		aexp = z/(1.+z)
+		return n.log10(Mh * 2. * ( 0.0351 - 0.0247 * aexp) / ((Mh/ (10**(11.59 + 1.195 * aexp)) )**(- 1.376 + 0.826 * aexp) + ( Mh /(10**(11.59 + 1.195 * aexp)) )**(0.608 + 0.329 *aexp) )) #- 0.0225
 	
 	def sample_Ms( self, Mh, z, scatter = 0.15 ):
 		"""
