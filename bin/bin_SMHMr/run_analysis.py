@@ -16,9 +16,13 @@ python $BOX_box-get-header.py
 # rewrite rockstar ascii catalogs in smaller fits files with 20e6 lines each + halo mass cut.
 python $BOX-write-clusterFiles.py # for the cluster calculations
 python $BOX-write-smallFile.py # for the AGN calculations
-### RERUNNING
+### RERUNNING in asingle file 
+# outputs in /work_agn or work_cluster
 
-# outputs in $BOX_DIR/work_agn or work_cluster
+python MD10-check-small-file-1pt-fun.py
+python MD10-check-small-file-1pt-fun-plots.py
+# outputs in wwwDir/eRoMok/
+
 
 
 # writes in the catalog dir
