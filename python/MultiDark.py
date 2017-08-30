@@ -237,10 +237,10 @@ class MultiDarkSimulation :
 
 		prefactor = str(4*n.pi*rho_crit*delta_vir)+" * "
 
-		gawk_command = """gawk 'NR>63 {if ( $11 >= """ +str(mmin)+ """ ) print $2, $6, $32, $11, $12, $13, $61, $70, $67, $78, $79, sqrt($12*$12*$12/("""+str(G)+"""*$11)), """+prefactor+"""4 *  $12 * $12 * ($12/$13)*($12/$13) , ((1+($12/$13))*((1+($12/$13))*log(1+($12/$13))-($12/$13)))}' """ + path_2_snapshot +" > " + out_filename
+		gawk_command = """gawk 'NR>63 {if ( $11 >= """ +str(mmin)+ """ ) print $2, $6, $7, $32, $11, $12, $14, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $38, $41, $42, $43, $44, $45, $46, $47, $48, $49, $50, $51, $61, $70, $67, $78, $79, sqrt($12*$12*$12/("""+str(G)+"""*$11)), """+prefactor+"""4 *  $12 * $12 * ($12/$13)*($12/$13) / ((1+($12/$13))*((1+($12/$13))*log(1+($12/$13))-($12/$13)))}' """ + path_2_snapshot +" > " + out_filename
 		print gawk_command
 		os.system(gawk_command)
-		# id pid Snap_num mvir rvir rs Mpeak Mpeak_scale Acc_Rate_1Tdyn Time_to_future_merger Future_merger_MMP_ID tdyn prefactor_rvirDot_up prefactor_rvirDot_low
+		header = """# id pid Upid Snap_num mvir rvir vrms vmax x y z vx vy vz Jx Jy Jz Spin Rs_Klypin M200c M500c M2500c Xoff Voff Spin_Bullock b_to_a c_to_a Ax Ay Az Mpeak Mpeak_scale Acc_Rate_1Tdyn Time_to_future_merger Future_merger_MMP_ID tdyn prefactor_rvirDot """
 		
 		
 	def cornerLCpositionCatalog(self, ii, DMIN=0., DMAX=1000., vmin=190, vmax=100000, NperBatch = 10000000):
