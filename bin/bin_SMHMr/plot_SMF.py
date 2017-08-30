@@ -43,7 +43,7 @@ def plot_SMF_DC(snap_name, redshift):
 	# path for the output file
 	out_duty_cycle = os.path.join(os.environ['MD10'],"duty_cycle", snap_name + "_duty_cycle.txt")
 	# path for stellar mass function
-	out_SMF_agn = os.path.join(os.environ['MD10'],"duty_cycle", snap_name + "_SMF.txt")
+	#out_SMF_agn = os.path.join(os.environ['MD10'],"duty_cycle", snap_name + "_SMF.txt")
 	out_SMF = os.path.join(os.environ['MD10'],"results", "stellar_mass_function", "data", "out_" + snap_name + "_SMF.txt")
 	# path to tracer SMFs
 	out_file = lambda tracer_name : os.path.join(os.environ['MD10'],"results", "stellar_mass_function", "data", "out_"+snap_name+"_"+tracer_name+"_SMF.txt")
@@ -55,7 +55,7 @@ def plot_SMF_DC(snap_name, redshift):
 	p.figure(1, (6,6))
 	p.plot(mbins, n.log10(smf01(10**mbins)), label='Ilbert 13, 0.2<z<0.5', ls='dashed')
 	p.plot(mbins, n.log10(smf08(10**mbins)), label='Ilbert 13, 0.8<z<1.1', ls='dashed')
-	print(out_SMF_agn)
+	#print(out_SMF_agn)
 	#logMs_low, logMs_up, counts, dN_dVdlogM = n.loadtxt(out_SMF_agn, unpack=True) 
 	#p.plot((logMs_low+ logMs_up)/2., n.log10(dN_dVdlogM), label='MD10 AGN', lw=2)
 	#print(out_SMF)
