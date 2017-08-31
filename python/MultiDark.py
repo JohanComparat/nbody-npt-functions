@@ -223,7 +223,7 @@ class MultiDarkSimulation :
 		os.system("rm "+out_filename)
 		thdulist.writeto(out_filename)
 		
-	def writeEMERGEcatalog_gawk(self, path_2_snapshot, rho_crit, delta_vir, mmin=10**8, NperBatch = 2000000, file_identifier = "_EMERGE"):
+	def writeEMERGEcatalog_gawk(self, path_2_snapshot, rho_crit, delta_vir, mmin=1.51e11, NperBatch = 2000000, file_identifier = "_EMERGE"):
 		"""
 		Extracts the positions and mass out of a snapshot of the Multidark simulation.        
 		:param ii: index of the snapshot in the list self.snl
@@ -264,7 +264,7 @@ class MultiDarkSimulation :
 				continue
 
 			line = line.split()
-			newline =n.array([ float(line[self.columnDict['x']]), float(line[self.columnDict['y']]), float(line[self.columnDict['z']]), float(line[self.columnDict['vx']]), float(line[self.columnDict['vy']]), float(line[self.columnDict['vz']]), float(line[self.columnDict['vmax']]), float(line[self.columnDict['Vpeak']]), n.log10(float(line[self.columnDict['mvir']])), float(line[self.columnDict['rvir']]), float(line[self.columnDict['pid']]) ])
+			newline =n.array([ float(line[self.columnDict['x']]), float(line[self.columnDict['y']]), float(line[self.columnDict['z']]), float(line[self.columnDict['vx']]), float(line[self.columnDict['vy']]), float(line[self.columnDict['vz']]), float(line[self.columnDict['vmax']]), float(line[self.columnDict['Vpeak']]), n.log10(float(line[self.columnDict['mvir']])), float(line[self.columnDict['rvir']]), int(line[self.columnDict['pid']]) ])
 			distance = (newline[0]**2+newline[1]**2+newline[2]**2)**0.5
 			if float(line[self.columnDict['vmax']])>vmin and float(line[self.columnDict['vmax']])<vmax and distance<DMAX and distance>=DMIN :
 				output[count] = newline
@@ -286,7 +286,7 @@ class MultiDarkSimulation :
 				col7 = fits.Column(name='vpeak',format='D', array= output.T[7] )
 				col8 = fits.Column(name='mvir',format='D', array= output.T[8] )
 				col9 = fits.Column(name='rvir',format='D', array= output.T[9] )
-				col10 = fits.Column(name='pid',format='D', array= output.T[10] )
+				col10 = fits.Column(name='pid',format='K', array= output.T[10] )
 				#define the table hdu 
 				hdu_cols  = fits.ColDefs([col0, col1, col2, col3, col4, col5, col6, col7, col8, col9, col10])
 				tb_hdu = fits.BinTableHDU.from_columns( hdu_cols )
@@ -315,7 +315,7 @@ class MultiDarkSimulation :
 		col7 = fits.Column(name='vpeak',format='D', array= output.T[7] )
 		col8 = fits.Column(name='mvir',format='D', array= output.T[8] )
 		col9 = fits.Column(name='rvir',format='D', array= output.T[9] )
-		col10 = fits.Column(name='pid',format='D', array= output.T[10] )
+		col10 = fits.Column(name='pid',format='K', array= output.T[10] )
 		#define the table hdu 
 		hdu_cols  = fits.ColDefs([col0, col1, col2, col3, col4, col5, col6, col7, col8, col9, col10])
 		tb_hdu = fits.BinTableHDU.from_columns( hdu_cols )
@@ -351,7 +351,7 @@ class MultiDarkSimulation :
 			line = line.split()
 			#print line
 			#print len(line)
-			newline =n.array([int(line[self.columnDict['id']]), float(line[self.columnDict['vmax']]), float(line[self.columnDict['vrms']]), float(line[self.columnDict['rvir']]), float(line[self.columnDict['rs']]), float(line[self.columnDict['pid']]), float(line[self.columnDict['x']]), float(line[self.columnDict['y']]), float(line[self.columnDict['z']]), float(line[self.columnDict['vx']]), float(line[self.columnDict['vy']]), float(line[self.columnDict['vz']]), float(line[self.columnDict['Jx']]), float(line[self.columnDict['Jy']]), float(line[self.columnDict['Jz']]), float(line[self.columnDict['Spin']]), float(line[self.columnDict['Rs_Klypin']]), float(line[self.columnDict['Xoff']]), float(line[self.columnDict['Voff']]), float(line[self.columnDict['Spin_Bullock']]), float(line[self.columnDict['Ax']]), float(line[self.columnDict['Ay']]), float(line[self.columnDict['Az']]), float(line[self.columnDict['b_to_a']]), float(line[self.columnDict['c_to_a']]), n.log10(float(line[self.columnDict['mvir']])), n.log10(float(line[self.columnDict['M200c']])), n.log10(float(line[self.columnDict['M500c']])), n.log10(float(line[self.columnDict['M2500c']])) ])
+			newline =n.array([int(line[self.columnDict['id']]), float(line[self.columnDict['vmax']]), float(line[self.columnDict['vrms']]), float(line[self.columnDict['rvir']]), float(line[self.columnDict['rs']]), int(line[self.columnDict['pid']]), float(line[self.columnDict['x']]), float(line[self.columnDict['y']]), float(line[self.columnDict['z']]), float(line[self.columnDict['vx']]), float(line[self.columnDict['vy']]), float(line[self.columnDict['vz']]), float(line[self.columnDict['Jx']]), float(line[self.columnDict['Jy']]), float(line[self.columnDict['Jz']]), float(line[self.columnDict['Spin']]), float(line[self.columnDict['Rs_Klypin']]), float(line[self.columnDict['Xoff']]), float(line[self.columnDict['Voff']]), float(line[self.columnDict['Spin_Bullock']]), float(line[self.columnDict['Ax']]), float(line[self.columnDict['Ay']]), float(line[self.columnDict['Az']]), float(line[self.columnDict['b_to_a']]), float(line[self.columnDict['c_to_a']]), n.log10(float(line[self.columnDict['mvir']])), n.log10(float(line[self.columnDict['M200c']])), n.log10(float(line[self.columnDict['M500c']])), n.log10(float(line[self.columnDict['M2500c']])) ])
 			#print newline
 			#print newline.shape
 			if float(line[self.columnDict['M500c']])>mmin :
@@ -370,7 +370,7 @@ class MultiDarkSimulation :
 				,fits.Column(name='vrms',format='D',         array= output.T[2] ) 
 				,fits.Column(name='rvir',format='D',         array= output.T[3] ) 
 				,fits.Column(name='rs',format='D',           array= output.T[4] ) 
-				,fits.Column(name='pid',format='D',          array= output.T[5] ) 
+				,fits.Column(name='pid',format='K',          array= output.T[5] ) 
 				,fits.Column(name='x',format='D',            array= output.T[6] ) 
 				,fits.Column(name='y',format='D',            array= output.T[7] ) 
 				,fits.Column(name='z',format='D',            array= output.T[8] ) 
@@ -420,7 +420,7 @@ class MultiDarkSimulation :
 		,fits.Column(name='vrms',format='D',         array= output.T[2] ) 
 		,fits.Column(name='rvir',format='D',         array= output.T[3] ) 
 		,fits.Column(name='rs',format='D',           array= output.T[4] ) 
-		,fits.Column(name='pid',format='D',          array= output.T[5] ) 
+		,fits.Column(name='pid',format='K',          array= output.T[5] ) 
 		,fits.Column(name='x',format='D',            array= output.T[6] ) 
 		,fits.Column(name='y',format='D',            array= output.T[7] ) 
 		,fits.Column(name='z',format='D',            array= output.T[8] ) 
@@ -458,7 +458,7 @@ class MultiDarkSimulation :
 		os.system("rm "+self.snl[ii][:-5]+file_identifier+str(Nb)+".fits")
 		thdulist.writeto(self.snl[ii][:-5]+file_identifier+str(Nb)+".fits")
 	
-	def writeSAMcatalog(self, ii, mmin=10**8, NperBatch = 10000000, file_identifier = "_SAM_Nb_"):
+	def writeSAMcatalog(self, path_2_snapshot, mmin=10**8, NperBatch = 10000000, file_identifier = "_SAM_Nb_"):
 		"""
 		Extracts the positions and mass out of a snapshot of the Multidark simulation.        
 		:param ii: index of the snapshot in the list self.snl
@@ -466,8 +466,8 @@ class MultiDarkSimulation :
 		:param vmax: of the quantity of interest in the snapshots.
 		:param NperBatch: number of line per fits file, default: 1000000
 		 """		
-		fl = fileinput.input(self.snl[ii])
-		nameSnapshot = os.path.basename(self.snl[ii])[:-5]
+		fl = fileinput.input(path_2_snapshot)
+		nameSnapshot = os.path.basename(path_2_snapshot)[:-5]
 		Nb = 0
 		count = 0
 		output = n.zeros((NperBatch,29))
@@ -479,7 +479,7 @@ class MultiDarkSimulation :
 			line = line.split()
 			#print line
 			#print len(line)
-			newline =n.array([int(line[self.columnDict['id']]), float(line[self.columnDict['vmax']]), float(line[self.columnDict['vrms']]), float(line[self.columnDict['rvir']]), float(line[self.columnDict['rs']]), float(line[self.columnDict['pid']]), float(line[self.columnDict['x']]), float(line[self.columnDict['y']]), float(line[self.columnDict['z']]), float(line[self.columnDict['vx']]), float(line[self.columnDict['vy']]), float(line[self.columnDict['vz']]), float(line[self.columnDict['Jx']]), float(line[self.columnDict['Jy']]), float(line[self.columnDict['Jz']]), float(line[self.columnDict['Spin']]), float(line[self.columnDict['Rs_Klypin']]), float(line[self.columnDict['Xoff']]), float(line[self.columnDict['Voff']]), float(line[self.columnDict['Spin_Bullock']]), float(line[self.columnDict['Ax']]), float(line[self.columnDict['Ay']]), float(line[self.columnDict['Az']]), float(line[self.columnDict['b_to_a']]), float(line[self.columnDict['c_to_a']]), n.log10(float(line[self.columnDict['mvir']])), n.log10(float(line[self.columnDict['M200c']])), n.log10(float(line[self.columnDict['M500c']])), n.log10(float(line[self.columnDict['M2500c']])) ])
+			newline =n.array([int(line[self.columnDict['id']]), float(line[self.columnDict['vmax']]), float(line[self.columnDict['vrms']]), float(line[self.columnDict['rvir']]), float(line[self.columnDict['rs']]), int(line[self.columnDict['pid']]), float(line[self.columnDict['x']]), float(line[self.columnDict['y']]), float(line[self.columnDict['z']]), float(line[self.columnDict['vx']]), float(line[self.columnDict['vy']]), float(line[self.columnDict['vz']]), float(line[self.columnDict['Jx']]), float(line[self.columnDict['Jy']]), float(line[self.columnDict['Jz']]), float(line[self.columnDict['Spin']]), float(line[self.columnDict['Rs_Klypin']]), float(line[self.columnDict['Xoff']]), float(line[self.columnDict['Voff']]), float(line[self.columnDict['Spin_Bullock']]), float(line[self.columnDict['Ax']]), float(line[self.columnDict['Ay']]), float(line[self.columnDict['Az']]), float(line[self.columnDict['b_to_a']]), float(line[self.columnDict['c_to_a']]), n.log10(float(line[self.columnDict['mvir']])), n.log10(float(line[self.columnDict['M200c']])), n.log10(float(line[self.columnDict['M500c']])), n.log10(float(line[self.columnDict['M2500c']])) ])
 			#print newline
 			#print newline.shape
 			if float(line[self.columnDict['mvir']])>mmin :
@@ -487,7 +487,7 @@ class MultiDarkSimulation :
 				count+=1
 				
 			if count == NperBatch  :
-				out_filename = os.path.join(os.environ["MD10"],"work_agn",os.path.basename(self.snl[ii])[:-5]+file_identifier+str(Nb)+".fits")
+				out_filename = os.path.join(os.environ["MD10"],"work_agn",os.path.basename(path_2_snapshot)[:-5]+file_identifier+str(Nb)+".fits")
 				print( out_filename )
 				#print "count",count
 				#print output
@@ -500,7 +500,7 @@ class MultiDarkSimulation :
 				,fits.Column(name='vrms',format='D',         array= output.T[2] ) 
 				,fits.Column(name='rvir',format='D',         array= output.T[3] ) 
 				,fits.Column(name='rs',format='D',           array= output.T[4] ) 
-				,fits.Column(name='pid',format='D',          array= output.T[5] ) 
+				,fits.Column(name='pid',format='K',          array= output.T[5] ) 
 				,fits.Column(name='x',format='D',            array= output.T[6] ) 
 				,fits.Column(name='y',format='D',            array= output.T[7] ) 
 				,fits.Column(name='z',format='D',            array= output.T[8] ) 
@@ -535,7 +535,7 @@ class MultiDarkSimulation :
 				prihdu = fits.PrimaryHDU(header=prihdr)
 				#writes the file
 				thdulist = fits.HDUList([prihdu, tb_hdu])
-				out_filename = os.path.join(os.environ["MD10"],"work_agn",os.path.basename(self.snl[ii])[:-5]+file_identifier+str(Nb)+".fits")
+				out_filename = os.path.join(os.environ["MD10"],"work_agn",os.path.basename(path_2_snapshot)[:-5]+file_identifier+str(Nb)+".fits")
 				print( out_filename )
 				os.system("rm "+out_filename)
 				thdulist.writeto(out_filename)
@@ -552,7 +552,7 @@ class MultiDarkSimulation :
 		,fits.Column(name='vrms',format='D',         array= output.T[2] ) 
 		,fits.Column(name='rvir',format='D',         array= output.T[3] ) 
 		,fits.Column(name='rs',format='D',           array= output.T[4] ) 
-		,fits.Column(name='pid',format='D',          array= output.T[5] ) 
+		,fits.Column(name='pid',format='K',          array= output.T[5] ) 
 		,fits.Column(name='x',format='D',            array= output.T[6] ) 
 		,fits.Column(name='y',format='D',            array= output.T[7] ) 
 		,fits.Column(name='z',format='D',            array= output.T[8] ) 
@@ -587,7 +587,7 @@ class MultiDarkSimulation :
 		prihdu = fits.PrimaryHDU(header=prihdr)
 		#writes the file
 		thdulist = fits.HDUList([prihdu, tb_hdu])
-		out_filename = os.path.join(os.environ["MD10"],"work_agn",os.path.basename(self.snl[ii])[:-5]+file_identifier+str(Nb)+".fits")
+		out_filename = os.path.join(os.environ["MD10"],"work_agn",os.path.basename(path_2_snapshot)[:-5]+file_identifier+str(Nb)+".fits")
 		print( out_filename )
 		os.system("rm "+out_filename)
 		thdulist.writeto(out_filename)
@@ -610,7 +610,7 @@ class MultiDarkSimulation :
 				continue
 
 			line = line.split()
-			newline =n.array([int(line[self.columnDict['id']]), float(line[self.columnDict['pid']]), float(line[self.columnDict['x']]), float(line[self.columnDict['y']]), float(line[self.columnDict['z']]), float(line[self.columnDict['vmax']]), n.log10(float(line[self.columnDict['mvir']])) ])
+			newline =n.array([int(line[self.columnDict['id']]), int(line[self.columnDict['pid']]), float(line[self.columnDict['x']]), float(line[self.columnDict['y']]), float(line[self.columnDict['z']]), float(line[self.columnDict['vmax']]), n.log10(float(line[self.columnDict['mvir']])) ])
 			if   float(line[self.columnDict['vmax']])>vmin and float(line[self.columnDict['mvir']])>mmin :
 				output[count] = newline
 				count+=1
@@ -621,8 +621,8 @@ class MultiDarkSimulation :
 				#print output.shape
 				#print output.T[0].shape
 				#define the columns
-				col0 = fits.Column(name='id',format='D', array= output.T[0] )
-				col1 = fits.Column(name='pid',format='D', array= output.T[1] )
+				col0 = fits.Column(name='id',format='K', array= output.T[0] )
+				col1 = fits.Column(name='pid',format='K', array= output.T[1] )
 				col2 = fits.Column(name='x',format='D', array=output.T[2] )
 				col3 = fits.Column(name='y',format='D', array= output.T[3] )
 				col4 = fits.Column(name='z',format='D', array= output.T[4] )
@@ -649,8 +649,8 @@ class MultiDarkSimulation :
 		
 		
 		# and for the last batch :		
-		col0 = fits.Column(name='id',format='D', array= output.T[0][:count] )
-		col1 = fits.Column(name='pid',format='D', array= output.T[1][:count] )
+		col0 = fits.Column(name='id',format='K', array= output.T[0][:count] )
+		col1 = fits.Column(name='pid',format='K', array= output.T[1][:count] )
 		col2 = fits.Column(name='x',format='D', array=output.T[2][:count] )
 		col3 = fits.Column(name='y',format='D', array= output.T[3][:count] )
 		col4 = fits.Column(name='z',format='D', array= output.T[4][:count] )
@@ -689,7 +689,7 @@ class MultiDarkSimulation :
 				continue
 
 			line = line.split()
-			newline =n.array([ float(line[self.columnDict['x']]), float(line[self.columnDict['y']]), float(line[self.columnDict['z']]), float(line[self.columnDict['vmax']]), n.log10(float(line[self.columnDict['M200c']])), float(line[self.columnDict['pid']]) ])
+			newline =n.array([ float(line[self.columnDict['x']]), float(line[self.columnDict['y']]), float(line[self.columnDict['z']]), float(line[self.columnDict['vmax']]), n.log10(float(line[self.columnDict['M200c']])), int(line[self.columnDict['pid']]) ])
 			if newline[3]>vmin and newline[3]<vmax :
 				output[count] = newline
 				count+=1
@@ -705,7 +705,7 @@ class MultiDarkSimulation :
 				col2 = fits.Column(name='z',format='D', array= output.T[2] )
 				col3 = fits.Column(name='vmax',format='D', array= output.T[3] )
 				col4 = fits.Column(name='M200c',format='D', array= output.T[4] )
-				col5 = fits.Column(name='pid',format='D', array= output.T[5] )
+				col5 = fits.Column(name='pid',format='K', array= output.T[5] )
 				#define the table hdu 
 				hdu_cols  = fits.ColDefs([col0, col1, col2, col3, col4, col5])
 				tb_hdu = fits.BinTableHDU.from_columns( hdu_cols )
@@ -729,7 +729,7 @@ class MultiDarkSimulation :
 		col2 = fits.Column(name='z',format='D', array= output.T[2] )
 		col3 = fits.Column(name='vmax',format='D', array= output.T[3] )
 		col4 = fits.Column(name='M200c',format='D', array= output.T[4] )
-		col5 = fits.Column(name='pid',format='D', array= output.T[5] )
+		col5 = fits.Column(name='pid',format='K', array= output.T[5] )
 		#define the table hdu 
 		hdu_cols  = fits.ColDefs([col0, col1, col2, col3, col4, col5])
 		tb_hdu = fits.BinTableHDU.from_columns( hdu_cols )
@@ -762,7 +762,7 @@ class MultiDarkSimulation :
 				continue
 
 			line = line.split()
-			newline =n.array([ float(line[self.columnDict['x']]), float(line[self.columnDict['y']]), float(line[self.columnDict['z']]), float(line[self.columnDict['vmax']]), float(line[self.columnDict['pid']]) ])
+			newline =n.array([ float(line[self.columnDict['x']]), float(line[self.columnDict['y']]), float(line[self.columnDict['z']]), float(line[self.columnDict['vmax']]), int(line[self.columnDict['pid']]) ])
 			if newline[3]>vmin and newline[3]<vmax :
 				output[count] = newline
 				count+=1
@@ -777,7 +777,7 @@ class MultiDarkSimulation :
 				col1 = fits.Column(name='y',format='D', array= output.T[1] )
 				col2 = fits.Column(name='z',format='D', array= output.T[2] )
 				col3 = fits.Column(name='vmax',format='D', array= output.T[3] )
-				col4 = fits.Column(name='pid',format='D', array= output.T[4] )
+				col4 = fits.Column(name='pid',format='K', array= output.T[4] )
 				#define the table hdu 
 				hdu_cols  = fits.ColDefs([col0, col1, col2, col3, col4])
 				tb_hdu = fits.BinTableHDU.from_columns( hdu_cols )
@@ -800,7 +800,7 @@ class MultiDarkSimulation :
 		col1 = fits.Column(name='y',format='D', array= output.T[1][:count])
 		col2 = fits.Column(name='z',format='D', array= output.T[2][:count])
 		col3 = fits.Column(name='vmax',format='D', array= output.T[3][:count])
-		col4 = fits.Column(name='pid',format='D', array= output.T[4][:count])
+		col4 = fits.Column(name='pid',format='K', array= output.T[4][:count])
 		#define the table hdu 
 		hdu_cols  = fits.ColDefs([col0, col1, col2, col3, col4])
 		tb_hdu = fits.BinTableHDU.from_columns( hdu_cols )
@@ -1212,7 +1212,7 @@ class MultiDarkSimulation :
 				continue
 
 			line = line.split()
-			sat_or_cen = float(line[self.columnDict['pid']])
+			sat_or_cen = int(line[self.columnDict['pid']])
 			mv = float(line[self.columnDict['mvir']])
 			point = float(line[index])
 			if sat_or_cen != -1 and mv > Mfactor * self.Melement and point > 10**bins[0] and point < 10**bins[-1] :
@@ -1311,7 +1311,7 @@ class MultiDarkSimulation :
 				continue
 
 			line = line.split()
-			sat_or_cen = float(line[self.columnDict['pid']])
+			sat_or_cen = int(line[self.columnDict['pid']])
 			mv = float(line[self.columnDict['mvir']])
 			if sat_or_cen != -1 and mv > Mfactor * self.Melement :
 				countSat+= 1					
