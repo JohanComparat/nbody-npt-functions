@@ -22,23 +22,28 @@ python MD10-check-small-file-1pt-fun-plots.py
 # outputs in wwwDir/eRoMok/
 
 
-
 # writes in the catalog dir
 #---------------------------
 # add stellar masses according to Moster et al. 2013
 # to be updated to the Moster et al. 2017 model EMERGE
-python $BOX_add_Ms.py	
+python MD10_add_Ms.py	
 python MD10-check-MS-file-1pt-fun.py 
 python MD10-check-MS-file-1pt-fun-plots.py   
+python plot_SMHMR.py
+
 # outputs in $BOX_DIR/work_agn 
 # measures the stellar mass function. 
 # Is now done in the tabulate duty cycle step 
 python measure_SMF.py 
+python plot_SMF.py
+
+#########################################33
+# CHECK OUTPUTS before continuuing
 
 # measure the stellar mass function obtained per snapshot
 # and tabulates the duty cyle as a function of stellar mass
 # forces the snapshot to reproduce the luminosity function from Bongiorno 2016
-python $BOX_tabulate_duty_cycle.py
+python MD10_tabulate_duty_cycle.py
 ### RERUNNING in asingle file 
 
 # outputs in $BOX_DIR/duty_cycle
