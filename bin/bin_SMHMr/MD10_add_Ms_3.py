@@ -58,7 +58,7 @@ def create_catalogs_out(fileList, z):
 # open the output file_type
 summ = fits.open(os.path.join(os.environ["MD10"], 'output_MD_1.0Gpc.fits'))[1].data	
 
-for ii in range(len(summ))[:9]:
+for ii in range(len(summ))[18:27]:
 	print summ[ii]
 	fileList = n.array(glob.glob(os.path.join(os.environ["MD10"], 'work_agn', 'out_'+summ['snap_name'][ii]+'_SAM_Nb_?.fits')))
 	#outFile = fileName[:-5]+"_Ms.fits"
