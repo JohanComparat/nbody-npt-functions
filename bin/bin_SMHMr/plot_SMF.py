@@ -24,10 +24,41 @@ ll_dir = os.path.join(os.environ['GIT_NBODY_NPT'], 'data', 'stellar_mass_functio
 path_ilbert13_SMF = os.path.join(ll_dir, "ilbert_2013_mass_function_params.txt")
 zmin, zmax, N, M_comp, M_star, phi_1s, alpha_1s, phi_2s, alpha_2s, log_rho_s = n.loadtxt(path_ilbert13_SMF, unpack=True)
 
-smf01 = lambda mass : smf_ilbert13( mass , 10**M_star[0], phi_1s[0]*10**(-3), alpha_1s[0], phi_2s[0]*10**(-3), alpha_2s[0] )
-smf08 = lambda mass : smf_ilbert13( mass , 10**M_star[2], phi_1s[2]*10**(-3), alpha_1s[2], phi_2s[2]*10**(-3), alpha_2s[2] )
+smf_ilbert_fun = n.array([
+lambda mass : smf_ilbert13( mass , 10**M_star[0], phi_1s[0]*10**(-3), alpha_1s[0], phi_2s[0]*10**(-3), alpha_2s[0] )
+, lambda mass : smf_ilbert13( mass , 10**M_star[1], phi_1s[1]*10**(-3), alpha_1s[1], phi_2s[1]*10**(-3), alpha_2s[1] )
+, lambda mass : smf_ilbert13( mass , 10**M_star[2], phi_1s[2]*10**(-3), alpha_1s[2], phi_2s[2]*10**(-3), alpha_2s[2] )
+, lambda mass : smf_ilbert13( mass , 10**M_star[3], phi_1s[3]*10**(-3), alpha_1s[3], phi_2s[3]*10**(-3), alpha_2s[3] )
+, lambda mass : smf_ilbert13( mass , 10**M_star[4], phi_1s[4]*10**(-3), alpha_1s[4], phi_2s[4]*10**(-3), alpha_2s[4] )
+, lambda mass : smf_ilbert13( mass , 10**M_star[5], phi_1s[5]*10**(-3), alpha_1s[5], phi_2s[5]*10**(-3), alpha_2s[5] )
+, lambda mass : smf_ilbert13( mass , 10**M_star[6], phi_1s[6]*10**(-3), alpha_1s[6], phi_2s[6]*10**(-3), alpha_2s[6] )
+, lambda mass : smf_ilbert13( mass , 10**M_star[7], phi_1s[7]*10**(-3), alpha_1s[7], phi_2s[7]*10**(-3), alpha_2s[7] )
+])
 
 mbins = n.arange(8,12.5,0.25)
+
+smf_ilbert_zmin = n.array([ 
+0.2
+, 0.5
+, 0.8
+, 1.1
+, 1.5
+, 2.0
+, 2.5
+, 3.0 ])
+
+smf_ilbert_zmax = n.array([ 
+0.5
+, 0.8
+, 1.1
+, 1.5
+, 2.0
+, 2.5
+, 3.0
+, 4.0 ])
+
+smf_ilbert_name = n.array([ "Il13 "+str(zmin)+"<z<"+str(zmax) for zmin, zmax in zip(smf_ilbert_zmin,smf_ilbert_zmax) ])
+
 
 
 import matplotlib.pyplot as p
@@ -52,8 +83,10 @@ def plot_SMF_DC(snap_name, redshift):
 	print "DC",n.min(log_stellar_mass), n.max(log_stellar_mass)
 	dc = interp1d(log_stellar_mass, duty_cycle)
 	p.figure(1, (6,6))
-	p.plot(mbins, n.log10(smf01(10**mbins)), label='Ilbert 13, 0.2<z<0.5', ls='dashed')
-	p.plot(mbins, n.log10(smf08(10**mbins)), label='Ilbert 13, 0.8<z<1.1', ls='dashed')
+	for fun, name in zip(smf_ilbert_fun, smf_ilbert_name):
+		p.plot(mbins, n.log10(fun(10**mbins)), label=name, ls='dashed', lw=0.5)
+	
+	#p.plot(mbins, n.log10(smf08(10**mbins)), label='Ilbert 13, 0.8<z<1.1', ls='dashed')
 	#print(out_SMF_agn)
 	#logMs_low, logMs_up, counts, dN_dVdlogM = n.loadtxt(out_SMF_agn, unpack=True) 
 	#p.plot((logMs_low+ logMs_up)/2., n.log10(dN_dVdlogM), label='MD10 AGN', lw=2)

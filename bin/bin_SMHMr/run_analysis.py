@@ -26,7 +26,7 @@ python MD10-check-small-file-1pt-fun-plots.py
 #---------------------------
 # add stellar masses according to Moster et al. 2013
 # to be updated to the Moster et al. 2017 model EMERGE
-python MD10_add_Ms.py	
+python MD10_add_Ms.py
 python MD10-check-MS-file-1pt-fun.py 
 python MD10-check-MS-file-1pt-fun-plots.py   
 python plot_SMHMR.py
