@@ -51,9 +51,10 @@ N_bcg_per_snap = (volume * dN_dV_bcg(z_snap) ).astype('int')
 #N_bcg_per_snap2 = (volume * dndv_interpolation(z_snap) ).astype('int')
 # first the BCG files
 L_min = n.zeros(len(summ))
-for ii, el in enumerate(summ):
+for ii in n.arange(len(summ))[::-1]:
 	N_cluster = N_bcg_per_snap[ii]
-	print(el, N_cluster)
+	el = summ[ii]
+	print(ii, el, N_cluster)
 	fileList_snap_X = n.array(glob.glob(os.path.join(os.environ["MD10"], 'work_agn', 'out_'+el['snap_name']+'_SAM_Nb_?_Xray.fits')))
 	fileList_snap_X.sort()
 	if N_cluster > 1 :

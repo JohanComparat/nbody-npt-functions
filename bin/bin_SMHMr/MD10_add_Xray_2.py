@@ -153,7 +153,7 @@ def create_catalogs_out(fileList, z, snap_name):
 # open the output file_type
 summ = fits.open(os.path.join(os.environ["MD10"], 'output_MD_1.0Gpc.fits'))[1].data	
 
-for el in summ[18:27]:
+for el in summ[6:10]:
 	print el
 	fileList_snap = n.array(glob.glob(os.path.join(os.environ["MD10"], 'work_agn', 'out_'+el['snap_name']+'_SAM_Nb_?.fits')))
 	fileList_snap.sort()

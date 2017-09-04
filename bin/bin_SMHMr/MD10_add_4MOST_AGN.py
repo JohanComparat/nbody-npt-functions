@@ -35,10 +35,10 @@ z_snap = summ['redshift']
 
 N_agn_per_snap = (volume * dN_dV_agn(z_snap) ).astype('int')
 
-for ii, el in enumerate(summ):
+for ii in n.arange(len(summ)):#[::-1]:
   #ii=4
-  #el=summ[ii]
-  print(N_agn_per_snap[ii])
+  el=summ[ii]
+  print(ii,el,N_agn_per_snap[ii])
   N_agn = N_agn_per_snap[ii]
 
   fileList_snap_MS = n.array(glob.glob(os.path.join(os.environ["MD10"], 'work_agn', 'out_'+el['snap_name']+'_SAM_Nb_?_Ms.fits')))
