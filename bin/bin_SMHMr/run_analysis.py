@@ -31,7 +31,7 @@ python MD10-check-MS-file-1pt-fun.py
 python MD10-check-MS-file-1pt-fun-plots.py   
 python plot_SMHMR.py
 
-# outputs in $BOX_DIR/work_agn 
+
 # measures the stellar mass function. 
 # Is now done in the tabulate duty cycle step 
 python measure_SMF.py 
@@ -49,11 +49,17 @@ python MD10_tabulate_duty_cycle.py
 # outputs in $BOX_DIR/duty_cycle
 
 # add Xray luminosities for AGNs using Bongiorno et al. 2016 and Xray for clusters using Mantz et al. 2016
-python $BOX_add_Xray.py
+python MD10_add_Xray.py
+python MD10_add_Xray_1.py
+python MD10_add_Xray_2.py
+python MD10_add_Xray_3.py
+python MD10_add_Xray_4.py
+python MD10_add_Xray_5.py
+
 # outputs in $BOX_DIR/work_agn 
 
 #selects active AGNS and write the AGN snapshot in the catalog dir
-python $BOX_create_AGN_summary_file.py
+python MD10_create_AGN_summary_file.py
 # outputs in $BOX_DIR/catalogs/
 
 # add 4MOST targets on top

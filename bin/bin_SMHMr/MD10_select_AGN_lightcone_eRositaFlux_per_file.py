@@ -30,7 +30,7 @@ def get_AGN_catalog(env='MD10'):
 		dL_cm = (cosmoMD.luminosity_distance(data[2]).to(u.cm)).value
 		flux = 10**(data[9]-0.3) / (4.* n.pi * dL_cm * dL_cm)
 		print dL_cm, flux
-		agn = (flux > 3e-15 ) & (data[2] < 2.44)
+		agn = (flux > 1e-15 ) & (data[2] < 2.44)
 		print len(agn.nonzero()[0])
 		#data_all = n.vstack((data_all, data.T[agn]))
 		#print data_all.shape
