@@ -51,7 +51,7 @@ N_bcg_per_snap = (volume * dN_dV_bcg(z_snap) ).astype('int')
 #N_bcg_per_snap2 = (volume * dndv_interpolation(z_snap) ).astype('int')
 # first the BCG files
 L_min = n.zeros(len(summ))
-for ii in n.arange(len(summ))[::-1]:
+for ii in n.arange(len(summ)):
 	N_cluster = N_bcg_per_snap[ii]
 	el = summ[ii]
 	print(ii, el, N_cluster)

@@ -83,10 +83,10 @@ def get_slice(cpickle_dump_file, x_observer=0., y_observer=0., z_observer = 0., 
 	return points
 
 
-#points_1 = get_slice(os.path.join(work_dir, 'slice_1_Lbox.pkl'))
-#points_2 = get_slice(os.path.join(work_dir, 'slice_2_Lbox.pkl'), x_shift = L_box, distance_min=L_box, distance_max = 2*L_box)
-#points_3 = get_slice(os.path.join(work_dir, 'slice_3_Lbox.pkl'), x_shift = 2*L_box, distance_min=2*L_box, distance_max = 3*L_box)
-#points_4 = get_slice(os.path.join(work_dir, 'slice_4_Lbox.pkl'), x_shift = 3*L_box, distance_min=3*L_box, distance_max = 4*L_box)
+points_1 = get_slice(os.path.join(work_dir, 'slice_1_Lbox.pkl'))
+points_2 = get_slice(os.path.join(work_dir, 'slice_2_Lbox.pkl'), x_shift = L_box, distance_min=L_box, distance_max = 2*L_box)
+points_3 = get_slice(os.path.join(work_dir, 'slice_3_Lbox.pkl'), x_shift = 2*L_box, distance_min=2*L_box, distance_max = 3*L_box)
+points_4 = get_slice(os.path.join(work_dir, 'slice_4_Lbox.pkl'), x_shift = 3*L_box, distance_min=3*L_box, distance_max = 4*L_box)
 
 points_1 = cPickle.load(open(os.path.join(work_dir, 'slice_1_Lbox.pkl'),'r'))
 points_2 = cPickle.load(open(os.path.join(work_dir, 'slice_2_Lbox.pkl'),'r'))

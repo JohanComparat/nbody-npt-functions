@@ -38,14 +38,11 @@ python measure_SMF.py
 python plot_SMF.py
 
 #########################################33
-# CHECK OUTPUTS before continuuing
 
 # measure the stellar mass function obtained per snapshot
 # and tabulates the duty cyle as a function of stellar mass
 # forces the snapshot to reproduce the luminosity function from Bongiorno 2016
 python MD10_tabulate_duty_cycle.py
-### RERUNNING in asingle file 
-
 # outputs in $BOX_DIR/duty_cycle
 
 # add Xray luminosities for AGNs using Bongiorno et al. 2016 and Xray for clusters using Mantz et al. 2016
