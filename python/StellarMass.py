@@ -9,7 +9,7 @@ The class MultiDark is a wrapper to handle Multidark simulations results / outpu
 """
 from scipy.stats import lognorm
 from scipy.stats import norm
-import cPickle
+#import cPickle
 import fileinput
 import astropy.io.fits as fits
 import astropy.cosmology as co

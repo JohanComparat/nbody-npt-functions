@@ -75,6 +75,9 @@ python plot_HMF.py
 
 python MD10-pie-plot.py
 
+# AFTER LC is created
+python MD10_select_AGN_lightcone_eRositaFlux_per_file.py
+# read and writes here $MD10/light-cone/
 
 # TB UPDATE FROM HERE ON
 # plots and results 

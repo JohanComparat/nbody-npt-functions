@@ -27,8 +27,8 @@ To improve
 """
 from scipy.stats import lognorm
 from scipy.stats import norm
-import cPickle
-import fileinput
+#import cPickle
+#import fileinput
 import astropy.io.fits as fits
 import astropy.cosmology as co
 import astropy.units as u
