@@ -8,8 +8,12 @@ import sys
 # specific functions
 from scipy.stats import norm
 # dedicated packages
-import StellarMass
-sm = StellarMass.StellarMass()
+#import StellarMass
+
+meanSM= lambda Mh, z : n.log10(Mh * 2. * ( 0.0351 - 0.0247 * z/(1.+z)) / ((Mh/ (10**(11.79 + 1.5 * z/(1.+z))) )**(- 0.9 + 0.5  * z/(1.+z)) + ( Mh /(10**(11.79 + 1.5 * z/(1.+z))) )**(0.67 + 0.2 * z/(1.+z)) ) )
+
+fun = lambda mmm : norm.rvs( loc = mmm, scale = 0.15 )
+
 
 def create_catalogs_out(fileList, z):
 	"""
@@ -19,11 +23,11 @@ def create_catalogs_out(fileList, z):
 		t0=time.time()
 		outFile = fileName[:-5]+"_Ms.fits"
 		hd = fits.open(fileName)
-		mean_SM = sm.meanSM(10**hd[1].data['mvir'], z)
+		mean_SM = meanSM(10**hd[1].data['mvir']/0.6777, z)
 		print "mean mgal", mean_SM
-		Mgal_mvir_Mo13 = n.array([norm.rvs( loc = mmm, scale = 0.14 ) for mmm in mean_SM ])-n.log10(0.6777)
-		print "res  mgal", Mgal_mvir_Mo13
-		print "diff mgal - mvir", n.mean(mean_SM-Mgal_mvir_Mo13) 
+		Mgal_mvir_Mo13 = n.array([fun(el) for el in mean_SM]) # n.array(pool.starmap( fun, mean_SM ))
+		#print "res  mgal", Mgal_mvir_Mo13
+		#print "diff mgal - mvir", n.mean(mean_SM-Mgal_mvir_Mo13) 
 		print "mean, std magl - mh",n.mean(mean_SM-Mgal_mvir_Mo13), n.std(mean_SM-Mgal_mvir_Mo13)
 		sel = (hd[1].data['mvir']>0)
 		

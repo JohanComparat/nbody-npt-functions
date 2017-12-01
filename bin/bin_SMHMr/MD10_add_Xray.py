@@ -14,7 +14,6 @@ from scipy.interpolate import interp1d
 # dedicated packages
 import ClusterScalingRelations
 cl = ClusterScalingRelations.ClusterScalingRelations_Mantz2016()
-import StellarMass
 import XrayLuminosity
 xr = XrayLuminosity.XrayLuminosity()
 dV = -9999

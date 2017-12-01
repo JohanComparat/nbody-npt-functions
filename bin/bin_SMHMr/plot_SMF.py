@@ -1,4 +1,4 @@
-import StellarMass
+#import StellarMass
 
 import numpy as n
 from scipy.stats import norm
@@ -72,16 +72,12 @@ def plot_SMF_DC(snap_name, redshift):
 	Plots the stellar mass functions and the corresponding duty cycle.
 	"""
 	# path for the output file
-	out_duty_cycle = os.path.join(os.environ['MD10'],"duty_cycle", snap_name + "_duty_cycle.txt")
+	out_duty_cycle = os.path.join(os.environ['MD10'],"duty_cycle", "out_"+snap_name + "_duty_cycle.txt")
 	# path for stellar mass function
-	out_SMF = os.path.join(os.environ['MD10'],"results", "stellar_mass_function", "data", "out_" + snap_name + "_SMF.txt")
+	out_SMF = os.path.join(os.environ['MD10'],"duty_cycle", "out_" + snap_name + "_SMF.txt")
 	# path to tracer SMFs
-	out_file = lambda tracer_name : os.path.join(os.environ['MD10'],"results", "stellar_mass_function", "data", "out_"+snap_name+"_"+tracer_name+"_SMF.txt")
+	out_file = lambda tracer_name : os.path.join(os.environ['MD10'], "duty_cycle", "out_"+snap_name+"_"+tracer_name+"_SMF.txt")
 
-	# path for duty cycle
-	log_stellar_mass, duty_cycle = n.loadtxt(out_duty_cycle, unpack=True)
-	print "DC",n.min(log_stellar_mass), n.max(log_stellar_mass)
-	dc = interp1d(log_stellar_mass, duty_cycle)
 	p.figure(1, (6,6))
 	for fun, name in zip(smf_ilbert_fun, smf_ilbert_name):
 		p.plot(mbins, n.log10(fun(10**mbins)), label=name, ls='dashed', lw=0.5)
@@ -92,12 +88,17 @@ def plot_SMF_DC(snap_name, redshift):
 	#p.plot((logMs_low+ logMs_up)/2., n.log10(dN_dVdlogM), label='MD10 AGN', lw=2)
 	#print(out_SMF)
 	
+	# galaxies
 	logMs_low, logMs_up, counts, dN_dVdlogM_g = n.loadtxt(out_SMF, unpack=True) 
 	print logMs_low, dN_dVdlogM_g 
-	ok = (dN_dVdlogM_g>0)&(logMs_low>n.min(log_stellar_mass))&(logMs_up<n.max(log_stellar_mass))
+	ok = (counts>2)
 	print "SMF", n.min(logMs_low[ok]), n.max(logMs_up[ok]) 
-	
 	p.plot((logMs_low[ok] + logMs_up[ok])/2., n.log10(dN_dVdlogM_g[ok]), label='MD10 GAL')#, lw=2)
+	
+	# path for duty cycle
+	log_stellar_mass, duty_cycle = n.loadtxt(out_duty_cycle, unpack=True)
+	print "DC",n.min(log_stellar_mass), n.max(log_stellar_mass)
+	dc = interp1d(log_stellar_mass, duty_cycle)
 	p.plot((logMs_low[ok]+ logMs_up[ok])/2., n.log10(dc((logMs_low[ok] + logMs_up[ok])/2.)*dN_dVdlogM_g[ok]), label='MD10 AGN')#, lw=2)
 	
 	#p.plot(mbins, n.array([n.log10(xr.Phi_stellar_mass(logMs_i, redshift)) for logMs_i in mbins]) , label='Bo16', ls='dashed')
@@ -138,7 +139,7 @@ for el in summ:
 	print el
 	plot_SMF_DC(el['snap_name'], el['redshift'])
 
-os.system('cp $MD10/results/stellar_mass_function/images/*.png ~/wwwDir/eRoMok/stellar_mass_function/')
+#os.system('cp $MD10/results/stellar_mass_function/images/*.png ~/wwwDir/eRoMok/stellar_mass_function/')
 
 
 #p.figure(1, (6,6))

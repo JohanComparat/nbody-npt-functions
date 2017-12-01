@@ -1,4 +1,4 @@
-import StellarMass
+#import StellarMass
 import XrayLuminosity
 
 import numpy as n
@@ -34,6 +34,7 @@ def measureSMF(snap_name, env='MD10', volume=1000.**3., out_dir="../"):
 		print fileN
 		hh = fits.open(fileN)
 		mass = hh[1].data['stellar_mass_Mo13_mvir']
+		print mass
 		selection = (mass>0) # (hh[1].data['stellar_mass_reliable'])&(mass>0)
 		Hall[ii], bb = n.histogram(hh[1].data['stellar_mass_Mo13_mvir'], bins=bins)
 	
@@ -70,17 +71,17 @@ def measureSMF_tracer(snap_name, tracer_name, env='MD10', volume=1000.**3., out_
 # open the output file_type
 summ = fits.open(os.path.join(os.environ["MD10"], 'output_MD_1.0Gpc.fits'))[1].data	
 
-out_dir = os.path.join(os.path.join(os.environ['MD10'], "results", "stellar_mass_function", "data"))
+out_dir = os.path.join(os.path.join(os.environ['MD10'], "duty_cycle"))
 
 for el in summ[::-1]:
 	print el
 	measureSMF(snap_name=el["snap_name"], env='MD10', volume=1000.**3., out_dir = out_dir)
-	measureSMF_tracer(snap_name=el["snap_name"], tracer_name="4MOST_S5_BCG", env='MD10', volume=1000.**3., out_dir = out_dir)
-	measureSMF_tracer(snap_name=el["snap_name"], tracer_name="4MOST_S5_GAL", env='MD10', volume=1000.**3., out_dir = out_dir)
-	measureSMF_tracer(snap_name=el["snap_name"], tracer_name="4MOST_S6_AGN", env='MD10', volume=1000.**3., out_dir = out_dir)
-	measureSMF_tracer(snap_name=el["snap_name"], tracer_name="4MOST_S8_BG1", env='MD10', volume=1000.**3., out_dir = out_dir)
-	measureSMF_tracer(snap_name=el["snap_name"], tracer_name="4MOST_S8_BG2", env='MD10', volume=1000.**3., out_dir = out_dir)
-	measureSMF_tracer(snap_name=el["snap_name"], tracer_name="4MOST_S8_ELG", env='MD10', volume=1000.**3., out_dir = out_dir)
-	measureSMF_tracer(snap_name=el["snap_name"], tracer_name="4MOST_S8_QSO", env='MD10', volume=1000.**3., out_dir = out_dir)
+	#measureSMF_tracer(snap_name=el["snap_name"], tracer_name="4MOST_S5_BCG", env='MD10', volume=1000.**3., out_dir = out_dir)
+	#measureSMF_tracer(snap_name=el["snap_name"], tracer_name="4MOST_S5_GAL", env='MD10', volume=1000.**3., out_dir = out_dir)
+	#measureSMF_tracer(snap_name=el["snap_name"], tracer_name="4MOST_S6_AGN", env='MD10', volume=1000.**3., out_dir = out_dir)
+	#measureSMF_tracer(snap_name=el["snap_name"], tracer_name="4MOST_S8_BG1", env='MD10', volume=1000.**3., out_dir = out_dir)
+	#measureSMF_tracer(snap_name=el["snap_name"], tracer_name="4MOST_S8_BG2", env='MD10', volume=1000.**3., out_dir = out_dir)
+	#measureSMF_tracer(snap_name=el["snap_name"], tracer_name="4MOST_S8_ELG", env='MD10', volume=1000.**3., out_dir = out_dir)
+	#measureSMF_tracer(snap_name=el["snap_name"], tracer_name="4MOST_S8_QSO", env='MD10', volume=1000.**3., out_dir = out_dir)
 	
 

@@ -24,14 +24,18 @@ def create_catalog(snap_name, z):
 	#
 	fileList_snap = n.array(glob.glob(os.path.join(os.environ["MD10"], 'work_agn', 'out_'+snap_name+'_SAM_Nb_?.fits')))
 	fileList_ms = n.array(glob.glob(os.path.join(os.environ["MD10"], 'work_agn', 'out_'+snap_name+'_SAM_Nb_?_Ms.fits')))
-	fileList_Xray = n.array(glob.glob(os.path.join(os.environ["MD10"], 'work_agn', 'out_'+snap_name+'_SAM_Nb_?_Xray.fits')))
+	fileList_Xray = n.array(glob.glob(os.path.join(os.environ["MD10"], 'work_agn', 'out_'+snap_name+'_SAM_Nb_?_LSAR.fits')))
+	fileList_DC = n.array(glob.glob(os.path.join(os.environ["MD10"], 'work_agn', 'out_'+snap_name+'_SAM_Nb_?_DC.fits')))
+	
 	fileList_snap.sort()
 	fileList_ms.sort()
 	fileList_Xray.sort()
+	fileList_DC.sort()
 
 	out_snap = os.path.join(os.environ['MD10'], "catalogs", 'out_'+snap_name + "_AGN_snapshot.fits")
 	out_ms = os.path.join(os.environ['MD10'], "catalogs", 'out_'+snap_name + "_AGN_Ms.fits")
-	out_xray = os.path.join(os.environ['MD10'], "catalogs", 'out_'+snap_name + "_AGN_Xray.fits")
+	out_xray = os.path.join(os.environ['MD10'], "catalogs", 'out_'+snap_name + "_AGN_LSAR.fits")
+	#out_dc = os.path.join(os.environ['MD10'], "catalogs", 'out_'+snap_name + "_AGN_DC.fits")
 
 	# loops over files
 	dat_snap = []
@@ -40,25 +44,28 @@ def create_catalog(snap_name, z):
 	LX = []
 	index = n.searchsorted(z_vals, z)
 
-	for fileSnap, fileMs, fileXray in zip(fileList_snap, fileList_ms, fileList_Xray):
+	for fileSnap, fileMs, fileXray, fileDC in zip(fileList_snap, fileList_ms, fileList_Xray, fileList_DC):
 		print fileSnap
 		print fileMs
 		print fileXray
+		print fileDC
+		
 		hd = fits.open(fileSnap)
 		hm = fits.open(fileMs)
 		hx = fits.open(fileXray)
+		hc = fits.open(fileDC)
 		
 		MS = hm[1].data['stellar_mass_Mo13_mvir']
 		SAR = hx[1].data['lambda_sar_Bo16']
-		agn = (hx[1].data['activity'])&(MS>0)
-		lognh = hx[1].data['log_NH_Buchner2017']
+		agn = (hc[1].data['activity']==1)&(MS>0)
+		#lognh = hx[1].data['log_NH_Buchner2017']
 
 		dat_snap.append( hd[1].data[agn])
 		dat_ms.append( hm[1].data[agn])
 		dat_xray.append( hx[1].data[agn])
 		
-		percent_observed = obscuration_interpolation_grid[index]( lognh ) 
-		LX.append( n.log10(10**(MS[agn] + SAR[agn]) * percent_observed[agn]) )
+		#percent_observed = obscuration_interpolation_grid[index]( lognh ) 
+		LX.append( MS[agn] + SAR[agn] )
 
 
 
@@ -93,7 +100,7 @@ def create_catalog(snap_name, z):
 	thdulist.writeto(out_ms)
 
 	hdu_cols  = fits.ColDefs(n.hstack((dat_xray)))
-	hdu_cols.add_col( fits.Column(name='LX_05_2_keV',format='D', array= n.hstack((LX)) ))
+	hdu_cols.add_col( fits.Column(name='LX_2_10_keV',format='D', array= n.hstack((LX)) ))
 	print "xray", n.hstack((dat_xray)).shape
 	tb_hdu = fits.BinTableHDU.from_columns( hdu_cols )
 	#define the header
@@ -113,6 +120,6 @@ def create_catalog(snap_name, z):
 # open the output file_type
 summ = fits.open(os.path.join(os.environ["MD10"], 'output_MD_1.0Gpc.fits'))[1].data	
 
-for el in summ:
+for el in summ[:1]:
 	print el
 	create_catalog(el['snap_name'], el['redshift'])
