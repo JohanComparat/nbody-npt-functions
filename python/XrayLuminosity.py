@@ -117,7 +117,7 @@ class XrayLuminosity() :
 		:param z: redshift
 		:param log_lambda_SAR: log lambda SAR, specific accretion rate
 		"""
-		return psi_log(n.log10(lambda_SAR), n.log10(stellar_mass), redshift)
+		return self.psi_log(n.log10(lambda_SAR), n.log10(stellar_mass), redshift)
 	
 	def Phi_lambda_SAR(self, log_lambda_SAR, redshift):
 		"""

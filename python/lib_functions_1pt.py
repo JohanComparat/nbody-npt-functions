@@ -4,7 +4,7 @@ import sys
 import astropy.io.fits as fits
 import os
 from os.path import join
-import cPickle
+import pickle
 import time
 # numerical modules
 import numpy as n
@@ -67,8 +67,9 @@ sigma = 10**-X
 
 f_T08 = lambda sigma, A, a, b, c : A*( (sigma/b)**(-a) + 1 )*n.e**(-c/sigma**2.)
 f_ST = lambda sigma, A, a, p: A* (2./n.pi)**(0.5) * ( 1 + (sigma**2./(a**delta_c*2.))**(p) )*(delta_c*a**0.5/sigma)*n.e**(-a*delta_c**2./(2.*sigma**2.))
+
 f_BH = lambda sigma, A, a, p, q: A* (2./n.pi)**(0.5) * ( 1 + (sigma**2./(a**delta_c*2.))**(p) )*(delta_c*a**0.5/sigma)**(q)*n.e**(-a*delta_c**2./(2.*sigma**2.))
-b_BH = lambda sigma, a, p, q:  1 + (a*(delta_c/sigma)**2. - q) / delta_c + (2*p/delta_c)/(1 + (a*(delta_c/sigma)**2.))**p
+b_BH = lambda sigma, a, p, q:  1 + (a*(delta_c/sigma)**2. - q) / delta_c + (2*p/delta_c)/(1 + (a*(delta_c/sigma)**2.)**p)
 
 
 """
@@ -318,14 +319,14 @@ def fit_mvir_function_z0(data, x_data, y_data , y_err, p0, 	tolerance = 0.03, co
 	produces a plot of the residuals
 	"""
 	pOpt, pCov=curve_fit(log_fnu_ST, x_data, y_data, p0, y_err, maxfev=500000)#, bounds=boundaries)
-	print "best params=", pOpt
-	print "err=", pCov.diagonal()**0.5
+	print( "best params=", pOpt         )
+	print( "err=", pCov.diagonal()**0.5 )
 		
 	x_model = n.arange(n.min(x_data),n.max(x_data),0.005)
 	y_model = log_fnu_ST(x_model, pOpt[0], pOpt[1], pOpt[2])
 	n.savetxt(join(dir,"mvir-"+cos+"-differential-function-z0-model-pts.txt"),n.transpose([x_model, y_model]) )
 	outfile=open(join(dir,"mvir-"+cos+"-diff-function-z0-params.pkl"), 'w')
-	cPickle.dump([pOpt, pCov], outfile)
+	pickle.dump([pOpt, pCov], outfile)
 	outfile.close()
 			
 	f_diff =  y_data - log_fnu_ST(x_data, pOpt[0], pOpt[1], pOpt[2])
@@ -337,17 +338,17 @@ def fit_mvir_function_z0(data, x_data, y_data , y_err, p0, 	tolerance = 0.03, co
 	f_diff_fun = lambda MDs:  y_data[MDs] - log_fnu_ST(x_data[MDs], pOpt[0], pOpt[1], pOpt[2])
 	f_diffs = n.array([f_diff_fun(MD) for MD in MDsels])
 
-	print "================================"
+	print( "================================"     )
 
 	# now the plots
 	p.figure(0,(6,6))
 	p.axes([0.17,0.17,0.75,0.75])
 	for index, fd in enumerate(f_diffs):
 		inTol = (abs(10**fd-1)<tolerance)
-		print index
+		print( index )
 		if len(fd)>0:
 			p.errorbar(x_data[MDsels[index]], 10**fd, yerr = y_err[MDsels[index]] , rasterized=True, fmt='none', label=MDnames[index])
-			print len(inTol.nonzero()[0]), len(fd), 100.*len(inTol.nonzero()[0])/ len(fd)
+			print( len(inTol.nonzero()[0]), len(fd), 100.*len(inTol.nonzero()[0])/ len(fd)     )
 
 	p.axhline(1.01,c='k',ls='--',label=r'syst $\pm1\%$')
 	p.axhline(0.99,c='k',ls='--')
@@ -416,7 +417,7 @@ def fit_mvir_function_zTrend(data, x_data, y_data, z_data , y_err, ps0=[0., 0., 
 	produces a plot of the residuals
 	"""
 	outfile=open(join(dir,"mvir-"+cos+"-diff-function-z0-params.pkl"), 'r')
-	pOpt, pCov = cPickle.load(outfile)
+	pOpt, pCov = pickle.load(outfile)
 	outfile.close()
 	A0, a0, p0 = pOpt
 	
@@ -433,19 +434,19 @@ def fit_mvir_function_zTrend(data, x_data, y_data, z_data , y_err, ps0=[0., 0., 
 
 	log_f_ST01_zt_ps = lambda logSigma, z, ps : n.log10( f_SMT_z(10.**logSigma, z, ps[0], ps[1], ps[2]) )
 
-	print "mode: minimize"
+	print( "mode: minimize" )
 	chi2fun = lambda ps : n.sum( (log_f_ST01_zt_ps(x_data, z_data, ps) - y_data)**2. / (y_err)**2. )/(len(y_data) - len(ps0))
 	res = minimize(chi2fun, ps0, method='Powell',options={'xtol': 1e-8, 'disp': True, 'maxiter' : 5000000000000})
 	pOpt = res.x
 	pCov = res.direc
-	print "best params=",pOpt
-	print "err=",pCov.diagonal()**0.5 
+	print( "best params=",pOpt           )
+	print( "err=",pCov.diagonal()**0.5   )
 		
 	#x_model = n.arange(n.min(x_data),n.max(x_data),0.005)
 	#y_model = log_f_ST01_zt_ps(x_model, pOpt)
 	#n.savetxt(join(dir,"mvir-"+cos+"-differential-function-zTrend-model-pts.txt"),n.transpose([x_model, y_model]) )
 	outfile=open(join(dir,"mvir-"+cos+"-diff-function-zTrend-params.pkl"), 'w')
-	cPickle.dump([pOpt, pCov], outfile)
+	pickle.dump([pOpt, pCov], outfile)
 	outfile.close()
 			
 	f_diff =  y_data - log_f_ST01_zt_ps(x_data, z_data, pOpt)
@@ -457,17 +458,17 @@ def fit_mvir_function_zTrend(data, x_data, y_data, z_data , y_err, ps0=[0., 0., 
 	f_diff_fun = lambda MDs:  y_data[MDs] - log_f_ST01_zt_ps(x_data[MDs], z_data[MDs], pOpt)
 	f_diffs = n.array([f_diff_fun(MD) for MD in MDsels])
 	
-	print "================================"
+	print("================================"    )
 	
 	# now the plots
 	p.figure(0,(6,6))
 	p.axes([0.17,0.17,0.75,0.75])
 	for index, fd in enumerate(f_diffs):
 		inTol = (abs(10**fd-1)<tolerance)
-		print index
+		print( index )
 		if len(fd)>0:
 			p.errorbar(x_data[MDsels[index]], 10**fd, yerr = y_err[MDsels[index]] , rasterized=True, fmt='none', label=MDnames[index])
-			print len(inTol.nonzero()[0]), len(fd), 100.*len(inTol.nonzero()[0])/ len(fd)
+			print( len(inTol.nonzero()[0]), len(fd), 100.*len(inTol.nonzero()[0])/ len(fd)  )
 
 	p.axhline(1.01,c='k',ls='--',label=r'syst $\pm1\%$')
 	p.axhline(0.99,c='k',ls='--')
@@ -617,26 +618,26 @@ def fit_vmax_function_z0(data, x_data, y_data , y_err, p0, 	tolerance = 0.03, co
 	"""
 	chi2fun = lambda ps : n.sum( (vf_ps(x_data, ps) - y_data)**2. / (y_err)**2. )/(len(y_data) - len(ps))
 	if mode == "curve_fit":
-		print "mode: curve_fit"
+		print("mode: curve_fit" )
 		pOpt, pCov=curve_fit(vf, x_data, y_data, p0, y_err, maxfev=500000000)#, bounds=boundaries)
-		print "best params=",pOpt[0], pOpt[1], pOpt[2], pOpt[3]
-		print "err=",pCov[0][0]**0.5, pCov[1][1]**0.5, pCov[2][2]**0.5, pCov[3][3]**0.5
-		print "Rchi2, ndof, chi2", chi2fun(pOpt), len(x_data)-len(pOpt), chi2fun(pOpt)*( len(x_data)-len(pOpt) ) 
+		print("best params=",pOpt[0], pOpt[1], pOpt[2], pOpt[3]   )
+		print("err=",pCov[0][0]**0.5, pCov[1][1]**0.5, pCov[2][2]**0.5, pCov[3][3]**0.5 )
+		print("Rchi2, ndof, chi2", chi2fun(pOpt), len(x_data)-len(pOpt), chi2fun(pOpt)*( len(x_data)-len(pOpt) ) ) 
 		
 	if mode == "minimize":
-		print "mode: minimize"
+		print("mode: minimize" )
 		res = minimize(chi2fun, p0, method='Powell',options={'xtol': 1e-8, 'disp': True, 'maxiter' : 5000000000000})
 		pOpt = res.x
 		pCov = res.direc
-		print "best params=",pOpt[0], pOpt[1], pOpt[2], pOpt[3]
-		print "err=",pCov[0][0]**0.5, pCov[1][1]**0.5, pCov[2][2]**0.5, pCov[3][3]**0.5
-		print "Rchi2, ndof, chi2", chi2fun(pOpt), len(x_data)-len(pOpt), chi2fun(pOpt)*( len(x_data)-len(pOpt) ) 
+		print("best params=",pOpt[0], pOpt[1], pOpt[2], pOpt[3]       )
+		print("err=",pCov[0][0]**0.5, pCov[1][1]**0.5, pCov[2][2]**0.5, pCov[3][3]**0.5     )
+		print("Rchi2, ndof, chi2", chi2fun(pOpt), len(x_data)-len(pOpt), chi2fun(pOpt)*( len(x_data)-len(pOpt) )        )
 		
 	x_model = n.arange(n.min(x_data),n.max(x_data),0.005)
 	y_model = vf(x_model, pOpt[0], pOpt[1], pOpt[2], pOpt[3])
 	n.savetxt(join(dir,"vmax-"+cos+"-differential-function-z0-model-pts.txt"),n.transpose([x_model, y_model]) )
 	outfile=open(join(dir,"vmax-"+cos+"-diff-function-params-"+suffix+".pkl"), 'w')
-	cPickle.dump([pOpt, pCov], outfile)
+	pickle.dump([pOpt, pCov], outfile)
 	outfile.close()
 			
 	f_diff =  y_data - vf(x_data, pOpt[0], pOpt[1], pOpt[2], pOpt[3])
@@ -648,17 +649,17 @@ def fit_vmax_function_z0(data, x_data, y_data , y_err, p0, 	tolerance = 0.03, co
 	f_diff_fun = lambda MDs:  y_data[MDs] - vf(x_data[MDs], pOpt[0], pOpt[1], pOpt[2], pOpt[3])
 	f_diffs = n.array([f_diff_fun(MD) for MD in MDsels])
 	
-	print "================================"
+	print("================================"  )
 	
 	# now the plots
 	p.figure(0,(6,6))
 	p.axes([0.17,0.17,0.75,0.75])
 	for index, fd in enumerate(f_diffs):
 		inTol = (abs(10**fd-1)<tolerance)
-		print index
+		print(index )
 		if len(fd)>0:
 			p.errorbar(x_data[MDsels[index]], 10**fd, yerr = y_err[MDsels[index]] , rasterized=True, fmt='none', label=MDnames[index])
-			print len(inTol.nonzero()[0]), len(fd), 100.*len(inTol.nonzero()[0])/ len(fd)
+			print(len(inTol.nonzero()[0]), len(fd), 100.*len(inTol.nonzero()[0])/ len(fd))
 
 	p.axhline(1.01,c='k',ls='--',label=r'syst $\pm1\%$')
 	p.axhline(0.99,c='k',ls='--')
@@ -683,8 +684,8 @@ def getStat(file,volume,unitVolume):
 	:param unitVolume: sub volume used in the jackknife
 	:return: Number counts, cumulative number counts, count density, cumulative count density, jackknife mean, jackknife std, cumulative jackknife mean, cumulative jackknife std
 	"""
-	# print file
-	data=cPickle.load(open(file,'r'))
+	# print(file
+	data=pickle.load(open(file,'r'))
 	data_c = n.array([n.array([ n.sum(el[ii:]) for ii in range(len(el)) ]) for el in data])
 	Ncounts = data.sum(axis=0) 
 	Ncounts_c = data_c.sum(axis=0) # n.array([ n.sum(Ncounts[ii:]) for ii in range(len(Ncounts)) ])
@@ -713,10 +714,10 @@ def getStat(file,volume,unitVolume):
 	mean90, std90, mean90_c, std90_c = get_mean_std(0.1)
 	#mean99, std99, mean99_c, std99_c = getMS(0.01)
 	#sel = Nall>1/volume
-	#print std99[sel]/std90[sel]
-	#print mean90[sel]/mean99[sel]
-	#print Nall[sel]/mean99[sel]
-	#print Nall[sel]/mean90[sel]
+	#print(std99[sel]/std90[sel]  )
+	#print(mean90[sel]/mean99[sel])
+	#print(Nall[sel]/mean99[sel]  )
+	#print(Nall[sel]/mean90[sel]  )
 	return Ncounts, Ncounts_c, Nall, Nall_c, mean90, std90, mean90_c, std90_c
 	
 def get_hf(sigma_val=0.8228, boxRedshift=0., delta_wrt='mean'):
@@ -726,7 +727,7 @@ def get_hf(sigma_val=0.8228, boxRedshift=0., delta_wrt='mean'):
 	#hf0 = MassFunction(cosmo_model=cosmo, sigma_8=sigma_val, z=boxRedshift)
 	omega = lambda zz: cosmoMD.Om0*(1+zz)**3. / cosmoMD.efunc(zz)**2
 	DeltaVir_bn98 = lambda zz : (18.*n.pi**2. + 82.*(omega(zz)-1)- 39.*(omega(zz)-1)**2.)/omega(zz)
-	print "DeltaVir", DeltaVir_bn98(boxRedshift), " at z",boxRedshift
+	print("DeltaVir", DeltaVir_bn98(boxRedshift), " at z",boxRedshift      )   
 	hf1 = MassFunction(cosmo_model=cosmoMD, sigma_8=sigma_val, z=boxRedshift, delta_h=DeltaVir_bn98(boxRedshift), delta_wrt=delta_wrt, Mmin=7, Mmax=16.5)
 	return hf1
 
@@ -737,7 +738,7 @@ def get_hf_ds(sigma_val=0.8355, boxRedshift=0., delta_wrt='mean'):
 	#hf0 = MassFunction(cosmo_model=cosmo, sigma_8=sigma_val, z=boxRedshift)
 	omega = lambda zz: cosmoDS.Om0*(1+zz)**3. / cosmoDS.efunc(zz)**2
 	DeltaVir_bn98 = lambda zz : (18.*n.pi**2. + 82.*(omega(zz)-1)- 39.*(omega(zz)-1)**2.)/omega(zz)
-	print "DeltaVir", DeltaVir_bn98(boxRedshift), " at z",boxRedshift
+	print("DeltaVir", DeltaVir_bn98(boxRedshift), " at z",boxRedshift  )
 	hf1 = MassFunction(cosmo_model=cosmoDS, sigma_8=sigma_val, z=boxRedshift, delta_h=DeltaVir_bn98(boxRedshift), delta_wrt=delta_wrt, Mmin=7, Mmax=16.5)
 	return hf1
 
@@ -850,13 +851,13 @@ def convert_pkl_mass(fileC, fileS, binFile, qty='mvir', delta_wrt='mean'):
 	:param binFile: file with the bins
 	:return: a fits table containing the one point function histograms
 	"""
-	#print "qty", qty
+	#print("qty", qty )
 	boxZN = float(os.path.basename(fileC).split('_')[1])
-	#print boxZN
+	#print(boxZN   )
 	extraName =  os.path.basename(fileS)[:-27]
 	hf, boxLength, boxName, boxRedshift, logmp, boxLengthComoving, massCorrection = get_basic_info(fileC, boxZN, delta_wrt='mean')
 	
-	#print boxName
+	#print(boxName )
 	bins = n.log10( 10**n.loadtxt(binFile) * massCorrection )
 	#bins = n.log10( 10**bins_in / hz )
 	#bins = n.loadtxt(binFile)
@@ -865,11 +866,11 @@ def convert_pkl_mass(fileC, fileS, binFile, qty='mvir', delta_wrt='mean'):
 	dX = ( 10**bins[1:]  - 10**bins[:-1] )
 	#dlnbin = dX / mass
 	dlnbin = (bins[1:]  - bins[:-1])*n.log(10)
-	#print dX / mass, dlnbin
+	#print(dX / mass, dlnbin          )
 	#selects meaningful masses 10 times particle mass
 	ok = (logmass > logmp+1.0)&(logmass<16.1)
-	#print "bins", len(bins), bins
-	#print "bins[ok]", len(bins[:-1][ok]), bins[:-1][ok]
+	#print("bins", len(bins), bins
+	#print("bins[ok]", len(bins[:-1][ok]), bins[:-1][ok]
 	hz = cosmoMD.H( boxRedshift ).value / 100.
 	# m sigma relation using the sigma8 corrected power spectrum
 	m2sigma = interp1d(hf.M, hf.sigma )
@@ -884,7 +885,7 @@ def convert_pkl_mass(fileC, fileS, binFile, qty='mvir', delta_wrt='mean'):
 	rhom_units = cosmoMD.Om(boxRedshift)*cosmoMD.critical_density(boxRedshift).to(u.solMass/(u.Mpc)**3.)#/(cosmoMD.h)**2.
 	# in units (Msun/h) / (Mpc/h)**3
 	rhom = rhom_units.value # hf.mean_density#/(hz)**2. 
-	#print hf.mean_density, rhom / (hf.mean_density*(cosmoMD.h)**2.)
+	#print(hf.mean_density, rhom / (hf.mean_density*(cosmoMD.h)**2.)
 	
 	col0 = fits.Column( name="boxName",format="14A", array= n.array([boxName for i in range(len(bins[:-1][ok]))]))
 	col1 = fits.Column( name="redshift",format="D", array= boxRedshift * n.ones( len(bins[:-1][ok]) ) )
@@ -893,13 +894,13 @@ def convert_pkl_mass(fileC, fileS, binFile, qty='mvir', delta_wrt='mean'):
 	col2b = fits.Column( name="boxLengthComoving",format="D", array= boxLengthComoving * n.ones( len(bins[:-1][ok]) ) )
 	col3 = fits.Column( name="logMpart",format="D", array=  logmp* n.ones( len(bins[:-1][ok]) ) )
 	col4 = fits.Column( name="rhom",format="D", array= rhom* n.ones( len(bins[:-1][ok]) ) )
-	#print "bin test", bins[:-1][ok]
+	#print("bin test", bins[:-1][ok]
 	col5_0 = fits.Column( name="log_"+qty+"_min",format="D", array= bins[:-1][ok] )
 	col5_1 = fits.Column( name="log_"+qty+"_max",format="D", array= bins[1:][ok] )
 	col5_2 = fits.Column( name="log_"+qty,format="D", array= logmass[ok])
-	#print "test2", len( logmass[ok]), logmass[ok]
-	#print "columns", col5_0, col5_1, col5_2
-	#print "array", col5_0.array, col5_1.array, col5_2.array
+	#print("test2", len( logmass[ok]), logmass[ok]
+	#print("columns", col5_0, col5_1, col5_2
+	#print("array", col5_0.array, col5_1.array, col5_2.array
 	col5_3 = fits.Column( name="sigmaM",format="D", array= sig[ok] )
 	col5_4 = fits.Column( name="nu2",format="D", array= nnu[ok])#hf.delta_c/sig ) # hf.growth_factor/
 	col5_5 = fits.Column( name="dlnsigmaMdlnM",format="D", array= dlnsigmadlnm[ok] )
@@ -938,7 +939,7 @@ def convert_pkl_mass(fileC, fileS, binFile, qty='mvir', delta_wrt='mean'):
 	thdulist = fits.HDUList([prihdu, tbhdu])
 	
 	writeName = join(os.environ['MVIR_DIR'], "data", boxName+"_"+str(boxRedshift)+"_"+qty+".fits")
-	print writeName
+	print(writeName)
 	if os.path.isfile(writeName):
 		os.remove(writeName)
 	
@@ -954,7 +955,7 @@ def convert_pkl_massFunction_covarianceMatrix(fileC, binFile, qty='mvir', delta_
 	:param binFile: file with the bins
 	:return: a fits table containing the one point function histograms
 	"""
-	print fileC
+	print(fileC)
 	boxZN = float(os.path.basename(fileC).split('_')[1])
 	hf, boxLength, boxName, boxRedshift, logmp, boxLengthComoving, massCorrection = get_basic_info(fileC, boxZN, delta_wrt='mean')
 	bins = n.log10( 10**n.loadtxt(binFile) * massCorrection )
@@ -980,7 +981,7 @@ def convert_pkl_massFunction_covarianceMatrix(fileC, binFile, qty='mvir', delta_
 	unitVolume =  (boxLength *0.10)**3.
 	volume = (boxLength)**3.
 
-	data_i=cPickle.load(open(fileC,'r'))
+	data_i=pickle.load(open(fileC,'r'))
 	Ncounts_i = data_i.sum(axis=0) 
 	ok = (logmass > logmp+3.0)&(logmass<16.1)&(Ncounts_i>10)
 	"""
@@ -990,25 +991,25 @@ def convert_pkl_massFunction_covarianceMatrix(fileC, binFile, qty='mvir', delta_
 		ok = (logmass > logmp+3.0)&(logmass<13.9)&(Ncounts_i>10)
 	"""
 	data = data_i.T[ok].T
-	#print data.shape
+	#print(data.shape
 	Ncounts = data.sum(axis=0) 
-	#print Ncounts.shape
+	#print(Ncounts.shape
 	Nall = Ncounts / volume
-	#print Nall.shape
+	#print(Nall.shape
 	dNdlnM = Nall/dlnbin[ok]
-	#print dNdlnM.shape
+	#print(dNdlnM.shape
 
 	count_matrix = n.outer(Ncounts, Ncounts)/float(data.shape[0])
-	#print count_matrix.shape
+	#print(count_matrix.shape
 	
 	dNdlnM_mat = data/unitVolume/dlnbin[ok]
-	#print dNdlnM_mat.shape
+	#print(dNdlnM_mat.shape
 	
 	f_mean = mass[ok] * dNdlnM / rhom / dlnsigmadlnm[ok]
-	#print f_mean.shape
+	#print(f_mean.shape
 	f_matrix = mass[ok] * dNdlnM_mat / rhom / dlnsigmadlnm[ok]
-	#print f_matrix.shape
-	#print boxName	
+	#print(f_matrix.shape
+	#print(boxName	
 	return [f_mean, f_matrix, count_matrix, sig[ok], mass[ok]], boxName
 
 
@@ -1021,9 +1022,9 @@ def convert_pkl_velocity(fileC, fileS, binFile, qty='vmax'):
 	:param zList_files: list of file with linking snapshot number and redshift
 	:return: a fits table containing the one point function histograms
 	"""
-	print "qty", qty
+	print("qty", qty)
 	boxZN = float(os.path.basename(fileC).split('_')[1])
-	print boxZN
+	print(boxZN )
 	extraName =  os.path.basename(fileS)[:-27]
 	hf, boxLength, boxName, boxRedshift, logmp, boxLengthComoving, massCorrection = get_basic_info(fileC, boxZN, delta_wrt='mean')
 	
@@ -1106,18 +1107,18 @@ def shot_double(s1, s2, volume, binW):
 	return shot_double_raw(s1_max, s2_max, volume)
 	
 def shot_noise_it(sigma, volume): 
-	print "sigma", sigma
+	print("sigma", sigma)
 	if n.log10(sigma_to_m(sigma))>=14:
 		s_min = m_to_sigma(10**(n.log10(sigma_to_m(sigma))-0.025))
 		s_max = m_to_sigma(10**(n.log10(sigma_to_m(sigma))+0.025))
 		sns = n.array([ shot_simple(sigma, volume), shot_simple(s_min, volume), shot_simple(s_max, volume)])
-		print sns
+		print(sns )
 		return n.max(sns)
 	else: 
 		s_min = m_to_sigma(10**(n.log10(sigma_to_m(sigma))-0.125))
 		s_max = m_to_sigma(10**(n.log10(sigma_to_m(sigma))+0.125))
 		sns = n.array([ shot_simple(sigma, volume), shot_simple(s_min, volume), shot_simple(s_max, volume)])
-		print sns
+		print(sns)
 		return n.max(sns)
 		
 shot_noise = lambda sigma, volume: n.array([shot_noise_it(sig, volume) for sig in sigma])
@@ -1146,7 +1147,7 @@ w_th = lambda k, r : 3*(n.sin(k*r) - (k*r) * n.cos(k*r) )/(k*r)**3.
 Lboxes = n.array([400., 1000., 2500., 4000., 8000.]) # Mpc/h
 volumes = Lboxes**3.
 rboxes = (3. * volumes/(4.*n.pi))**(1./3.)
-print "all",rboxes
+print("all",rboxes )
 sigs = []
 for rbox in rboxes:
 	ws_th = w_th(ks, rbox)**2.
@@ -1154,14 +1155,14 @@ for rbox in rboxes:
 	sigs.append(integral(fun))
 
 covariance_factor = n.transpose(sigs)[0]
-print "cf", covariance_factor
+print("cf", covariance_factor )
 
 # computes the moments of the linear pk for 90% of the volume 
 # ---------------------------------------------
 Lboxes = n.array([400., 1000., 2500., 4000., 8000.])
 volumes = Lboxes**3. *0.9
 rboxes = (3. * volumes/(4.*n.pi))**(1./3.)
-print "90%",rboxes
+print("90%",rboxes  )
 
 sigs = []
 for rbox in rboxes:
@@ -1170,12 +1171,12 @@ for rbox in rboxes:
 	sigs.append(integral(fun))
 
 covariance_factor_90 = n.transpose(sigs)[0]
-print "cf", covariance_factor_90
+print("cf", covariance_factor_90   )
 
 Lboxes = n.array([400., 1000., 2500., 4000., 8000.])/10. # Mpc/h
 volumes = Lboxes**3.
 rboxes = (3. * volumes/(4.*n.pi))**(1./3.)
-print "1/1000:",rboxes
+print("1/1000:",rboxes  )
 
 sigs = []
 for rbox in rboxes:
@@ -1184,13 +1185,13 @@ for rbox in rboxes:
 	sigs.append(integral(fun))
 
 covariance_factor_jk = n.transpose(sigs)[0]
-print "cf", covariance_factor_jk 
+print("cf", covariance_factor_jk )
 
 
 Lboxes = n.array([400., 1000., 2500., 4000., 8000.])/10. # Mpc/h
 volumes = Lboxes**3.*27.
 rboxes = (3. * volumes/(4.*n.pi))**(1./3.)
-print "1/1000:",rboxes
+print("1/1000:",rboxes )
 
 sigs = []
 for rbox in rboxes:
@@ -1199,4 +1200,4 @@ for rbox in rboxes:
 	sigs.append(integral(fun))
 
 covariance_factor_jk2 = n.transpose(sigs)[0]
-print "cf", covariance_factor_jk2 
+print("cf", covariance_factor_jk2    )

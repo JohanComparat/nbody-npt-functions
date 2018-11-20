@@ -4,7 +4,14 @@ import astropy.io.fits as fits
 import os
 import sys
 
-import lib_functions_1pt as lib
+#import lib_functions_1pt as lib
+
+delta_c = 1.686
+
+f_BH = lambda sigma, A, a, p, q: A* (2./n.pi)**(0.5) * ( 1 + (sigma**2./(a*delta_c**2.))**(p) )*(delta_c*a**0.5/sigma)**(q)*n.e**(-a*delta_c**2./(2.*sigma**2.))
+
+b_BH = lambda sigma, a, p, q:  1 + (a*(delta_c/sigma)**2. - q) / delta_c + (2*p/delta_c)/(1 + (a*(delta_c/sigma)**2.)**p)
+f_ST = lambda sigma, A, a, p: A* (2./n.pi)**(0.5) * ( 1 + (sigma**2./(a**delta_c*2.))**(p) )*(delta_c*a**0.5/sigma)*n.e**(-a*delta_c**2./(2.*sigma**2.))
 
 import astropy.cosmology as co
 cosmo = co.Planck13
@@ -16,6 +23,21 @@ matplotlib.rcParams['font.size']=14
 import matplotlib.pyplot as p
 
 from scipy.interpolate import interp1d
+
+
+from colossus.cosmology import cosmology
+cosmology.setCosmology('planck15')
+params = {'flat': True, 'H0': 67.77, 'Om0': 0.307115, 'Ob0': 0.048206, 'sigma8': 0.8228, 'ns': 0.9600, 'relspecies': False}
+cosmology.setCosmology('myCosmo', params)
+from colossus.lss import peaks
+delta_c = peaks.collapseOverdensity(corrections = True, z = 0)
+#delta_c = 1.686
+nu = n.arange(0.2, 8.0, 0.01)
+Masses = peaks.massFromPeakHeight(nu, 0.0)
+sigma = ( delta_c / nu)
+
+
+
 #Quantity studied
 qty = "mvir"
 # working directory
@@ -30,6 +52,13 @@ zmin = -0.01
 zmax = 0.001
 
 tolerance = 0.03
+
+
+mSelection = lambda data, qty, logNpmin : (data["log_"+qty]>data["logMpart"]+logNpmin)
+
+zSelection = lambda data, zmin, zmax : (data["redshift"]>zmin)&(data["redshift"]<zmax)
+
+nSelection = lambda data, NminCount, cos : (data['dN_counts_'+cos]>NminCount)
 
 # x coordinates definition
 logsig = -n.log10(data['sigmaM'])#
@@ -50,13 +79,13 @@ log_MF = n.log10( ff )
 log_MF_c = n.log10(  ff_c )
 
 # redshift selection
-zSel = lib.zSelection( data, zmin, zmax )
+zSel = zSelection( data, zmin, zmax )
 # mass selection
-mSel = lib.mSelection(data, qty, logNpmin)
+mSel = mSelection(data, qty, logNpmin)
 mSel2_inter = (data["log_mvir"]<13.2) & (data["redshift"]>0.)
 mSel2 = (mSel2_inter==False)
 # minimum number counts selection
-nSelCen = lib.nSelection(data, NminCount, cos )
+nSelCen = nSelection(data, NminCount, cos )
 # altogether
 ok = (zSel) & (mSel) & (mSel2) & (nSelCen)
 # selection per box :
@@ -76,38 +105,38 @@ ok = (zSel) & (mSel) & (mSel2) & (nSelCen)&(data["boxName"]!='DS_8Gpc')
 # ERROR PLOT: JK vs. POISSON
 x = data["std90_pc_"+cos] 
 y = data["dN_counts_"+cos]**(-0.5)
-#lib.plot_jackknife_poisson_error(x, y, MD04, MD10, MD25, MD25NW, MD40, MD40NW, DS80, cos = cos, dir=join(os.environ['MVIR_DIR']))
+
 
 bias_all = n.array([
-lib.f_BH(lib.hmf.sigma, 0.28074+0.00151, 0.90343+0.00724,  0.64031+0.02639, 1.69561+0.03826), 
-lib.f_BH(lib.hmf.sigma, 0.28074+0.00151, 0.90343+0.00724, 0.64031+0.02639, 1.69561-0.03826), 
-lib.f_BH(lib.hmf.sigma, 0.28074+0.00151, 0.90343-0.00724, 0.64031+0.02639, 1.69561-0.03826), 
-lib.f_BH(lib.hmf.sigma, 0.28074+0.00151, 0.90343-0.00724, 0.64031+0.02639, 1.69561+0.03826), 
-lib.f_BH(lib.hmf.sigma, 0.28074-0.00151, 0.90343-0.00724, 0.64031+0.02639, 1.69561-0.03826), 
-lib.f_BH(lib.hmf.sigma, 0.28074-0.00151, 0.90343-0.00724, 0.64031+0.02639, 1.69561+0.03826), 
-lib.f_BH(lib.hmf.sigma, 0.28074-0.00151, 0.90343+0.00724, 0.64031+0.02639, 1.69561-0.03826),
-lib.f_BH(lib.hmf.sigma, 0.28074-0.00151, 0.90343+0.00724, 0.64031+0.02639, 1.69561+0.03826),
-lib.f_BH(lib.hmf.sigma, 0.28074+0.00151, 0.90343+0.00724,  0.64031-0.02639, 1.69561+0.03826), 
-lib.f_BH(lib.hmf.sigma, 0.28074+0.00151, 0.90343+0.00724, 0.64031-0.02639, 1.69561-0.03826), 
-lib.f_BH(lib.hmf.sigma, 0.28074+0.00151, 0.90343-0.00724, 0.64031-0.02639, 1.69561-0.03826), 
-lib.f_BH(lib.hmf.sigma, 0.28074+0.00151, 0.90343-0.00724, 0.64031-0.02639, 1.69561+0.03826), 
-lib.f_BH(lib.hmf.sigma, 0.28074-0.00151, 0.90343-0.00724, 0.64031-0.02639, 1.69561-0.03826), 
-lib.f_BH(lib.hmf.sigma, 0.28074-0.00151, 0.90343-0.00724, 0.64031-0.02639, 1.69561+0.03826), 
-lib.f_BH(lib.hmf.sigma, 0.28074-0.00151, 0.90343+0.00724, 0.64031-0.02639, 1.69561-0.03826),
-lib.f_BH(lib.hmf.sigma, 0.28074-0.00151, 0.90343+0.00724, 0.64031-0.02639, 1.69561+0.03826)
+f_BH(sigma, 0.3241+0.0004, 0.897+0.006, 0.624+0.025, 1.589+0.03), 
+f_BH(sigma, 0.3241+0.0004, 0.897+0.006, 0.624+0.025, 1.589-0.03), 
+f_BH(sigma, 0.3241+0.0004, 0.897-0.006, 0.624+0.025, 1.589-0.03), 
+f_BH(sigma, 0.3241+0.0004, 0.897-0.006, 0.624+0.025, 1.589+0.03), 
+f_BH(sigma, 0.3241-0.0004, 0.897-0.006, 0.624+0.025, 1.589-0.03), 
+f_BH(sigma, 0.3241-0.0004, 0.897-0.006, 0.624+0.025, 1.589+0.03), 
+f_BH(sigma, 0.3241-0.0004, 0.897+0.006, 0.624+0.025, 1.589-0.03),
+f_BH(sigma, 0.3241-0.0004, 0.897+0.006, 0.624+0.025, 1.589+0.03),
+f_BH(sigma, 0.3241+0.0004, 0.897+0.006, 0.624-0.025, 1.589+0.03), 
+f_BH(sigma, 0.3241+0.0004, 0.897+0.006, 0.624-0.025, 1.589-0.03), 
+f_BH(sigma, 0.3241+0.0004, 0.897-0.006, 0.624-0.025, 1.589-0.03), 
+f_BH(sigma, 0.3241+0.0004, 0.897-0.006, 0.624-0.025, 1.589+0.03), 
+f_BH(sigma, 0.3241-0.0004, 0.897-0.006, 0.624-0.025, 1.589-0.03), 
+f_BH(sigma, 0.3241-0.0004, 0.897-0.006, 0.624-0.025, 1.589+0.03), 
+f_BH(sigma, 0.3241-0.0004, 0.897+0.006, 0.624-0.025, 1.589-0.03),
+f_BH(sigma, 0.3241-0.0004, 0.897+0.006, 0.624-0.025, 1.589+0.03)
 ])
 bi_max = n.log10(n.max(bias_all,axis = 0))
 bi_min = n.log10(n.min(bias_all,axis = 0))
 
 bias_all = n.array([
-lib.f_ST(lib.hmf.sigma, 0.04235+0.00037, 1.70219+0.01035, 0.83118+0.03672), 
-lib.f_ST(lib.hmf.sigma, 0.04235+0.00037, 1.70219+0.01035, 0.83118-0.03672), 
-lib.f_ST(lib.hmf.sigma, 0.04235+0.00037, 1.70219-0.01035, 0.83118-0.03672), 
-lib.f_ST(lib.hmf.sigma, 0.04235+0.00037, 1.70219-0.01035, 0.83118+0.03672), 
-lib.f_ST(lib.hmf.sigma, 0.04235-0.00037, 1.70219-0.01035, 0.83118-0.03672), 
-lib.f_ST(lib.hmf.sigma, 0.04235-0.00037, 1.70219-0.01035, 0.83118+0.03672), 
-lib.f_ST(lib.hmf.sigma, 0.04235-0.00037, 1.70219+0.01035, 0.83118-0.03672),
-lib.f_ST(lib.hmf.sigma, 0.04235-0.00037, 1.70219+0.01035, 0.83118+0.03672)
+f_ST(sigma, 0.04235+0.00037, 1.70219+0.01035, 0.83118+0.03672), 
+f_ST(sigma, 0.04235+0.00037, 1.70219+0.01035, 0.83118-0.03672), 
+f_ST(sigma, 0.04235+0.00037, 1.70219-0.01035, 0.83118-0.03672), 
+f_ST(sigma, 0.04235+0.00037, 1.70219-0.01035, 0.83118+0.03672), 
+f_ST(sigma, 0.04235-0.00037, 1.70219-0.01035, 0.83118-0.03672), 
+f_ST(sigma, 0.04235-0.00037, 1.70219-0.01035, 0.83118+0.03672), 
+f_ST(sigma, 0.04235-0.00037, 1.70219+0.01035, 0.83118-0.03672),
+f_ST(sigma, 0.04235-0.00037, 1.70219+0.01035, 0.83118+0.03672)
 ])
 bi2_max = n.log10(n.max(bias_all,axis = 0))
 bi2_min =n.log10( n.min(bias_all,axis = 0))
@@ -126,15 +155,14 @@ x_data = logsig[ok]
 y_data = log_MF[ok]
 y_data_err = (data["std90_pc_cen"][ok]**2. + data["dN_counts_cen"][ok]**(-1.))**(0.5)
 p.errorbar(x_data, y_data, yerr = y_data_err, rasterized=True, fmt='none', label='distinct halos z=0', lw=1)
-#p.plot(lib.X, n.log10(lib.ftC16), 'k--', label='fit', lw=2)
-p.fill_between(-n.log10(lib.hmf.sigma), y1=bi_min, y2=bi_max, color='k',alpha=0.3)
+p.fill_between(-n.log10(sigma), y1=bi_min, y2=bi_max, color='k',alpha=0.3)
 
 cos = 'sat'
 ff = mvir *  data["dNdlnM_"+cos] / data["rhom"]  / abs(data["dlnsigmaMdlnM"]) 
 ff_c = mvir *  data["dNdlnM_"+cos+"_c"] / data["rhom"]  / abs(data["dlnsigmaMdlnM"]) 
 log_MF = n.log10( ff )
 log_MF_c = n.log10(  ff_c )
-nSelSat = lib.nSelection(data, NminCount, cos )
+nSelSat = nSelection(data, NminCount, cos )
 ok = (zSel) & (mSel)& (mSel2)  & (nSelSat)&(data["boxName"]!='DS_8Gpc')
 print "sat"
 print "N distinct z=0 ",  n.sum(data['dN_counts_sat'][ok])
@@ -144,8 +172,7 @@ y_data = log_MF[ok]
 y_data_err = (data["std90_pc_"+cos][ok]**2. + data["dN_counts_"+cos][ok]**(-1.))**(0.5)
 p.errorbar(x_data, y_data, yerr = y_data_err, rasterized=True, fmt='none', label='satellite subhalos z=0', lw=1)
 sigs = n.arange(-0.5,.6, 0.01)
-#p.plot(lib.X, n.log10(lib.ftC16st_sat), 'k--', lw=2)
-p.fill_between(-n.log10(lib.hmf.sigma), y1=bi2_min, y2=bi2_max, color='k',alpha=0.3, label='model')
+p.fill_between(-n.log10(sigma), y1=bi2_min, y2=bi2_max, color='k',alpha=0.3, label='model')
 
 p.xlabel(r'$\log_{10}(\sigma^{-1})$')
 p.ylabel(r'$\log_{10}\left[ \frac{M}{\rho_m} \frac{dn}{d\ln M} \left|\frac{d\ln M }{d\ln \sigma}\right|\right] $') 
@@ -175,8 +202,8 @@ cos = 'cen'
 #=======================
 #=======================
 
-x_model = -n.log10(lib.hmf.sigma)
-y_model = lib.f_BH(lib.hmf.sigma, 0.28074, 0.90343, 0.64031, 1.695616)
+x_model = -n.log10(sigma)
+y_model = f_BH(sigma, 0.3241, 0.897, 0.624, 1.589)
 model_interpol = interp1d(x_model, y_model)
 y_model_min = 10**bi_min
 y_model_max = 10**bi_max
@@ -188,11 +215,11 @@ log_MF = n.log10( ff )
 log_MF_c = n.log10(  ff_c )
 
 # redshift selection
-zSel = lib.zSelection( data, zmin, zmax )
+zSel = zSelection( data, zmin, zmax )
 # mass selection
-mSel = lib.mSelection(data, qty, logNpmin)
+mSel = mSelection(data, qty, logNpmin)
 # minimum number counts selection
-nSelCen = lib.nSelection(data, NminCount, cos )
+nSelCen = nSelection(data, NminCount, cos )
 # altogether
 ok = (zSel) & (mSel) & (mSel2) & (nSelCen)
 # selection per box :
@@ -246,8 +273,8 @@ cos = 'sat'
 #=======================
 #=======================
 
-x_model = -n.log10(lib.hmf.sigma)
-y_model = lib.f_ST(lib.hmf.sigma, 0.04235, 1.70219, 0.83118) 
+x_model = -n.log10(sigma)
+y_model = f_ST(sigma, 0.04235, 1.70219, 0.83118) 
 model_interpol = interp1d(x_model, y_model)
 y_model_min = 10**bi2_min
 y_model_max = 10**bi2_max
@@ -259,11 +286,11 @@ log_MF = n.log10( ff )
 log_MF_c = n.log10(  ff_c )
 
 # redshift selection
-zSel = lib.zSelection( data, zmin, zmax )
+zSel = zSelection( data, zmin, zmax )
 # mass selection
-mSel = lib.mSelection(data, qty, logNpmin)
+mSel = mSelection(data, qty, logNpmin)
 # minimum number counts selection
-nSelCen = lib.nSelection(data, NminCount, cos )
+nSelCen = nSelection(data, NminCount, cos )
 # altogether
 ok = (zSel) & (mSel) & (mSel2) & (nSelCen)
 # selection per box :
@@ -309,54 +336,4 @@ p.savefig(join(dir,"fit-"+cos+"-differential-function-residual-log.png"))
 p.clf()
 
 print "SUB mean and std of the residuals", n.mean(n.hstack((f_diffs)) - 1.), n.std(n.hstack((f_diffs)) - 1.)
-
-
-sys.exit()
-
-
-x_data = logsig[ok]
-y_data = log_MF[ok]
-y_data_err = (data["std90_pc_"+cos][ok]**2. + data["dN_counts_"+cos][ok]**(-1.))**(0.5)
-p.errorbar(x_data, y_data, yerr = y_data_err, rasterized=True, fmt='none', label='satellite subhalos z=0', lw=1)
-sigs = n.arange(-0.5,.6, 0.01)
-#p.plot(lib.X, n.log10(lib.ftC16st_sat), 'k--', lw=2)
-p.fill_between(-n.log10(lib.hmf.sigma), y1=bi2_min, y2=bi2_max, color='k',alpha=0.3, label='model')
-
-p.xlabel(r'$\log_{10}(\sigma^{-1})$')
-p.ylabel(r'$\log_{10}\left[ \frac{M}{\rho_m} \frac{dn}{d\ln M} \left|\frac{d\ln M }{d\ln \sigma}\right|\right] $') 
- # log$_{10}[ n(>M)]')
-gl = p.legend(loc=0, fontsize=12)
-gl.set_frame_on(False)
-p.ylim((-3., -0.4))
-p.xlim((-0.5, 0.5))
-p.grid()
-p.savefig(join(os.environ['MVIR_DIR'],"mvir-AL-z0-differential-function-data-xSigma.png"))
-p.clf()
-
-sys.exit()
-#=======================
-#=======================
-cos = 'sat'
-#=======================
-#=======================
-# y coordinates
-ff = mvir *  data["dNdlnM_"+cos] / data["rhom"]  / abs(data["dlnsigmaMdlnM"]) 
-ff_c = mvir *  data["dNdlnM_"+cos+"_c"] / data["rhom"]  / abs(data["dlnsigmaMdlnM"]) 
-log_MF = n.log10( ff )
-log_MF_c = n.log10(  ff_c )
-
-# minimum number counts selection
-nSelSat = lib.nSelection(data, NminCount, cos )
-# altogether
-ok = (zSel) & (mSel)& (mSel2)  & (nSelSat)
-
-# NOW PLOTTING ALL THE DATA
-lib.plot_mvir_function_data(log_mvir[ok], logsig[ok], lognu[ok], log_MF[ok], log_MF_c[ok], data['redshift'][ok], zmin, zmax, cos = cos)
-
-lib.plot_mvir_function_data_perBox(log_mvir, log_MF, MD04, MD10, MD25, MD25NW, MD40, MD40NW, cos=cos)
-
-# ERROR PLOT: JK vs. POISSON
-x = data["std90_pc_"+cos] 
-y = data["dN_counts_"+cos]**(-0.5)
-lib.plot_jackknife_poisson_error(x, y, MD04, MD10, MD25, MD25NW, MD40, MD40NW, DS80, cos = cos, dir=join(os.environ['MVIR_DIR']))
 
